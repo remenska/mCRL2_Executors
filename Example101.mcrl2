@@ -1,0 +1,25 @@
+
+sort Data = struct OK | ERROR;
+act action1,action2,action3;
+act action4:Data;
+	
+proc method1 = action1.sum returnVal:Data.method4(returnVal).
+((returnVal==OK) -> 
+method2 
+<>
+method3
+)
+;
+
+
+proc method2 = action2;
+proc method3 = action3;
+
+proc method4(arg:Data) = action4(arg);
+
+proc P1 = method1;
+proc P2 = method1;
+proc P3 = method1;
+
+init P1 || P2 || P3;  
+

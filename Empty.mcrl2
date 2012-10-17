@@ -1,0 +1,68 @@
+%------------------------------------
+
+
+sort Method = 	      struct method1 |  % for passing arguments in the call, so only for method_*_begin
+			    method1' |  % for the return value, so only for method_*_end
+			     method2 |
+			  method2'(returnVal:Bool) |
+			     method3 |
+			    method3' |
+			     method4 |
+			    method4' |
+			     method5 |
+			    method5' | 
+			     method6 |
+			     method6' |
+			 innerMethod |
+			appendToList ;
+%---------ACTIONS---------------------------------
+
+act method_call_begin,method_var_begin:Method;
+act method_call_end,method_var_end:Method;
+act method_begin:Method;
+act method_end:Method;
+act internal;
+proc a = 
+method_begin(innerMethod). 
+  method_call_begin(method1).
+    method_call_end(method1').
+method_call_end(innerMethod);
+
+%sum ids:List(Nat).RPAgent_call(getCacheReplicas(ids,New)).
+
+proc b(cond1:Bool,cond2:Bool) = 
+   method_var_begin(method1).
+    method_call_begin(method2).sum cond1:Bool.method_call_end(method2'(cond1)). %sum needed here to get the value of result
+    (cond1->
+     method_begin(method3).method_end(method3')
+     <>
+     method_begin(method4).method_end(method4')
+    ).
+    (cond2-> method_var_end(method1')<> (  % how do I terminate HERE, not continue in case cond2 is true, and NOT use ELSE?!
+				      method_call_begin(method6).method_call_end(method6')
+				     )
+	   .method_var_end(method1')
+    ). %
+  method_var_end(innerMethod); 
+
+proc c(list:List(Int)) = 
+    (method_var_begin(method2).method_var_end(method2'(true))
+    + 
+    method_var_begin(method6). % here add a reference of the process d to the list?
+    method_var_end(method6')
+    ).c(list);
+
+
+init hide ({internal},
+ allow({internal,method_begin,method_end
+},
+comm({
+method_call_begin|method_var_begin->
+method_begin,
+method_call_end|method_var_end->
+method_end
+}, 
+				  a ||
+				  b(false,true) ||
+				   c([])
+)));

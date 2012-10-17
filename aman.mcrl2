@@ -1,0 +1,80 @@
+% comment
+sort Data = struct OK | ERROR;
+act action1,action2,action3;
+act action4,action5:Data;
+act getData_var,getData_call,getData:Method;
+
+sort Method = struct getData(data:Data,pos:Nat) |
+		  otherMethod 
+;
+
+% cacheReplicas-to-ids mapping: 
+% given a list of CacheReplicas, and a CacheReplica value as a selector, get the positions of the list matching the value
+% example selectCRIDs([one,two,two,three],two)->[1,2] 
+%---------------------------------------------
+map selectByID:List(Data)#Nat->Data;
+% map selectByID':List(Data)#Pos#Nat->Data;
+
+var 
+	list:List(Data);
+	pos:Nat;
+% 	n:Nat;
+% 	a:CacheReplicas;
+% 	l:List(CacheReplicas);
+eqn
+	selectByID(list,pos) = list.pos;
+% 	selectCRIDs'([],s,n) = [];
+% 	a == s -> selectCRIDs'(a|>l,s,n) = n|>selectCRIDs'(l,s,n+1);
+% 	a != s -> selectCRIDs'(a|>l,s,n) = selectCRIDs'(l,s,n+1);
+
+
+proc method1 = action1.sum result:Data.method4(result).
+((result==OK) ->
+method2 
+<>
+method3
+)
+;
+
+proc SharedStorage(d:List(Data)) = 
+sum pos:Nat. getData_var(getData(selectByID(d,pos),pos));
+% 
+% sum selector:CacheReplicas. RPAgent_var(getCacheReplicas(selectCRIDs(d,selector),selector)).
+% 					CacheReplicasproc(d) + 
+
+
+
+proc method2 = action2;
+proc method3 = action3;
+
+proc method4(arg:Data) =
+%  action4(arg);
+	sum arg:Data.getData_call(getData(arg,1));
+% 
+% 	 sum ids:List(Nat).RPAgent_call(getCacheReplicas(ids,New)).
+
+
+proc P1 = method1.P1;
+proc P2 = method1.P2;
+proc P3 = method1.P3;
+proc P4 = method1.P4;
+proc P5 = method1.P5;
+proc P6 = method1.P6;
+
+init 
+ block({getData_call,getData_var
+},
+comm({
+getData_var|getData_call->
+getData
+}, 
+P1 || P2 || P3 || P4 || P5 || P6
+));
+
+
+
+%I see no theoretical objections to your modelling approach (it's a nice approach), but the drawback is that indeed, processes cannot pass on their 'return' values. It kind of depends on the granularity of the methods, but if that is, say 1, I could imagine that if you know the type of returns, you could solve it as follows:
+
+% proc P1(r:Results) = sum r':Results. method1(r').method2(r')
+% 
+% Clearly, this fails if method1 contains more than 1 action sequentially, but if it is just a single action, it works (to illustrate why it would fail: it's the lion-princess thingy all over agian... sum b:Bool. action1. action2(b) .method2(b) determines the value b before action2 actually fixes it, creating potential deadlocks after action1).

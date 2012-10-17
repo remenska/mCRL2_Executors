@@ -1,0 +1,127 @@
+% For now assume there is a bijection between process names and process types
+% Can be refined later
+sort Process = struct A | B | C | D;
+
+% For now assume methods without parameters
+% Must be refined
+
+sort Method = struct
+       innerMethod | method1 | method2 | method3 
+     | method4 | method5 | method6 | result | getid | append | create;
+
+act 
+  send_to_buf: Process # Process # Method;
+  receive_from_buf: Process # Process # Method;
+  receive_from_process : Process # Process # Method;
+  send_to_process : Process # Process # Method;
+  to_buff,from_buff : Process # Process #Method;
+
+
+proc a(id:Process, i:Nat)
+=
+sum next:Nat. 
+(
+(i == 1 && next in [2]) -> send_to_buf(A,A,innerMethod). a(i = next)
++
+(i == 2 && next in [3]) -> receive_from_buf(A,A,innerMethod). a(i = next)
++
+(i == 3 && next in [4,5]) -> send_to_buf(A,B,method1). a(i = next)
++
+(i == 4 && next in [5,6]) -> receive_from_buf(B,A,result). a(i = next)
++
+(i == 5 && next in [6]) -> receive_from_buf(B,A,result). a(i = next)
++
+(i == 6) -> a_anotherscenario(id,1)
+)
+;
+
+proc a_anotherscenario(id:Process, i:Nat)
+= delta;
+
+proc b(id:Process, i:Nat)
+=
+sum next:Nat. 
+(
+(i == 1 && next in [2]) -> receive_from_buf(A,B,method1). b(i = next)
++
+(i == 2 && next in [3]) -> send_to_buf(B,C,method2). b(i = next)
++
+(i == 3 && next in [4,6]) -> receive_from_buf(C,B,result). b(i = next)
++
+(i == 4 && next in [5]) -> send_to_buf(B,B,method3). b(i = next)
++
+(i == 5 && next in [10]) -> receive_from_buf(B,B,method3). b(i = next)
++
+(i == 6 && next in [7]) -> send_to_buf(B,B,method5). b(i = next)
++
+(i == 7 && next in [8]) -> receive_from_buf(B,B,method5). b(i = next)
++
+(i == 8 && next in [9]) -> send_to_buf(B,C,getid). b(i = next)
++
+(i == 9 && next in [6,10]) -> receive_from_buf(C,B,result). b(i = next)
++
+(i == 10 && next in [11]) -> send_to_buf(B,A,result). b(i = next)
++
+(i == 11 && next in [12]) -> send_to_buf(B,C,method6). b(i = next)
++
+(i == 12 && next in [13]) -> receive_from_buf(C,B,result). b(i = next)
++
+(i == 13 && next in [14]) -> send_to_buf(B,A,result). b(i = next)
+)
+;
+
+proc c(id:Process, i:Nat)
+=
+sum next:Nat.
+(
+(i == 1 && next in [2]) -> receive_from_buf(B,C,method2). c(i = next)
++
+(i == 2 && next in [3,5]) -> send_to_buf(C,B,result). c(i = next)
++
+(i == 3 && next in [4]) -> receive_from_buf(B,C,getid). c(i = next)
++
+(i == 4 && next in [3,5]) -> send_to_buf(C,B,result). c(i = next)
++
+(i == 5 && next in [6]) -> send_to_buf(C,D,create). c(i = next)
++
+(i == 6 && next in [7]) -> receive_from_buf(D,C,result). c(i = next)
++
+(i == 7 && next in [8]) -> send_to_buf(C,C,append). c(i = next)
++
+(i == 8 && next in [9]) -> receive_from_buf(C,C,append). c(i = next)
++
+(i == 9 && next in [10]) -> send_to_buf(C,B,result). c(i = next)
+)
+;
+
+proc d(id:Process, i:Nat)
+=
+sum next:Nat.
+(
+(i == 1 && next in [2]) -> receive_from_buf(C,D,create). d(i = next)
++
+(i == 2 && next in [3]) -> send_to_buf(D,C,result). d(i = next)
+)
+;
+
+proc Buffer (recv,snd:Process)
+=
+sum m:Method.
+receive_from_process (recv,snd,m). send_to_process (recv,snd,m). Buffer(recv,snd)
+;
+
+
+init
+allow({to_buff,from_buff},
+comm({
+      send_to_buf|receive_from_process -> to_buff, 
+      send_to_process|receive_from_buf -> from_buff
+      }, a(A,1) || b(B,1) || c(C,1) || d(D,1) 
+      || Buffer (A,A) || Buffer (B,B) || Buffer (C,C) || Buffer (D,D)
+      || Buffer (A,B) || Buffer (B,A)
+      || Buffer (B,C) || Buffer (C,B)
+      || Buffer (C,D) || Buffer (D,C)
+)
+)
+;
+
