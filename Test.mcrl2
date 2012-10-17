@@ -15,23 +15,28 @@ map __execTypes_inc: __execTypes # eType -> __execTypes;
     __execTypes_eTypes:__execTypes -> List(eType);
 var a: __execTypes;
     eType: eType;
+    list:List(eType);
+    el:eType;
 eqn __execTypes_inc(a, eType) = a[eType -> succ(__execTypes_get(a,eType))];
     __execTypes_dec(a, eType) = if(__execTypes_get(a,eType)>0,
 				      a[eType -> pred(__execTypes_get(a,eType))],
 					    a[eType -> __execTypes_get(a,eType)]);
     __execTypes_get(a, eType) = a(eType);
     __execTypes_reset(a, eType) = a[eType->0];
-    
+%     __execTypes_eTypes(a(el)) = if(__execTypes_get(a,el)>0,el |> __execTypes_eTypes(a),__execTypes(a));
+    __execTypes_eTypes(a[el->0]) = [];
+    __execTypes_get(a,el)>0 -> __execTypes_eTypes(a) = el|> __execTypes_eTypes(a);
 
 map __execTypes_init: __execTypes;
 var eType:eType;
 eqn __execTypes_init(eType) = 0;
 %     initialTypes(Two) = 0;
 % var initTypes:__execTypes;
+
+% map f: Nat # Nat # Pos -> Bool;
+% eqn f = lambda x,y: Nat, p: Pos . x + y == p
     
 % =================
-
-% sort __execTypes = struct List(eType)
 
 % =================
 sort __tasks = Nat -> TaskObject;
@@ -57,7 +62,9 @@ var taskObj1:TaskObject;
 act action2:TaskObject;
 act internal;
 act action1:Int;
+act actionGet:List(eType);
 proc P(ex:__execTypes,initTasks:__tasks) = 
+actionGet(__execTypes_eTypes(ex)).
 action1(ex(Two)).action1(__execTypes_get(__execTypes_inc(ex,One),One)).action2(initTasks(1)).
 action1(__execTypes_get(__execTypes_reset(ex,Two),Two)).
 action2(get(pop(initTasks,1),1)).
