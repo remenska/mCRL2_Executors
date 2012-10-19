@@ -1,0 +1,257 @@
+% ==================DATA 
+sort eType = struct One | Two | Three | Four;
+
+sort TaskObject = struct taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType) | None;
+
+sort __execTypes1 = struct __execTypes1(etype:eType,counter:Int);
+sort None = struct none;
+
+%-----------------
+sort __execTypes = List(__execTypes1);
+
+% example: __execTypes_get([__execTypes1(One,2),__execTypes1(Two,6)], Two) -> 6
+map __execTypes_get:__execTypes # eType -> Int;
+% example: __execTypes_init([One,Two]) -> [__execTypes1(One,0),__execTypes1(Two,0)]
+map __execTypes_init:List(eType) -> __execTypes;
+% example:__execTypes_inc([__execTypes1(One,3),__execTypes1(Two,6)],Two) -> [__execTypes1(One,3),__execTypes1(Two,7)]
+map __execTypes_inc:__execTypes # eType -> __execTypes;
+% example:__execTypes_add([__execTypes1(One,2),__execTypes1(Two,4)],Three) -> [__execTypes1(One,2),__execTypes1(Two,4),__execTypes1(Three,0)] 
+map __execTypes_add:__execTypes # eType -> __execTypes;
+% example:__execTypes_get([__execTypes1(One,2),__execTypes1(Three,2)]) -> [One,Three]
+map __execTypes_get_eTypes:__execTypes -> List(eType);
+
+map __execTypes_remove:__execTypes # eType -> __execTypes;
+
+var a,list_exectypes:__execTypes;
+    et:eType;
+    n:Nat;
+    list_et,let:List(eType);
+    ext:__execTypes1;
+
+eqn 
+    __execTypes_get([],et) = -1; % <--- NOW IT RETURNS -1 IF IT DOESNT FIND ELEMENT; SHOULD RETURN KEYERROR
+    etype(ext)==et -> __execTypes_get(ext|>list_exectypes,et) = counter(ext);
+    !(etype(ext)==et) -> __execTypes_get(ext|>list_exectypes,et) = __execTypes_get(list_exectypes,et);
+
+    __execTypes_init([]) = [];
+    __execTypes_init(et|>let) = __execTypes1(et,0)|>__execTypes_init(let);
+
+    __execTypes_inc([],et) = [];
+    etype(ext)==et -> __execTypes_inc(ext|>list_exectypes,et) = __execTypes1(etype(ext),succ(counter(ext)))|>__execTypes_inc(list_exectypes,et);
+    !(etype(ext)==et) -> __execTypes_inc(ext|>list_exectypes,et) = ext|>__execTypes_inc(list_exectypes,et);
+
+    __execTypes_add(a,et) = a<|__execTypes1(et,0);
+
+    __execTypes_get_eTypes([]) = [];
+    __execTypes_get_eTypes(ext|>list_exectypes) = etype(ext)|> __execTypes_get_eTypes(list_exectypes);
+
+    __execTypes_remove([],et) = [];
+    etype(ext)==et -> __execTypes_remove(ext|>list_exectypes,et) = __execTypes_remove(list_exectypes,et);
+    !(etype(ext)==et) -> __execTypes_remove(ext|>list_exectypes,et) = ext|>__execTypes_remove(list_exectypes,et);
+
+%-----------------
+
+sort __tasks1 = struct __tasks1(taskid:Nat,taskobj:TaskObject);
+sort __tasks = List(__tasks1);
+
+
+map __tasks_get:__tasks # Nat -> TaskObject;
+    __tasks_add:__tasks # TaskObject -> __tasks;
+    __tasks_keys:__tasks -> List(Nat);
+    __tasks_update:__tasks # Nat # TaskObject -> __tasks;
+    __tasks_pop: __tasks # Nat -> __tasks;
+
+var a,list_tasks:__tasks;
+    n,taskid,tid:Nat;
+    el_task:__tasks1;
+    tob:TaskObject;
+eqn 
+    __tasks_get([],tid) = None;
+    taskid(el_task)==tid -> __tasks_get(el_task|>list_tasks,tid) = taskobj(el_task);
+    !(taskid(el_task)==tid) -> __tasks_get(el_task|>list_tasks,tid) = __tasks_get(list_tasks,tid);
+
+    __tasks_add(a,tob) = a<|__tasks1(taskID(tob),tob);
+    
+    __tasks_keys([]) = [];
+    __tasks_keys(el_task|>list_tasks) = taskid(el_task) |> __tasks_keys(list_tasks);
+
+    __tasks_update([],tid,tob) = [];
+    taskid(el_task)==tid -> __tasks_update(el_task|>list_tasks,tid,tob) = __tasks1(tid,tob)|>__tasks_update(list_tasks,tid,tob);
+    !(taskid(el_task)==tid) -> __tasks_update(el_task|>list_tasks,tid,tob) = el_task|>__tasks_update(list_tasks,tid,tob);
+
+    __tasks_pop([],tid) = [];
+    taskid(el_task)==tid -> __tasks_pop(el_task|>list_tasks,tid) = __tasks_pop(list_tasks,tid);
+    !(taskid(el_task)==tid) -> __tasks_pop(el_task|>list_tasks,tid) = el_task|>__tasks_pop(list_tasks,tid);
+
+%-----------------
+sort __taskFreezer = List(Nat);
+map __taskFreezer_append:__taskFreezer # Nat -> __taskFreezer;
+    __taskFreezer_index:__taskFreezer # Nat -> Int;
+    __taskFreezer_index':__taskFreezer # Nat # Nat -> Int;
+    __taskFreezer_pop:__taskFreezer # Nat -> __taskFreezer;
+    __taskFreezer_pop':__taskFreezer # Nat # Nat -> __taskFreezer;
+
+var tf:__taskFreezer;
+    tid:Nat;
+    el,n:Nat;
+
+eqn
+    __taskFreezer_append(tf,tid) = tf<|tid;
+
+    __taskFreezer_index(tf,tid) = __taskFreezer_index'(tf,tid,0);
+    __taskFreezer_index'([],tid,n) = -1;
+    tf.n==tid -> __taskFreezer_index'(tf,tid, n) = n;
+    tf.n!=tid -> __taskFreezer_index'(tf,tid,n) = __taskFreezer_index'(tf,tid,n+1);
+
+    __taskFreezer_pop(tf,tid) = __taskFreezer_pop'(tf,tid,0);   
+    __taskFreezer_pop'([],tid,n) = [];
+    n==tid -> __taskFreezer_pop'(el|>tf,tid,n) = __taskFreezer_pop'(tf,tid,n+1);
+    !(n==tid) -> __taskFreezer_pop'(el|>tf,tid,n)  = el |>__taskFreezer_pop'(tf,tid,n+1);
+
+%-----------------
+sort __typeToId1 = struct __typeToId1(etype:eType,eids:List(Nat));
+sort __typeToId = List(__typeToId1);
+
+%self.__typeToId[ eType ].add( eId )
+map __typeToId_addeType:__typeToId # eType -> __typeToId;
+    __typeToId_addeid: __typeToId # eType # Nat -> __typeToId;
+    __typeToId_remove:__typeToId # eType # Nat -> __typeToId;
+    __typeToId_removeHelper:List(Nat) # Nat -> List(Nat);
+    __typeToId_keys: __typeToId -> List(eType);
+    __typeToId_eids: __typeToId # eType -> List(Nat);
+
+var
+    ttid:__typeToId;
+    ttid_el:__typeToId1;
+    etype:eType;
+    listTypes:List(eType);
+    n,eid,el:Nat;
+    list:List(Nat);
+
+eqn
+    __typeToId_addeType(ttid,etype) = __typeToId1(etype,[])|>ttid;
+
+%     __typeToId_addeid(ttid,etype,eid) = __typeToId_addeid'(ttid,etype,eid);
+    __typeToId_addeid([],etype,eid) = [];
+    etype==etype(ttid_el) -> __typeToId_addeid(ttid_el|>ttid,etype,eid) = __typeToId1(etype,eid|>eids(ttid_el))|> __typeToId_addeid(ttid,etype,eid);
+    !(etype==etype(ttid_el)) -> __typeToId_addeid(ttid_el|>ttid,etype,eid) = ttid_el|>__typeToId_addeid(ttid,etype,eid);
+
+    __typeToId_removeHelper([],eid) = [];
+    el==eid -> __typeToId_removeHelper(el|>list,eid) = __typeToId_removeHelper(list,eid);
+    !(el==eid) -> __typeToId_removeHelper(el|>list,eid) = el|>__typeToId_removeHelper(list,eid);
+
+    __typeToId_remove([],etype,eid) = [];
+    etype==etype(ttid_el) -> __typeToId_remove(ttid_el|>ttid,etype,eid) = __typeToId1(etype,__typeToId_removeHelper(eids(ttid_el),eid))|>__typeToId_remove(ttid,etype,eid);
+    !(etype==etype(ttid_el)) -> __typeToId_remove(ttid_el|>ttid,etype,eid) = ttid_el|>__typeToId_remove(ttid,etype,eid);
+
+    __typeToId_keys([]) = [];
+    __typeToId_keys(ttid_el|>ttid) = etype(ttid_el)|>__typeToId_keys(ttid);
+
+    __typeToId_eids([],etype) = [];
+    etype==etype(ttid_el) -> __typeToId_eids(ttid_el|>ttid,etype) = eids(ttid_el);
+    !(etype==etype(ttid_el)) -> __typeToId_eids(ttid_el|>ttid,etype) = __typeToId_eids(ttid,etype);
+
+
+%-----------------
+
+sort __maxTasks1 = struct __maxTasks1(eid:Nat,maxTasks:Nat);
+sort __maxTasks = List(__maxTasks1);
+
+map __maxTasks_add:__maxTasks # Nat # Nat -> __maxTasks;
+    __maxTasks_pop:__maxTasks # Nat -> __maxTasks;
+
+var
+  maxTasks:__maxTasks;
+  el:__maxTasks1;
+  n:Nat;
+  eid:Nat;
+eqn
+    __maxTasks_add(maxTasks,eid,n) = __maxTasks1(eid,n)|>maxTasks;
+
+    __maxTasks_pop([],eid) = [];
+    (eid(el)==eid) -> __maxTasks_pop(el|>maxTasks,eid) = __maxTasks_pop(maxTasks,eid);
+    !(eid(el)==eid) -> __maxTasks_pop(el|>maxTasks,eid) = el|>__maxTasks_pop(maxTasks,eid);
+
+%-----------------
+
+sort __execTasks1 = struct __execTasks1(eid:Nat,taskids:List(Nat));
+sort __execTasks = List(__execTasks1);
+
+map __execTasks_addeid:__execTasks # Nat -> __execTasks;
+    __execTasks_keys:__execTasks -> List(Nat);
+    __execTasks_taskids:__execTasks # Nat -> List(Nat);
+    __execTasks_pop: __execTasks # Nat -> __execTasks;
+    __execTasks_addtaskid:__execTasks # Nat # Nat -> __execTasks;
+    __execTasks_removetaskid: __execTasks # Nat # Nat -> __execTasks;
+    __execTasks_removeHelper:List(Nat) # Nat -> List(Nat);
+
+var
+  execTasks:__execTasks;
+  et:__execTasks1;
+  n,eid,taskid,el:Nat;
+  list:List(Nat);
+eqn
+    __execTasks_addeid(execTasks,eid) = __execTasks1(eid,[])|>execTasks;
+
+    __execTasks_keys([]) = [];
+    __execTasks_keys(et|>execTasks) = eid(et)|>__execTasks_keys(execTasks);
+
+    __execTasks_taskids([],eid) = [];
+    eid(et)==eid ->  __execTasks_taskids(et|>execTasks,eid) = taskids(et);
+    !(eid(et)==eid) -> __execTasks_taskids(et|>execTasks,eid) = __execTasks_taskids(execTasks,eid);
+
+    __execTasks_pop([],eid) = [];
+    eid(et)==eid -> __execTasks_pop(et|>execTasks,eid) = __execTasks_pop(execTasks,eid);
+    !(eid(et)==eid) -> __execTasks_pop(et|>execTasks,eid) = et|>__execTasks_pop(execTasks,eid);
+
+    __execTasks_addtaskid([],eid,taskid) = [];
+    eid(et)==eid -> __execTasks_addtaskid(et|>execTasks,eid,taskid) = __execTasks1(eid(et),taskid|>taskids(et))|>__execTasks_addtaskid(execTasks,eid,taskid);
+    !(eid(et)==eid) -> __execTasks_addtaskid(et|>execTasks,eid,taskid) = et|>__execTasks_addtaskid(execTasks,eid,taskid);
+  
+    __execTasks_removeHelper([],taskid) = [];
+    el==taskid -> __execTasks_removeHelper(el|>list,taskid) = __execTasks_removeHelper(list,taskid);
+    !(el==taskid) -> __execTasks_removeHelper(el|>list,taskid) = el|>__execTasks_removeHelper(list,taskid);
+
+    __execTasks_removetaskid([],eid,taskid) = [];
+    eid(et)==eid -> __execTasks_removetaskid(et|>execTasks,eid,taskid) = __execTasks1(eid(et),__execTasks_removeHelper(taskids(et),taskid))|>__execTasks_removetaskid(execTasks,eid,taskid);
+    !(eid(et)==eid) -> __execTasks_removetaskid(et|>execTasks,eid,taskid) = __execTasks_removetaskid(execTasks,eid,taskid);
+
+act internal;
+action1:Int;
+action2:__execTypes;
+action3:List(eType);
+proc P(ex:__execTypes) = action1(__execTypes_get(ex,Three)).action1(__execTypes_get(ex,Four))
+	  .action3(__execTypes_get_eTypes(ex)).action2(__execTypes_remove(ex,Two))
+	  .action2(__execTypes_inc(ex,Three)).P(__execTypes_inc(ex,Three))
+;
+% init P(__execTypes_init([One,Two,Three]));
+
+act action4:TaskObject;
+action5:__tasks;
+action6:List(Nat);
+
+proc Q(tasks:__tasks) = action5(__tasks_add(tasks,taskObj(2,[One,Two,Three],Two))).
+    action4(__tasks_get(tasks,1)).action5(__tasks_pop(tasks,1)).action6(__tasks_keys(tasks)).
+    action5(__tasks_update(tasks,1,taskObj(1,[One,Two],Three)))
+;
+
+% taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType)
+% init Q([__tasks1(1,taskObj(1,[One,Two],Two)),__tasks1(3,taskObj(3,[One,Two],Three))]);
+act action7:__taskFreezer;
+    action8:Nat;
+    action9:Int;
+proc S(taskFreezer:__taskFreezer) = 
+  action7(__taskFreezer_append(taskFreezer,55)).
+  action9(__taskFreezer_index(taskFreezer,8)).action7(__taskFreezer_pop(taskFreezer,2));
+
+act action10:__typeToId;
+  action11:List(eType);
+  action12:List(Nat);
+proc D(typeToId:__typeToId) = 
+action10(typeToId).action10(__typeToId_addeType(typeToId,Three)).action10(__typeToId_addeid(typeToId,Two,2))
+.action10(__typeToId_remove(typeToId,One,1)).action11(__typeToId_keys(typeToId)).
+action12(__typeToId_eids(typeToId,Two))
+;
+
+init D([__typeToId1(One,[1,3,6]),__typeToId1(Two,[6,55])]);
+% init S([3,6,8,11]);
