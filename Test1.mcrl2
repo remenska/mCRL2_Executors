@@ -205,7 +205,7 @@ eqn
     !(eid(et)==eid) -> __execTasks_pop(et|>execTasks,eid) = et|>__execTasks_pop(execTasks,eid);
 
     __execTasks_addtaskid([],eid,taskid) = [];
-    eid(et)==eid -> __execTasks_addtaskid(et|>execTasks,eid,taskid) = __execTasks1(eid(et),taskid|>taskids(et))|>__execTasks_addtaskid(execTasks,eid,taskid);
+    eid(et)==eid -> __execTasks_addtaskid(et|>execTasks,eid,taskid) = __execTasks1(eid(et),taskids(et)<|taskid)|>__execTasks_addtaskid(execTasks,eid,taskid);
     !(eid(et)==eid) -> __execTasks_addtaskid(et|>execTasks,eid,taskid) = et|>__execTasks_addtaskid(execTasks,eid,taskid);
   
     __execTasks_removeHelper([],taskid) = [];
@@ -215,6 +215,9 @@ eqn
     __execTasks_removetaskid([],eid,taskid) = [];
     eid(et)==eid -> __execTasks_removetaskid(et|>execTasks,eid,taskid) = __execTasks1(eid(et),__execTasks_removeHelper(taskids(et),taskid))|>__execTasks_removetaskid(execTasks,eid,taskid);
     !(eid(et)==eid) -> __execTasks_removetaskid(et|>execTasks,eid,taskid) = __execTasks_removetaskid(execTasks,eid,taskid);
+
+%-----------------
+
 
 act internal;
 action1:Int;
@@ -253,5 +256,15 @@ action10(typeToId).action10(__typeToId_addeType(typeToId,Three)).action10(__type
 action12(__typeToId_eids(typeToId,Two))
 ;
 
-init D([__typeToId1(One,[1,3,6]),__typeToId1(Two,[6,55])]);
+act action13:__execTasks;
+    action14:List(Nat);
+
+proc F(execTasks:__execTasks) = 
+action13(execTasks).action13(__execTasks_pop(execTasks,2)).
+action13(__execTasks_addtaskid(execTasks,2,3)).action14(__execTasks_taskids(execTasks,1)).
+action14(__execTasks_keys(execTasks)).action13(__execTasks_removetaskid(execTasks,2,3))
+;
+init F([__execTasks1(1,[1,1,1,1]),__execTasks1(2,[2,2,2,2])]);
+
+% init D([__typeToId1(One,[1,3,6]),__typeToId1(Two,[6,55])]);
 % init S([3,6,8,11]);
