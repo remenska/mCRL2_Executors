@@ -1,0 +1,117 @@
+% ==================DATA 
+sort eType = struct One | Two | Three;
+
+sort TaskObject = struct taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType) | None;
+
+%------------------------------------
+%----------------------------
+% t2t(tup,d): convert a list of tuples of the form (taskID, [list of ReplicaIDs]) to a list of tuples
+% of the form [taskID, [list of Replica States]]
+% example: [q(0,[0,1]),q(1,[2,0])] [0,1] -> [q(0,[New,Failed]),q(1,[Failed,Offline])] 
+
+% map t2t:List(TupleTaskReplicasIDs)#List(CacheReplicas)->List(TupleTaskReplicas);
+% map t2t':List(TupleTaskReplicasIDs)#List(CacheReplicas)#Nat->List(TupleTaskReplicas);
+% var
+% 	listTup:List(TupleTaskReplicasIDs);
+% 	listCR:List(CacheReplicas);
+% 	list:List(TupleTaskReplicasIDs);
+% 	tup:TupleTaskReplicasIDs;
+% 	n:Nat;
+% eqn
+% 	t2t(listTup,listCR) = t2t'(listTup,listCR,0);
+% 	t2t'([],listCR,n) = [];
+% 	t2t'(tup|>list,listCR, n) = ttr(taskID(tup),id2cr1(replicaIDs(tup),listCR)) |> t2t'(list,listCR, n+1);	
+
+%------------------------------------
+
+%----------------------------
+%helper function
+% map getTupleTaskState:List(TupleTaskReplicas)#Nat->List(CacheReplicas);
+% map getTupleTaskState':List(TupleTaskReplicas)#Nat#Nat->List(CacheReplicas);
+% % getTupleTaskState([(5,[Failed,Waiting]),(1,[Waiting,Offline])],1) = [Waiting,Offline]
+% var
+% 	listTuples,list:List(TupleTaskReplicas);
+% 	el:TupleTaskReplicas;
+% 	n,pos:Nat;	
+% eqn	
+% 	getTupleTaskState(listTuples,pos)= getTupleTaskState'(listTuples,pos,0);
+% 	getTupleTaskState'([],pos,n) = [];
+% 	pos==taskID(el) -> getTupleTaskState'(el|>list,pos,n) = replicaStates(el);
+% 	!(pos==taskID(el)) -> getTupleTaskState'(el|>list,pos,n) = getTupleTaskState'(list,pos,n+1);
+% %------------------------------------
+
+sort __execTypes1 = struct __execTypes1(etype:eType,counter:Int);
+sort None = struct none;
+sort __execTypes = List(__execTypes1);
+
+% map __execTypes1_inc:List(__execTypes1) # eType -> List(__execTypes1);
+% example: __execTypes_get([__execTypes1(One,2),__execTypes1(Two,6)], Two) -> 6
+map __execTypes_get:__execTypes # eType -> Int;
+map __execTypes_get':__execTypes # eType # Nat-> Int;
+map __execTypes_init:List(eType) -> __execTypes;
+map __execTypes_init':List(eType) # Nat -> __execTypes;
+map __execTypes_inc:__execTypes # eType -> __execTypes;
+map __execTypes_inc':__execTypes # eType # Nat -> __execTypes;
+
+var a,list_exectypes:__execTypes;
+    et:eType;
+    n:Nat;
+    list_et,let:List(eType);
+    ext:__execTypes1;
+eqn __execTypes_get(a,et) = __execTypes_get'(a,et,0);
+    __execTypes_get'(a,et,n) = if(etype(a.n)==et,counter(a.n),__execTypes_get'(a,et,n+1));
+% eqn __execTypes1_inc(a,eType) = 
+    __execTypes_init(list_et) = __execTypes_init'(list_et,0);
+    __execTypes_init'(et|>let,n) = __execTypes1(et,0)|>__execTypes_init'(let,n+1);
+    __execTypes_inc(a,et) = __execTypes_inc'(a,et,0);
+    __execTypes_inc'([],et,0) = [];
+    __execTypes_inc'(ext|>list_exectypes,et,n) = if(etype(a.n)==et,
+			      __execTypes1(etype(a.n),succ(counter(a.n))) |>__execTypes_inc'(list_exectypes,et,n+1),
+				   __execTypes1(etype(a.n),counter(a.n)) |>__execTypes_inc'(list_exectypes,et,n+1));
+%  a(eType,succ(__execTypes_get(a,eType)));
+
+act internal;
+action1:Int;
+action2:__execTypes;
+proc P(ex:__execTypes) = action1(__execTypes_get(ex,One)).
+	  action2(__execTypes_inc(ex,Two));
+init P(__execTypes_init([One,Two,Three]));
+
+% =================
+% sort __execTypes1 = eType -> Int;
+% 
+% % cons empty: __execTypes1;
+% map __execTypes1_inc: __execTypes1 # eType -> __execTypes1;
+%     __execTypes_get: __execTypes1 # eType -> Int;
+%     __execTypes1_dec:__execTypes1 # eType -> __execTypes1;
+%     __execTypes1_reset:__execTypes1 # eType -> __execTypes1;
+%     __execTypes_get_eTypes:__execTypes1 -> List(eType);
+% var a: __execTypes1;
+%     eType: eType;
+%     list:List(eType);
+%     el:eType;
+% eqn __execTypes1_inc(a, eType) = a[eType -> succ(__execTypes_get(a,eType))];
+%     __execTypes1_dec(a, eType) = if(__execTypes_get(a,eType)>0,
+% 				      a[eType -> pred(__execTypes_get(a,eType))],
+% 					    a[eType -> __execTypes_get(a,eType)]);
+%     __execTypes_get(a, eType) = a(eType);
+%     __execTypes1_reset(a, eType) = a[eType->0];
+% %     __execTypes_get_eTypes(a(el)) = if(__execTypes_get(a,el)>0,el |> __execTypes_get_eTypes(a),__execTypes1(a));
+%     __execTypes_get_eTypes(a[el->0]) = [];
+%     __execTypes_get(a,el)>0 -> __execTypes_get_eTypes(a) = el|> __execTypes_get_eTypes(a);
+% 
+% map __execTypes1_init: __execTypes1;
+% var eType:eType;
+% eqn __execTypes1_init(eType) = 0;
+
+
+% =================
+
+% act action2:TaskObject;
+
+
+
+% proc Q = internal;
+
+% init P(__execTypes1_init,init__tasks);
+% init Q;
