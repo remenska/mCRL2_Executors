@@ -311,7 +311,9 @@ sort Method = struct
   __minds_keys |
   __minds_keys'(minds:List(Mind)) |
   __minds_set(mind:Mind,mindClusterId:Nat) |
-  __minds_set'
+  __minds_set' |
+  __modules_keys |
+  __modules_keys'(modules:List(eType))
   
 ;
 
@@ -810,7 +812,7 @@ map
     __instances_keys:__instances -> List(eType);
     __instances_append:__instances # eType # Nat -> __instances;
     __instances_addModule:__instances # eType -> __instances;
-    __instances_pop:__instances # eType -> Int; %<--MUST ALSO REMOVE THAT INSTANCE FROM LIST, NOT IMPLEMENTED STILL!
+    __instances_pop:__instances # eType -> Int;
     __instances_delAfterPop:__instances # eType -> __instances;
     
 var
@@ -948,6 +950,9 @@ proc MindCluster_mem(id:Nat,modules:__modules,instances:__instances) =
     +
   sum module:eType,instance:Nat.method_var_begin(id,__modules_set(module,instance)).method_var_end(id,__modules_set')
     .MindCluster_mem(id,__modules_set(modules,module,instance),instances)
+    +
+  method_var_begin(id,__modules_keys).method_var_end(id,__modules_keys'(__modules_keys(modules)))
+    .MindCluster_mem(id,modules,instances)
 ;
 
 %-----------
@@ -1017,14 +1022,6 @@ proc ExecutorReactor_mem(id:Nat,executorModules:__executorModules,minds:__minds)
     .ExecutorReactor_mem(id,executorModules,__minds_set(minds,mind,mindClusterId))
 ;
 
-% internal
-%     sum taskId:Nat. method_var_begin(id,deleteTaskMem(taskId)). % do some functional transformation here
-%     method_var_end(id,deleteTaskMem').ExecutorQueues_mem(id,queues,taskInQueue);
-    
-% .ExecutorQueues_mem(id,queues,taskInQueue);
-% __queues_delAtPos(queues,One,2)
-% % __taskInQueue_get(tiq,11)
-% __queues_index(queues,Two,2)
 % end-memory processes
 
 % ======= END-DATA=============
@@ -1044,13 +1041,7 @@ act internal;
 map minorStatus2eType:MinorStatus->eType;
 % map r4t':List(Tuple)#List(Nat)#Nat->List(Nat);
 %----------------------------
-var 
-% 	lt,listTuples:List(Tuple);
-% 	taskIDs:List(Nat);
-% 	n:Nat;
-% 	tuple:Tuple;
-	minor:MinorStatus;
-
+var minor:MinorStatus;
 eqn
 % 	(minorStatus==JobPath) minorStatus2eType(minor) = JobPath;
 	minorStatus2eType(minor) = if(minor==JobPath,JobPath,
@@ -1058,14 +1049,6 @@ eqn
 		    if(minor==JobScheduling,JobScheduling,
 		      if(minor==InputData,InputData,None
 			))));
-	%listTuples = [p(0,0),p(0,1),p(1,0),p(1,1),p(0,2),p(2,3)];
-% 	r4t(listTuples,taskIDs) = r4t'(listTuples,taskIDs,0);
-% 	r4t'([],taskIDs,n) = [];
-% 	t(tuple) in taskIDs && link(tuple) -> r4t'(tuple|>lt,taskIDs,n) = r(tuple)|>r4t'(lt,taskIDs,n+1);
-	
-
-
-
 
 %-----------DONE server---
 proc ExecutorDispatcher_removeTask(id:Nat) =
@@ -1415,8 +1398,9 @@ proc MindCluster___moduleProcess(id:Nat) =
       method_var_end(id,__moduleProcess'(OK,TaskError))
     <>
       (
-	% if fastTrackLevel < 10 and fastTrackType and fastTrackType in self.__modules:
-	(fastTrackType!=None) -> %<-- && fastTrackType in self.__modules?
+	method_call_begin(id,__modules_keys).
+	sum modules:List(eType).method_call_end(id,__modules_keys'(modules)).
+	(fastTrackType!=None && (fastTrackType in modules)) -> 
 	  % return self.__moduleProcess( fastTrackType, taskId, taskStub, fastTrackLevel + 1 ) <-- HOW TO RECURSIVELY CALL? Like this below?? test it on a hypotethical example
 	  method_call_begin(id,__moduleProcess(fastTrackType,taskId,taskObj)).
 	  sum reply:Reply,message:Message.method_call_end(id,__moduleProcess'(reply,message)).
@@ -1716,7 +1700,7 @@ proc ExecutorDispatcher___dispatchTask(id:Nat) =
      sum reply:Reply,etype:eType.method_call_end(id,__getNextExecutor'(reply,etype)). % OK
      (reply!=OK) ->
       (
-	% if self.__freezeOnFailedDispatch <-- model as nondeterministic choice?
+	% if self.__freezeOnFailedDispatch <-- model as nondeterministic choice? it's true in implementation, so leave it
 	method_call_begin(id,__freezeTask(taskid,etype)).  % OK
 	sum result:Bool.method_call_end(id,__freezeTask'(result)).
 	((result) ->
@@ -2033,7 +2017,7 @@ proc loop_fillExecutors(id:Nat,eId:Nat,etype:eType) =
 
 %-----------DONE server---
 proc OptimizationMindHandler_msg_OptimizeJobs(id:Nat) = 
-  sum jids:List(Nat).DISET_call_receive(id,msg1(OptimizeJobs,jids)). % FIX, jids should be in msgObj (msgObj.jids) <- FIXED!
+  sum jids:List(Nat).DISET_call_receive(id,msg1(OptimizeJobs,jids)). 
   % msgObj is not actually used, only its jids
   loop_msg_OptimizeJobs(id,jids)
 ;
@@ -2596,7 +2580,6 @@ proc ExecutorReactor_loadModules(id:Nat) =
   sum instance:Nat,modules:List(eType).method_var_begin(id,loadModules(instance,modules)).
   loop_loadModules(id,instance,modules).
   method_var_end(id,loadModules'(instance))
- % refine, low level
 ;
 
 proc loop_loadModules(id:Nat,instance:Nat,modules:List(eType)) = 
