@@ -419,7 +419,7 @@ map
     __instances_append:__instances # eType # Nat -> __instances;
     __instances_addModule:__instances # eType -> __instances;
     __instances_pop:__instances # eType -> Int; %<--MUST ALSO REMOVE THAT INSTANCE FROM LIST, NOT IMPLEMENTED STILL!
-    
+    __instances_delAfterPop:__instances # eType -> __instances;
 var
     instances:__instances;
     instance:__instances1;
@@ -440,6 +440,40 @@ eqn
     etype(instance)==etype -> __instances_pop(instance|>instances,etype) = Nat2Int(ids(instance).0); % in implementation it's always pop(0); same as head(ids(instance))
     !(etype(instance)==etype) -> __instances_pop(instance|>instances,etype) = __instances_pop(instances,etype);    
     
+    __instances_delAfterPop([],etype) = [];
+    etype(instance)==etype -> __instances_delAfterPop(instance|>instances,etype) = __instances1(etype(instance),tail(ids(instance)))|>__instances_delAfterPop(instances,etype);
+    !(etype(instance)==etype) -> __instances_delAfterPop(instance|>instances,etype) = instance|>__instances_delAfterPop(instances,etype);
+%-----------------
+
+sort __idMap1 = struct __idMap1(eid:Nat,etypes:List(eType));
+
+sort __idMap = List(__idMap1);
+
+map
+    __idMap_keys:__idMap -> List(Nat);
+    __idMap_set: __idMap # Nat # List(eType) -> __idMap;
+    __idMap_pop: __idMap # Nat -> List(eType);
+    __idMap_remove: __idMap # Nat -> __idMap;
+
+var
+    idmap:__idMap;
+    el_idmap:__idMap1;
+    etypes:List(eType);
+    eid,n:Nat;
+
+eqn
+    __idMap_keys([]) = [];
+    __idMap_keys(el_idmap|>idmap) = eid(el_idmap)|>__idMap_keys(idmap);
+    
+    __idMap_set(idmap,eid,etypes) = __idMap1(eid,etypes)|>idmap;
+
+    (eid(el_idmap)==eid) -> __idMap_pop(el_idmap|>idmap,eid) = etypes(el_idmap);
+    !(eid(el_idmap)==eid) -> __idMap_pop(el_idmap|>idmap,eid) = __idMap_pop(idmap,eid);
+
+    __idMap_remove([],eid) = [];
+    (eid(el_idmap)==eid) -> __idMap_remove(el_idmap|>idmap,eid) = __idMap_remove(idmap,eid);
+    !(eid(el_idmap)==eid) -> __idMap_remove(el_idmap|>idmap,eid) = el_idmap|>__idMap_remove(idmap,eid);
+
 %-----------------
    
 act internal;
@@ -549,10 +583,19 @@ act action35:__instances;
     action37:Int;
     
 proc X(instances:__instances) = action35(instances).action36(__instances_keys(instances)).action35(__instances_addModule(instances,Four)).
-    action35(__instances_append(instances,Two,555)).action37(__instances_pop(instances,One)).action36(__instances_keys(__instances_addModule(instances,Three)))
+    action35(__instances_append(instances,Two,555)).action37(__instances_pop(instances,One)).action36(__instances_keys(__instances_addModule(instances,Three))).
+    action35(__instances_delAfterPop(instances,One))
 ;
-    
-init X([__instances1(One,[1,2,3]),__instances1(Two,[4,5,6])]);    
+
+act action38:__idMap;
+    action39:List(eType);
+    action40:List(Nat);
+
+proc C(idmap:__idMap) = action38(idmap).action40(__idMap_keys(idmap)).action39(__idMap_pop(idmap,1)).
+  action38(__idMap_set(idmap,4,[Four,Two])).action38(__idMap_remove(idmap,1))
+;
+init C([__idMap1(1,[One,One]),__idMap1(2,[Two,Two])]);
+% init X([__instances1(One,[1,2,3]),__instances1(Two,[4,5,6])]);    
 % init Z([__modules1(One,111),__modules1(Two,222)]);
 % init L([__minds1(OptimizationMind,66)]);
 % init K([__executorModules1(One,1),__executorModules1(Two,2),__executorModules1(Three,3)]);
