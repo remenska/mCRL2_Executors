@@ -1106,7 +1106,12 @@ proc JobDB_mem(id:Nat,jobs:List(TaskObject)) =
 %   method_call_begin(id, db_setJobAttributes(jid,statusBundle(Failed,MaxReschedulings)))  
 %   )
 %   sum reply:Reply.method_call_end(id,db_setJobAttributes'(reply)).
-   .method_var_end(id,db_rescheduleJob'(OK))
+   .method_var_end(id,db_rescheduleJob'(OK)).
+  (
+    JobDB_mem(id,setStatus(jobs,jid,statusBundle(Received,JobRescheduled)))
+    +
+    JobDB_mem(id,setStatus(jobs,jid,statusBundle(Failed,MaxReschedulings)))
+  )
   .JobDB_mem(id,jobs)
   + % not implemented
   sum jid:Nat,fullStatus:FullStatus.method_var_begin(id,db_setJobAttributes(jid,fullStatus)).
@@ -1114,7 +1119,7 @@ proc JobDB_mem(id:Nat,jobs:List(TaskObject)) =
   .JobDB_mem(id,jobs)
   +
   sum status:Status,minorStatus:List(MinorStatus).method_var_begin(id,db_selectJobs(status,minorStatus)).
-  method_var_end(id,db_selectJobs'([2,4]))
+  method_var_end(id,db_selectJobs'(selectJobs(jobs,status,minorStatus)))
   .JobDB_mem(id,jobs)
 
 ;
