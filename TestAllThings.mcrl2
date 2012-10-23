@@ -313,7 +313,9 @@ sort Method = struct
   __minds_set(mind:Mind,mindClusterId:Nat) |
   __minds_set' |
   __modules_keys |
-  __modules_keys'(modules:List(eType))
+  __modules_keys'(modules:List(eType)) |
+  __execTypes_getExecutorsConnected |
+  __execTypes_getExecutorsConnected'(etypes:List(eType))
   
 ;
 
@@ -328,7 +330,8 @@ sort Message = struct ProcessTask |
 
 sort Mind = struct OptimizationMind | OtherMind;
 
-sort MinorStatus = struct NewMinor | JobPath | JobSanity | InputData | JobScheduling | PilotAgentSubmission | FailedMinor | JobRescheduled | MarkedForTermination | All | None;
+sort MinorStatus = struct NewMinor | JobPath | JobSanity | InputData | JobScheduling | PilotAgentSubmission | FailedMinor | JobRescheduled | MarkedForTermination |
+    MaxReschedulings | All | None;
 
 sort eType = MinorStatus;
 % struct JobPath | JobSanity | InputData | JobScheduling | None ;
@@ -359,6 +362,7 @@ map __execTypes_get:__execTypes # eType -> Int;
     __execTypes_add:__execTypes # eType -> __execTypes;
     __execTypes_get_eTypes:__execTypes -> List(eType);
     __execTypes_remove:__execTypes # eType -> __execTypes;
+    __execTypes_getExecutorsConnected: __execTypes -> List(eType);
 
 var a,list_exectypes:__execTypes;
     et:eType;
@@ -386,6 +390,12 @@ eqn
 
     __execTypes_get_eTypes([]) = [];
     __execTypes_get_eTypes(ext|>list_exectypes) = etype(ext)|> __execTypes_get_eTypes(list_exectypes);
+
+    __execTypes_getExecutorsConnected([]) = [];
+    (etype(ext)!=JobPath && counter(ext)>0) -> __execTypes_getExecutorsConnected(ext|>list_exectypes) = etype(ext)|>__execTypes_getExecutorsConnected(list_exectypes);
+    (etype(ext)==JobPath) -> __execTypes_getExecutorsConnected(ext|>list_exectypes) = __execTypes_getExecutorsConnected(list_exectypes);
+    (counter(ext)<1) -> __execTypes_getExecutorsConnected(ext|>list_exectypes) = __execTypes_getExecutorsConnected(list_exectypes);
+    
 
     __execTypes_remove([],et) = [];
     etype(ext)==et -> __execTypes_remove(ext|>list_exectypes,et) = __execTypes_remove(list_exectypes,et);
@@ -840,6 +850,20 @@ eqn
     !(etype(instance)==etype) -> __instances_delAfterPop(instance|>instances,etype) = instance|>__instances_delAfterPop(instances,etype);
 
 %-----------------
+map indexOf: List(eType) # eType -> Int;
+    indexOf': List(eType) # eType # Nat -> Int;
+
+var list:List(eType);
+    etype:eType;
+    n:Nat;
+
+eqn
+    indexOf(list,etype) = indexOf'(list,etype,0);
+    indexOf'([],etype,n) = -1;
+    list.n==etype -> indexOf'(list,etype, n) = n;
+    list.n!=etype -> indexOf'(list,etype,n) = indexOf'(list,etype,n+1);
+
+%-----------------
 % memory processes
 proc ExecutorQueues_mem(id:Nat,queues:__queues,taskInQueue:__taskInQueue) =
   sum taskid:Nat.method_var_begin(id,__taskInQueue_get(taskid)).
@@ -979,6 +1003,10 @@ proc ExecutorDispatcher_mem(id:Nat,execTypes:__execTypes,tasks:__tasks,freezer:_
   method_var_begin(id,__execTypes_get_eTypes).method_var_end(id,__execTypes_get_eTypes'(__execTypes_get_eTypes(execTypes)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
+  method_var_begin(id,__execTypes_getExecutorsConnected).
+	method_var_end(id,__execTypes_getExecutorsConnected'(__execTypes_getExecutorsConnected(execTypes)))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+    +
   sum taskObj:TaskObject.method_var_begin(id,__tasks_add(taskObj)).method_var_end(id,__tasks_add')
     .ExecutorDispatcher_mem(id,execTypes,__tasks_add(tasks,taskObj),freezer,idMap)
     +
@@ -1039,11 +1067,9 @@ act internal;
 %--------DATA TRANSFORMATIONS
 % -----------------
 map minorStatus2eType:MinorStatus->eType;
-% map r4t':List(Tuple)#List(Nat)#Nat->List(Nat);
 %----------------------------
 var minor:MinorStatus;
 eqn
-% 	(minorStatus==JobPath) minorStatus2eType(minor) = JobPath;
 	minorStatus2eType(minor) = if(minor==JobPath,JobPath,
 		  if(minor==JobSanity,JobSanity,
 		    if(minor==JobScheduling,JobScheduling,
@@ -1135,7 +1161,6 @@ proc ExecutorDispatcher___sendTaskToExecutor(id:Nat) =
 	    (
 	      method_call_begin(id,__idMap_get(eId)).
 	      sum eTypes:List(eType).method_call_end(id,__idMap_get'(eTypes))
-% 	      (eTypes==[]) -> method_var_end(id,__sendTaskToExecutor') <> internal
 	    ) <> internal.
 	  (eTypes==[]) -> method_var_end(id,__sendTaskToExecutor') <>
 	     (
@@ -1195,8 +1220,6 @@ proc loop_popTask(id:Nat,eTypes:List(eType)) =
     method_call_begin(id,__queues_pop(head(eTypes),0)).
     sum taskid:Int.method_call_end(id,__queues_pop'(taskid)).
     (taskid!=-1) ->
-%       method_call_begin(id,__queues_delAtPos(head(eTypes),0)). % it's taken care of in the _mem now!
-%       method_call_end(id,__queues_delAtPos').
       method_call_begin(id,__taskInQueue_del(Int2Nat(taskid))).
       method_call_end(id,__taskInQueue_del').
       method_var_end(id,popTask'(Int2Nat(taskid),head(eTypes)))
@@ -1220,14 +1243,7 @@ sum eId:Nat,taskId:Nat.method_var_begin(id,addTask(eId,taskId)).
 % .ExecutorState_addTask(id)
 ;
 
-
-%-----------
-% Can I actually do it like this?!
-% proc ExecutorState = 
-%  ExecutorState_getExecutorOfTask(0) || ExecutorState_removeTask(0);
-
 %-----------server----------
-%result=__msgTaskToExecutor( taskId, eId, eType )
 proc ExecutorDispatcher___msgTaskToExecutor(id:Nat) =
 (
     sum taskId:Nat,eId:Nat,eType:eType.method_var_begin(id,__msgTaskToExecutor(taskId,eId,eType)). 
@@ -1246,7 +1262,6 @@ proc ExecutorDispatcher___msgTaskToExecutor(id:Nat) =
 ;
 
 %-----------server----------
-%pushTask( eType, taskId, ahead = True )
 proc ExecutorQueues_pushTask(id:Nat) = 
 (
     sum eType:eType,taskId:Nat,ahead:Bool.method_var_begin(id,pushTask(eType,taskId,ahead)). 
@@ -1274,7 +1289,6 @@ proc ExecutorQueues_pushTask(id:Nat) =
 ;
 
 %-----------server----------
-%result1=cbSendTask( taskId, self.__tasks[ taskId ].taskObj, eId, eType ) 
 proc MindCallbacks_cbSendTask(id:Nat) = 
 (
   sum taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType. method_var_begin(id,cbSendTask(taskId,taskObj,eId,eType)). 
@@ -1310,7 +1324,6 @@ proc OptimizationMindHandler___sendTask(id:Nat) =
 ;
 
 %-----------DONE server----------
-% result1=exec_prepareToSend(jid, jobState, eId)
 proc OptimizationMindHandler_exec_prepareToSend(id:Nat) =
 (
   sum jid:Nat,jobState:TaskObject,eId:Nat.method_var_begin(id,exec_prepareToSend(jid, jobState, eId)). 
@@ -1401,7 +1414,9 @@ proc MindCluster___moduleProcess(id:Nat) =
 	method_call_begin(id,__modules_keys).
 	sum modules:List(eType).method_call_end(id,__modules_keys'(modules)).
 	(fastTrackType!=None && (fastTrackType in modules)) -> 
-	  % return self.__moduleProcess( fastTrackType, taskId, taskStub, fastTrackLevel + 1 ) <-- HOW TO RECURSIVELY CALL? Like this below?? test it on a hypotethical example
+	  % return self.__moduleProcess( fastTrackType, taskId, taskStub, fastTrackLevel + 1 ) 
+	  %<-- HOW TO RECURSIVELY CALL? Like this below?? test it on a hypotethical example
+	  % or just ignore the if section below, it's a new implementation anyways
 	  method_call_begin(id,__moduleProcess(fastTrackType,taskId,taskObj)).
 	  sum reply:Reply,message:Message.method_call_end(id,__moduleProcess'(reply,message)).
 	  method_var_end(id,__moduleProcess'(reply,message))
@@ -1424,7 +1439,7 @@ proc MindCluster___storeInstance(id:Nat) =
 ;
 
 %---------DONE client--------- 
-proc ModInstance_fastTrackDispatch(id:Nat) =
+proc ModInstance_fastTrackDispatch(id:Nat,nameInstance:eType) =
   sum jid:Nat,jobState:TaskObject.method_var_begin(id,fastTrackDispatch(jid,jobState)).
     method_call_begin(id,getStatus(jobState,jid)).
     sum reply:Reply,fullStatus:FullStatus.method_call_end(id, getStatus'(reply,fullStatus)).
@@ -1442,23 +1457,20 @@ proc ModInstance_fastTrackDispatch(id:Nat) =
 ;
 
 %---------DONE client--------- 
-proc ModInstance__ex_processTask(id:Nat) = 
+proc ModInstance__ex_processTask(id:Nat,nameInstance:eType) = 
   sum modInstance:Nat,taskId:Nat,taskObj:TaskObject.method_var_begin(id,_ex_processTask(modInstance,taskId,taskObj)).
-  %    result = self.__deserialize( taskId, taskStub )
     method_call_begin(id,__deserialize(taskId,taskObj)).  
     sum reply:Reply,taskObj1:TaskObject.method_call_end(id,__deserialize'(reply,taskObj1)).
     (reply!=OK) ->
      method_var_end(id,_ex_processTask'(reply,None))
     <>
     (
-  %    result = self.processTask( taskId, taskObj )
       method_call_begin(id,processTask(taskId,taskObj1)). 
       sum reply1:Reply,taskObj2:TaskObject.method_call_end(id,processTask'(reply1,taskObj2)).
       (reply1!=OK) ->
       method_var_end(id,_ex_processTask'(reply1,None))
       <>
       (
-      %     result = self.__serialize( taskId, taskObj )
 	method_call_begin(id,__serialize(taskId,taskObj2)).			
 	sum reply2:Reply,taskStub:TaskObject.method_call_end(id,__serialize'(reply2,taskStub)).
 	(reply2!=OK) -> method_var_end(id,_ex_processTask'(reply2,None)) <>
@@ -1467,22 +1479,19 @@ proc ModInstance__ex_processTask(id:Nat) =
 	    sum reply3:Reply,fastTrackType:eType.method_call_end(id,fastTrackDispatch'(reply3,fastTrackType)).
 	    method_var_end(id,_ex_processTask'(OK,fastTrackType))
 	  )
-% 	method_var_end(id,_ex_processTask'(OK)).
       )
     )
 ;
 
 %---------DONE client--------- 
-proc ModInstance_processTask(id:Nat) = 
+proc ModInstance_processTask(id:Nat,nameInstance:eType) = 
  sum jid:Nat,jobState:TaskObject.method_var_begin(id,processTask(jid,jobState)).
-  %       result = self.optimizeJob( jid, jobState )
   method_call_begin(id,optimizeJob(jid,jobState)).
   sum reply:Reply,jobState1:TaskObject.method_call_end(id,optimizeJob'(reply,jobState1)).
   (reply!=OK) ->
     method_var_end(id,processTask'(reply,jobState1))
     <>
     (
-      %      result = jobState.getManifest()
       method_call_begin(id,getManifest(jobState)).
       sum reply1:Reply.method_call_end(id,getManifest'(reply1)).
       (reply1!=OK) ->
@@ -1503,7 +1512,7 @@ proc CachedJobState_getManifest(id:Nat) =
 ;
 
 %---------DONE client---------  
-proc ModInstance_optimizeJob(id:Nat) = 
+proc ModInstance_optimizeJob(id:Nat,nameInstance:eType) = 
   sum jid:Nat,jobState:TaskObject.method_var_begin(id,optimizeJob(jid,jobState)).
     method_call_begin(id,getManifest(jobState)).
     sum reply:Reply.method_call_end(id,getManifest'(reply)).
@@ -1534,17 +1543,19 @@ proc ModInstance_optimizeJob(id:Nat) =
 ;
 
 %---------DONE client---------  
-proc ModInstance_setNextOptimizer(id:Nat) = 
+proc ModInstance_setNextOptimizer(id:Nat,nameInstance:eType) = 
  sum jobState:TaskObject.method_var_begin(id,setNextOptimizer(jobState)).
     method_call_begin(id,getOptParameter(jobState)).
     sum reply:Reply,opPath:List(eType).method_call_end(id,getOptParameter'(reply,opPath)).
-    % if chainLength - 1 == opIndex
-    (#opPath==3) ->  % <------- CHANGE THIS!
+    !(nameInstance in opPath) -> method_var_end(id,setNextOptimizer'(ERROR)) %optimizer not in chain
+    <>
+    ((#opPath-1)==indexOf(opPath,nameInstance)) -> 
+    % if chainLength - 1 == opIndex % last optimizer in chain
       method_call_begin(id,setStatus(jobState,statusBundle(Waiting,PilotAgentSubmission))).
       sum reply:Reply.method_call_end(id,setStatus'(reply)).
       method_var_end(id,setNextOptimizer'(OK))
-      <>
-      method_call_begin(id,setStatus(jobState,statusBundle(Checking,JobSanity))).   % < fixed,change it! You need the name of the ModInstance to be able to compare it with the list
+      <> % nextOp = opChain[ opIndex + 1 ]
+      method_call_begin(id,setStatus(jobState,statusBundle(Checking,opPath.(Int2Nat(indexOf(opPath,nameInstance))+1) ))).
       sum reply:Reply.method_call_end(id,setStatus'(reply)).
       method_var_end(id,setNextOptimizer'(reply))
 ;
@@ -1566,7 +1577,7 @@ proc CachedJobState_getInputData(id:Nat) =
 ;
 
 %---------DONE client---------  
-proc ModInstance___setOptimizerChain(id:Nat) =
+proc ModInstance___setOptimizerChain(id:Nat,nameInstance:eType) =
   sum jobState:TaskObject,opPath:List(eType).method_var_begin(id,__setOptimizerChain(jobState,opPath)).
     method_call_begin(id,setOptParameter(opPath,jobState)).
     sum reply:Reply.method_call_end(id,setOptParameter'(reply)).
@@ -1601,13 +1612,13 @@ proc CachedJobState_setParameter(id:Nat) =
 
 
 %---------client--------- 
-proc ModInstance___serialize(id:Nat) =
+proc ModInstance___serialize(id:Nat,nameInstance:eType) =
   sum taskid:Nat,taskStub:TaskObject.method_var_begin(id,__serialize(taskid,taskStub)). % refine
   method_var_end(id,__serialize'(OK,taskStub)) 
 ;
 
 %---------client--------- 
-proc ModInstance___deserialize(id:Nat) =
+proc ModInstance___deserialize(id:Nat,nameInstance:eType) =
   sum taskid:Nat,taskStub:TaskObject.method_var_begin(id,__deserialize(taskid,taskStub)). 
   method_call_begin(id,deserialize(taskStub)).
   sum reply:Reply,taskObj:TaskObject.method_call_end(id,deserialize'(reply,taskObj)).
@@ -1688,29 +1699,28 @@ proc loop___unfreezeTasks(id:Nat,iP:Nat,etype:eType) =
 %----------- DONE server---
 proc ExecutorDispatcher___dispatchTask(id:Nat) =
  sum taskid:Nat,defrozeIfNeeded:Bool.method_var_begin(id,__dispatchTask(taskid,defrozeIfNeeded)).
- method_call_begin(id,getExecutorOfTask(taskid)). % OK
+ method_call_begin(id,getExecutorOfTask(taskid)). 
  sum eid:Nat.method_call_end(id,getExecutorOfTask'(eid)).
  (eid>0) ->
     method_var_end(id,__dispatchTask'(OK))
     <>
     (
-     method_call_begin(id,__removeFromFreezer(taskid)). % OK
+     method_call_begin(id,__removeFromFreezer(taskid)). 
      sum result:Bool.method_call_end(id,__removeFromFreezer'(result)).
      method_call_begin(id,__getNextExecutor(taskid)). % OK
      sum reply:Reply,etype:eType.method_call_end(id,__getNextExecutor'(reply,etype)). % OK
      (reply!=OK) ->
       (
-	% if self.__freezeOnFailedDispatch <-- model as nondeterministic choice? it's true in implementation, so leave it
+	% if self.__freezeOnFailedDispatch <-- model as nondeterministic choice? YES, done!
 	method_call_begin(id,__freezeTask(taskid,etype)).  % OK
 	sum result:Bool.method_call_end(id,__freezeTask'(result)).
-	((result) ->
-	  method_var_end(id,__dispatchTask'(OK)) <> method_var_end(id,__dispatchTask'(reply))
-	) % end-if 
-	.method_call_begin(id,getTask(taskid)). % OK
+	(result) -> method_var_end(id,__dispatchTask'(OK)) <> method_var_end(id,__dispatchTask'(reply))
+	+ % model as nondeterministic choice, both choices have a return statement so it's ok
+	method_call_begin(id,getTask(taskid)). % OK
 	sum taskObj:TaskObject.method_call_end(id,getTask'(taskObj)).
 	method_call_begin(id,removeTaskDispatcher(taskid)).
 	method_call_end(id,removeTaskDispatcher').
-	method_call_begin(id,cbTaskError(taskid,taskObj)). % OK
+	method_call_begin(id,cbTaskError(taskid,taskObj)). 
 	method_call_end(id,cbTaskError').
 	method_var_end(id,__dispatchTask'(ERROR))
      ) 
@@ -1722,12 +1732,25 @@ proc ExecutorDispatcher___dispatchTask(id:Nat) =
 	method_var_end(id,__dispatchTask'(OK))
       ) 
       <>
-      (   % if eType not in self.__execTypes:  <--- missing whole block under condition, go back to implement!!
-	method_call_begin(id, pushTask(etype,taskid,false)). % OK
-	method_call_end(id, pushTask').
-	method_call_begin(id,__fillExecutors(etype,defrozeIfNeeded)).
-	method_call_end(id,__fillExecutors'). % OK
-	method_var_end(id,__dispatchTask'(OK)) 
+      (
+	method_call_begin(id,__execTypes_get_eTypes).
+	sum exectypes:List(eType).method_call_end(id,__execTypes_get_eTypes'(exectypes)).
+	!(etype in exectypes) ->
+	  % nondeterministic choice again, freeze task or remove task, and return from method in both cases!
+	  method_call_begin(id,__freezeTask(taskid,etype)).
+	  sum result1:Bool.method_call_end(id,__freezeTask'(result1)).
+	  method_var_end(id,__dispatchTask'(OK))
+	  +
+	  method_call_begin(id,removeTaskDispatcher(taskid)).
+	  method_call_end(id,removeTaskDispatcher').
+	  method_var_end(id,__dispatchTask'(OK))
+	<> (
+	    method_call_begin(id, pushTask(etype,taskid,false)). 
+	    method_call_end(id, pushTask').
+	    method_call_begin(id,__fillExecutors(etype,defrozeIfNeeded)).
+	    method_call_end(id,__fillExecutors').
+	    method_var_end(id,__dispatchTask'(OK))
+	    )
       )
     )
 ;
@@ -1851,9 +1874,14 @@ proc JobState_rescheduleJob(id:Nat) =
 ;
 
 %-----------DONE server---
-proc JobDB_rescheduleJobDB(id:Nat) = % it's missing maximum reschedulings reached! CHANGE (see __dispatchTask SD)
+proc JobDB_rescheduleJobDB(id:Nat) =
   sum jid:Nat.method_var_begin(id,rescheduleJobDB(jid)).
-  method_call_begin(id, setJobAttributes(jid,statusBundle(Received,JobRescheduled))).
+   % max reschedulings modeled as a nondeterministic choice (see __dispatchTask SD)
+  (
+  method_call_begin(id, setJobAttributes(jid,statusBundle(Received,JobRescheduled)))
+  +
+  method_call_begin(id, setJobAttributes(jid,statusBundle(Failed,MaxReschedulings)))  
+  ).
   sum reply:Reply.method_call_end(id,setJobAttributes'(reply)).
   method_var_end(id,rescheduleJobDB'(reply))
 ;
@@ -1950,7 +1978,7 @@ proc CachedJobState_resetJob(id:Nat) =
 %-----------DONE server---
 proc JobState_resetJob(id:Nat) =
   sum jobState:TaskObject.method_var_begin(id,resetJob1(jobState)).
-  	method_call_begin(id,rescheduleJob(jobState)).  % jobState should be passed!!!
+  	method_call_begin(id,rescheduleJob(jobState)).  % jobState should be passed!!!no,jid should be passed!
 	sum reply2:Reply.method_call_end(id,rescheduleJob'(reply2)).
     method_var_end(id,resetJob1'(reply2))
 ;
@@ -2018,7 +2046,6 @@ proc loop_fillExecutors(id:Nat,eId:Nat,etype:eType) =
 %-----------DONE server---
 proc OptimizationMindHandler_msg_OptimizeJobs(id:Nat) = 
   sum jids:List(Nat).DISET_call_receive(id,msg1(OptimizeJobs,jids)). 
-  % msgObj is not actually used, only its jids
   loop_msg_OptimizeJobs(id,jids)
 ;
 
@@ -2275,7 +2302,7 @@ proc MindCallbacks_cbDisconectExecutor(id:Nat) =
 %-----------DONE server---
 proc OptimizationMindHandler_exec_executorDisconnected(id:Nat) =
   sum trid:Nat.method_var_begin(id,exec_executorDisconnected(trid)).
-  %     result = cls.srv_disconnectClient( trid ) <-- low level, refine!
+  %     result = cls.srv_disconnectClient( trid ) <-- low level, refine! <- not much to refine
   method_var_end(id,exec_executorDisconnected')
 ;
  
@@ -2478,25 +2505,29 @@ proc OptimizationMindHandler_exec_executorConnected(id:Nat) =
 % !! this is also periodic: result = ThreadScheduler.gThreadScheduler.addPeriodicTask( period, cls.__loadJobs )
 proc OptimizationMindHandler___loadJobs(id:Nat) = 
   sum etypes:List(eType).method_var_begin(id,__loadJobs(etypes)).
-  (etypes==[]) ->
+    (etypes==[]) ->
      ( method_call_begin(id,getExecutorsConnected).
-     sum eTypes:List(eType).method_call_end(id,getExecutorsConnected'(eTypes)). % what if eTypes1 is empty?
-     (eTypes==[]) -> method_var_end(id,__loadJobs'(OK)) <> internal
-     ) <> internal
-     % for opState in cls.__optimizationStates: <-- constants, see if you can deal with them [Received,Checking]
-     .method_call_begin(id,selectJobs(Received,[All])).
-     sum jidList:List(Nat).method_call_end(id,selectJobs'(jidList)).
-     method_call_begin(id,getTaskIds).
-     sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
-     loop___loadJobs(id,jidList,knownJids)
-     
-     .method_call_begin(id,selectJobs(Checking,[JobSanity,InputData,JobScheduling])). % <--- these should be deduced from eTypes result!!!
-     sum jidList:List(Nat).method_call_end(id,selectJobs'(jidList)).
-     method_call_begin(id,getTaskIds).
-     sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
-     loop___loadJobs(id,jidList,knownJids).
-     method_var_end(id,__loadJobs'(OK))
-     
+     sum etypes:List(eType).method_call_end(id,getExecutorsConnected'(etypes)) 
+      % should take into account only those with >0 counter AND ignore jobPath, change!
+      % CHANGED: getExecutorsConnected is only called here, so I changed its implementation to
+      % take the above into account 
+     ) <> internal .
+     (etypes==[]) -> method_var_end(id,__loadJobs'(OK)) 
+      <> 
+      (
+	method_call_begin(id,selectJobs(Received,[All])).
+	sum jidList:List(Nat).method_call_end(id,selectJobs'(jidList)).
+	method_call_begin(id,getTaskIds).	
+	sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
+	loop___loadJobs(id,jidList,knownJids)
+	
+	.method_call_begin(id,selectJobs(Checking,etypes)). 
+	sum jidList:List(Nat).method_call_end(id,selectJobs'(jidList)).
+	method_call_begin(id,getTaskIds).
+	sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
+	loop___loadJobs(id,jidList,knownJids).
+	method_var_end(id,__loadJobs'(OK))
+      )
 ;
 
 proc loop___loadJobs(id:Nat,jidList:List(Nat),knownJids:List(Nat)) =
@@ -2531,8 +2562,8 @@ proc ExecutorDispatcher_getTaskIds(id:Nat) =
 %-----------DONE server---
 proc ExecutorDispatcher_getExecutorsConnected(id:Nat) =
   method_var_begin(id,getExecutorsConnected).
-    method_call_begin(id,__execTypes_get_eTypes).
-    sum etypes:List(eType).method_call_end(id,__execTypes_get_eTypes'(etypes)).
+    method_call_begin(id,__execTypes_getExecutorsConnected).
+    sum etypes:List(eType).method_call_end(id,__execTypes_getExecutorsConnected'(etypes)).
   method_var_end(id,getExecutorsConnected'(etypes))
 ;
 
@@ -2625,9 +2656,6 @@ proc loop_go(id:Nat,instance:Nat,modules:List(eType)) =
 proc loop_go1(id:Nat,instance:Nat,minds:List(Mind)) = 
   (minds!=[]) ->
   (
-  % connect( executorTypes = list( self.__modules.keys() ), maxTasks = self.__maxTasks, extraArgs = self.__extraArgs )
-% so need to find a way to pass modules and maxTasks
-%sum trid:Nat,eTypes:List(eType),maxTasks:Nat.method_var_begin(id,conn_connected(trid,eTypes,maxTasks)).
     method_call_begin(id,connect(instance,head(minds))). 
     method_call_end(id,connect')
     .loop_go1(id,instance,tail(minds))
@@ -2643,7 +2671,7 @@ proc MindCluster_addModule(id:Nat) =
 ;
 
 %-----------DONE client---
-proc ModInstance__ex_initialize(id:Nat) = 
+proc ModInstance__ex_initialize(id:Nat,nameInstance:eType) = 
   sum instance:Nat,module:eType.method_var_begin(id,_ex_initialize(instance,module)).
   method_call_begin(id,initialize(instance,module)).
   method_call_end(id,initialize').
@@ -2651,7 +2679,7 @@ proc ModInstance__ex_initialize(id:Nat) =
 ;
 
 %-----------DONE client---
-proc ModInstance_initialize(id:Nat) = 
+proc ModInstance_initialize(id:Nat,nameInstance:eType) = 
   sum instance:Nat,module:eType.method_var_begin(id,initialize(instance,module)).
   method_call_begin(id,setMind(instance,module,OptimizationMind)).
   method_call_end(id,setMind').
@@ -2659,14 +2687,14 @@ proc ModInstance_initialize(id:Nat) =
 ;
 
 %-----------DONE client---
-proc ModInstance_setMind(id:Nat) = 
+proc ModInstance_setMind(id:Nat,nameInstance:eType) = 
   sum instance:Nat,module:eType,mind:Mind.method_var_begin(id,setMind(instance,module,mind)).   % refine, low level
   method_var_end(id,setMind')
 ;
 
   
 %-----------DONE client---
-proc ModInstance_ex_getMind(id:Nat) =
+proc ModInstance_ex_getMind(id:Nat,nameInstance:eType) =
     sum instance:Nat,module:eType.method_var_begin(id,ex_getMind(instance,module)). 
     method_var_end(id,ex_getMind'(instance,OptimizationMind)) % fixed for now, refine!
 ;
@@ -2675,13 +2703,13 @@ proc ModInstance_ex_getMind(id:Nat) =
 proc MindCluster_connect(id:Nat) = 
 % should this be asynchronous??
       % connect( executorTypes = list( self.__modules.keys() ), maxTasks = self.__maxTasks, extraArgs = self.__extraArgs )
-% so need to find a way to pass modules and maxTasks
-%sum trid:Nat,eTypes:List(eType),maxTasks:Nat.method_var_begin(id,conn_connected(trid,eTypes,maxTasks)).
+% argument mind is not used? but implicitely it is, instance+mind name = unique reference
     sum instance:Nat,mind:Mind.method_var_begin(id,connect(instance,mind)). 
-    method_call_begin(id,conn_connected(instance,[JobPath,JobSanity,InputData,JobScheduling] ,1)). % fixed list of modules for now, should be self.__modules; fixed maxtasks=1
+    method_call_begin(id,__modules_keys).
+    sum executorTypes:List(eType).method_call_end(id,__modules_keys'(executorTypes)).
+    method_call_begin(id,conn_connected(instance,executorTypes ,1)). % fixed maxtasks=1
     sum reply:Reply.method_call_end(id,conn_connected'(reply)).
     method_var_end(id,connect')
-%     sum trid:Nat,eTypes:List(eType),maxTasks:Nat.method_var_begin(id,conn_connected(trid,eTypes,maxTasks)).
 ;
 
 %-----------
@@ -2705,14 +2733,14 @@ proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) ||  %fixed taskId=2
 		MindCluster___moduleProcess(id) ||
 		MindCluster___getInstance(id) ||
 		MindCluster___storeInstance(id) ||
-		ModInstance__ex_processTask(id) ||
-		ModInstance___deserialize(id) ||
+		ModInstance__ex_processTask(id,JobSanity) ||
+		ModInstance___deserialize(id,JobSanity) ||
 		CachedJobState_deserialize(id) ||
-		ModInstance_processTask(id) ||
+		ModInstance_processTask(id,JobSanity) ||
 		CachedJobState_getManifest(id) ||
-		ModInstance_optimizeJob(id) ||
+		ModInstance_optimizeJob(id,JobSanity) ||
 		CachedJobState_getInputData(id) ||
-		ModInstance___setOptimizerChain(id) ||
+		ModInstance___setOptimizerChain(id,JobSanity) ||
 		CachedJobState_setOptParameter(id) ||
 		CachedJobState_getOptParameter(id) ||
 		CachedJobState_setParameter(id) ||  
@@ -2760,10 +2788,10 @@ proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) ||  %fixed taskId=2
 		JobManager_resetJob(id) ||
 		JobDB_setJobStatus(id) ||
 		MindCluster_connect(id) ||
-		ModInstance_ex_getMind(id) ||
-		ModInstance_setMind(id) ||
-		ModInstance_initialize(id) ||
-		ModInstance__ex_initialize(id) ||
+		ModInstance_ex_getMind(id,JobSanity) ||
+		ModInstance_setMind(id,JobSanity) ||
+		ModInstance_initialize(id,JobSanity) ||
+		ModInstance__ex_initialize(id,JobSanity) ||
 		MindCluster_addModule(id) ||
 		ExecutorReactor_go(id) ||
 		ExecutorReactor_loadModules(id) ||
