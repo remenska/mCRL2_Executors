@@ -1,56 +1,56 @@
 %comment 
 sort Method = struct
-	getExecutorOfTask(taskId:Nat) | %OK
-      getExecutorOfTask'(eId:Nat) | %OK
-      deleteTask(taskId:Nat) |  %OK
-      deleteTask' |  %OK
-      removeTask(taskId:Nat,eid:Nat) |  %OK
-      removeTask'(result:Bool) |   %OK
+	getExecutorOfTask(taskId:Nat) | 
+      getExecutorOfTask'(eId:Nat) | 
+      deleteTask(taskId:Nat) |  
+      deleteTask' |  
+      removeTask(taskId:Nat,eid:Nat) |  
+      removeTask'(result:Bool) |   
   __sendTaskToExecutor(eId:Nat,eTypes:List(eType),checkIdle:Bool) |    
-  __sendTaskToExecutor' |     %OK
-    freeSlots(eId:Nat) |     %OK
-  freeSlots'(fs:Nat) |     %OK
+  __sendTaskToExecutor' |     
+    freeSlots(eId:Nat) |     
+  freeSlots'(fs:Nat) |     
   popTask(eTypes:List(eType)) | 
   popTask'(taskId:Nat,eType:eType) | 
-  addTask(eId:Nat,taskId:Nat) |    %OK
-  addTask' |    %OK
-  __msgTaskToExecutor(taskId:Nat,eId:Nat,eType:eType) |     %OK
-  __msgTaskToExecutor'(result:Reply) |     %OK
-  pushTask(eType:eType,taskId:Nat,ahead:Bool) |     %OK
-  pushTask' |     %OK
-  cbSendTask(taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType) |     %OK
-  cbSendTask'(result:Reply) |     %OK
-  __sendTask(taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType) |    %OK
-  __sendTask'(result:Reply) |    %OK
- exec_prepareToSend(taskId:Nat,taskObj:TaskObject,eId:Nat) |  %OK
-  exec_prepareToSend'(result:Reply) |   %OK
-  exec_serializeTask(taskObj:TaskObject) |   %OK
+  addTask(eId:Nat,taskId:Nat) |    
+  addTask' |    
+  __msgTaskToExecutor(taskId:Nat,eId:Nat,eType:eType) |     
+  __msgTaskToExecutor'(result:Reply) |     
+  pushTask(eType:eType,taskId:Nat,ahead:Bool) |     
+  pushTask' |     
+  cbSendTask(taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType) |     
+  cbSendTask'(result:Reply) |     
+  __sendTask(taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType) |    
+  __sendTask'(result:Reply) |    
+ exec_prepareToSend(taskId:Nat,taskObj:TaskObject,eId:Nat) |  
+  exec_prepareToSend'(result:Reply) |   
+  exec_serializeTask(taskObj:TaskObject) |   
   exec_serializeTask'(result:Reply,taskObj:TaskObject) | 
   recheckValidity(taskObj:TaskObject) | % 
-  recheckValidity'(result:Reply) |  %OK
+  recheckValidity'(result:Reply) |  
   serialize(taskObj:TaskObject) | 
   serialize'(result:Reply) | 
   msg(msg:Message,eId:Nat, taskObj:TaskObject) |
   getAttributes(attributes:TypeAttr) |
   getAttributes'(result:Reply) | 
-  removeTaskDispatcher(taskid:Nat) | %OK
+  removeTaskDispatcher(taskid:Nat) | 
   removeTaskDispatcher' | 	% should return reply:Reply
   __moduleProcess(etype:eType,taskId:Nat,taskObj:TaskObject) |
   __moduleProcess'(result:Reply,message:Message) | % OK
   __getInstance(etype:eType) | % OK
-  __getInstance'(modInstance:Nat) | %OK
+  __getInstance'(modInstance:Nat) | 
   _ex_processTask(modInstance:Nat,taskId:Nat,taskObj:TaskObject) |
-  _ex_processTask'(reply:Reply,fastTrackType:eType) |  %OK
-  __storeInstance(etype:eType,modInstance:Nat) | %OK
-  __storeInstance' | %OK
-  __deserialize(taskId:Nat,taskObj:TaskObject) | %OK
-  __deserialize'(reply:Reply,taskObj:TaskObject) | %OK
-  processTask(taskId:Nat,taskObj:TaskObject) | %OK
-  processTask'(reply:Reply,taskObj:TaskObject) | %OK
-  __serialize(taskId:Nat,taskObj:TaskObject) | %OK
-  __serialize'(reply:Reply,taskObj:TaskObject) | %OK
-  deserialize(taskObj:TaskObject) | %OK
-  deserialize'(reply:Reply,taskObj:TaskObject) | %OK
+  _ex_processTask'(reply:Reply,fastTrackType:eType) |  
+  __storeInstance(etype:eType,modInstance:Nat) | 
+  __storeInstance' | 
+  __deserialize(taskId:Nat,taskObj:TaskObject) | 
+  __deserialize'(reply:Reply,taskObj:TaskObject) | 
+  processTask(taskId:Nat,taskObj:TaskObject) | 
+  processTask'(reply:Reply,taskObj:TaskObject) | 
+  __serialize(taskId:Nat,taskObj:TaskObject) | 
+  __serialize'(reply:Reply,taskObj:TaskObject) | 
+  deserialize(taskObj:TaskObject) | 
+  deserialize'(reply:Reply,taskObj:TaskObject) | 
   optimizeJob(jid:Nat,jobState:TaskObject) |	%OK
   optimizeJob'(reply:Reply,jobState:TaskObject) |	%OK
   getManifest(jobState:TaskObject) |	%OK
@@ -58,132 +58,130 @@ sort Method = struct
   getInputData(jobState:TaskObject) |		%OK
   getInputData'(inData:Bool) |		%OK
   __setOptimizerChain(jobState:TaskObject,opPath:List(eType)) | 
-  __setOptimizerChain'(reply:Reply,jobState:TaskObject) |  %OK
+  __setOptimizerChain'(reply:Reply,jobState:TaskObject) |  
   setOptParameter(opPath:List(eType),jobState:TaskObject) | 
-  setOptParameter'(reply:Reply) | %OK
+  setOptParameter'(reply:Reply) | 
   setParameter(opPath:List(eType),jobState:TaskObject) |	
-  setParameter'(reply:Reply) | %OK
-  setNextOptimizer(jobState:TaskObject) | %OK
-  setNextOptimizer'(reply:Reply) | %OK
-  getOptParameter(jobState:TaskObject) | %OK
-  getOptParameter'(reply:Reply,opPath:List(eType)) | %OK
+  setParameter'(reply:Reply) | 
+  setNextOptimizer(jobState:TaskObject) | 
+  setNextOptimizer'(reply:Reply) | 
+  getOptParameter(jobState:TaskObject) | 
+  getOptParameter'(reply:Reply,opPath:List(eType)) | 
   setStatus(jobState:TaskObject,fullStatus:FullStatus) | 
-  setStatus'(reply:Reply) | %OK
+  setStatus'(reply:Reply) | 
   __fillExecutors(etype:eType,defrozeIfNeeded:Bool) |	%OK
-  __fillExecutors' | %OK
-  __unfreezeTasks(etype:eType) |	 %OK
-  __unfreezeTasks' |	 %OK
-  getIdleExecutor(etype:eType) | %OK
-  getIdleExecutor'(eId:Nat) | %OK
-  __dispatchTask(taskId:Nat,defrozeIfNeeded:Bool) | %OK
-  __dispatchTask'(reply:Reply) | %OK
-  __removeFromFreezer(taskid:Nat) | %OK
-  __removeFromFreezer'(result:Bool) | %OK
-  __getNextExecutor(taskid:Nat) | %OK
-  __getNextExecutor'(reply:Reply,etype:eType) | %OK
+  __fillExecutors' | 
+  __unfreezeTasks(etype:eType) |	 
+  __unfreezeTasks' |	 
+  getIdleExecutor(etype:eType) | 
+  getIdleExecutor'(eId:Nat) | 
+  __dispatchTask(taskId:Nat,defrozeIfNeeded:Bool) | 
+  __dispatchTask'(reply:Reply) | 
+  __removeFromFreezer(taskid:Nat) | 
+  __removeFromFreezer'(result:Bool) | 
+  __getNextExecutor(taskid:Nat) | 
+  __getNextExecutor'(reply:Reply,etype:eType) | 
   __freezeTask(taskid:Nat,eType:eType) | 
-  __freezeTask'(result:Bool) | %OK
-  getTask(taskid:Nat) | %OK
-  getTask'(taskObj:TaskObject) | %OK
-  cbTaskError(taskid:Nat,taskObj:TaskObject) |	 %OK
-  cbTaskError' |  %OK
+  __freezeTask'(result:Bool) | 
+  getTask(taskid:Nat) | 
+  getTask'(taskObj:TaskObject) | 
+  cbTaskError(taskid:Nat,taskObj:TaskObject) |	 
+  cbTaskError' |  
   cbDispatch(taskid:Nat,taskObj:TaskObject,executedPath:List(eType)) | 
-  cbDispatch'(reply:Reply,etype:eType) | %OK
-  exec_TaskError(taskid:Nat,taskObj:TaskObject) | %OK
-  exec_TaskError'(reply:Reply) | %OK
-  setStatus1(jobState:TaskObject,fullStatus:FullStatus) | %OK
-  setStatus1'(reply:Reply) | %OK
+  cbDispatch'(reply:Reply,etype:eType) | 
+  exec_TaskError(taskid:Nat,taskObj:TaskObject) | 
+  exec_TaskError'(reply:Reply) | 
+  setStatus1(jobState:TaskObject,fullStatus:FullStatus) | 
+  setStatus1'(reply:Reply) | 
   commitChanges(cachedJobState:TaskObject) |
   commitChanges'(reply:Reply) |
-  commitCache(cachedJobState:TaskObject,initState:FullStatus, changes:List(FullStatus)) | %OK
-  commitCache'(reply:Reply,newState:FullStatus) | %OK
-  cleanState(jobState:TaskObject,skipInitState:Bool) | %OK
-  cleanState' | %OK
-  setManifest(jobState:TaskObject) | %OK
-  setManifest'(reply:Reply) | %OK
-  rescheduleJob(jobState:TaskObject) | %OK
-  rescheduleJob'(reply:Reply) | %OK
-  rescheduleJobDB(jid:Nat) | %OK
-  rescheduleJobDB'(reply:Reply) | %OK
-  setJobAttributes(jid:Nat,statusBundle:FullStatus) | % is the object needed?
-  setJobAttributes'(reply:Reply) | %OK
-  getJobAttributes(jid:Nat) | %OK
-  getJobAttributes'(reply:Reply,currentStatus:FullStatus) | %OK
+  commitCache(cachedJobState:TaskObject,initState:FullStatus, changes:List(FullStatus)) | 
+  commitCache'(reply:Reply,newState:FullStatus) | 
+  cleanState(jobState:TaskObject,skipInitState:Bool) | 
+  cleanState' | 
+  setManifest(jobState:TaskObject) | 
+  setManifest'(reply:Reply) | 
+  rescheduleJob(jobState:TaskObject) | 
+  rescheduleJob'(reply:Reply) | 
+  db_rescheduleJob(jid:Nat) | 
+  db_rescheduleJob'(reply:Reply) | 
+  db_setJobAttributes(jid:Nat,statusBundle:FullStatus) | % is the object needed?
+  db_setJobAttributes'(reply:Reply) | 
+  db_getJobAttributes(jid:Nat) | 
+  db_getJobAttributes'(reply:Reply,currentStatus:FullStatus) | 
   exec_dispatch(jid:Nat,jobState:TaskObject,pathExecuted:List(eType)) | 
-  exec_dispatch'(reply:Reply,nextExecutor:eType) | %OK
-  getStatus(jobState:TaskObject,jid:Nat) | %OK
-  getStatus'(reply:Reply,status:FullStatus) | %OK
-  getStatus1(jobState:TaskObject,jid:Nat) | %OK
-  getStatus1'(reply:Reply,status:FullStatus) | %OK
+  exec_dispatch'(reply:Reply,nextExecutor:eType) | 
+  getStatus(jobState:TaskObject,jid:Nat) | 
+  getStatus'(reply:Reply,status:FullStatus) | 
+  getStatus1(jobState:TaskObject,jid:Nat) | 
+  getStatus1'(reply:Reply,status:FullStatus) | 
   resetJob(jobState:TaskObject) | %maybe just jobID
-  resetJob'(reply:Reply) | %OK
+  resetJob'(reply:Reply) | 
   resetJob1(jobState:TaskObject) | %maybe just jobID
-  resetJob1'(reply:Reply) | %OK
+  resetJob1'(reply:Reply) | 
   msg1(msg:Message,jids:List(Nat)) |
   forgetTask(taskid:Nat) |	%OK
-  forgetTask' | %OK
-  executeTask(jid:Nat,cachedJobState:TaskObject) | %OK
-  executeTask'(reply:Reply) | %OK
-  addTaskDispatcher(taskid:Nat,taskObj:TaskObject) | %OK
-  addTaskDispatcher'(reply:Reply) | %OK
-  __addTaskIfNew(taskid:Nat,taskObj:TaskObject) | %OK
-  __addTaskIfNew'(result:Bool) | %OK
-  submitJob(jobIDs:List(Nat)) | %OK
-  submitJob' | %OK
-  __sendNewJobsToMind(jobIDs:List(Nat)) | %OK
-  __sendNewJobsToMind' | %OK
-  setJobStatus(jobID:Nat,status:FullStatus) | %OK
-  setJobStatus' | %K
+  forgetTask' | 
+  executeTask(jid:Nat,cachedJobState:TaskObject) | 
+  executeTask'(reply:Reply) | 
+  addTaskDispatcher(taskid:Nat,taskObj:TaskObject) | 
+  addTaskDispatcher'(reply:Reply) | 
+  __addTaskIfNew(taskid:Nat,taskObj:TaskObject) | 
+  __addTaskIfNew'(result:Bool) | 
+  submitJob(jobIDs:List(Nat)) | 
+  submitJob' | 
+  __sendNewJobsToMind(jobIDs:List(Nat)) | 
+  __sendNewJobsToMind' | 
   killJob(jobID:Nat) |	%OK
-  killJob' | %OK
+  killJob' | 
   resetJobAPI(jobID:Nat) |	%OK
   resetJobAPI' |	%OK
-  exec_deserializeTask'(reply:Reply,taskObj1:TaskObject) | %OK
-  exec_deserializeTask(taskObj:TaskObject) | %OK
-  taskProcessed(eId:Nat,taskId:Nat,taskObj1:TaskObject) | %OK
-  taskProcessed'(reply:Reply) | %OK
-  __taskReceived(taskId:Nat,eId:Nat) | %OK
-  __taskReceived'(reply:Reply,eType:eType) | %OK
-  cbTaskProcessed(taskId:Nat,taskObj:TaskObject,eType:eType) | %OK
-  cbTaskProcessed'(reply:Reply) | %OK
-  exec_taskProcessed(jid:Nat,jobState:TaskObject,eType:eType) | %OK
-  exec_taskProcessed'(reply:Reply) | %OK
-  removeExecutor(eid:Nat) | %OK
-  removeExecutor' | %OK
-  removeExecutorStates(eid:Nat) | %OK
-  removeExecutorStates'(tasksInExec:List(Nat)) | %OK
-  cbDisconectExecutor(eid:Nat) | %OK
-  cbDisconectExecutor' | %OK
-  exec_executorDisconnected(trid:Nat) | %OK
-  exec_executorDisconnected' | %OK
-  freezeTask(eid:Nat,taskid:Nat,taskObj:TaskObject) | %OK
-  freezeTask'(reply:Reply) | %OK
-  cbTaskFreeze(taskid:Nat,taskObj:TaskObject,eType:eType) | %OK
-  cbTaskFreeze'(reply:Reply) | %OK
-  exec_taskFreeze(taskid:Nat,taskObj:TaskObject,etype:eType) | %OK
+  exec_deserializeTask'(reply:Reply,taskObj1:TaskObject) | 
+  exec_deserializeTask(taskObj:TaskObject) | 
+  taskProcessed(eId:Nat,taskId:Nat,taskObj1:TaskObject) | 
+  taskProcessed'(reply:Reply) | 
+  __taskReceived(taskId:Nat,eId:Nat) | 
+  __taskReceived'(reply:Reply,eType:eType) | 
+  cbTaskProcessed(taskId:Nat,taskObj:TaskObject,eType:eType) | 
+  cbTaskProcessed'(reply:Reply) | 
+  exec_taskProcessed(jid:Nat,jobState:TaskObject,eType:eType) | 
+  exec_taskProcessed'(reply:Reply) | 
+  removeExecutor(eid:Nat) | 
+  removeExecutor' | 
+  removeExecutorStates(eid:Nat) | 
+  removeExecutorStates'(tasksInExec:List(Nat)) | 
+  cbDisconectExecutor(eid:Nat) | 
+  cbDisconectExecutor' | 
+  exec_executorDisconnected(trid:Nat) | 
+  exec_executorDisconnected' | 
+  freezeTask(eid:Nat,taskid:Nat,taskObj:TaskObject) | 
+  freezeTask'(reply:Reply) | 
+  cbTaskFreeze(taskid:Nat,taskObj:TaskObject,eType:eType) | 
+  cbTaskFreeze'(reply:Reply) | 
+  exec_taskFreeze(taskid:Nat,taskObj:TaskObject,etype:eType) | 
   exec_taskFreeze'(reply:Reply) |	%OK
-  conn_connected(trid:Nat,eTypes:List(eType),maxTasks:Nat) | %OK
-  conn_connected'(reply:Reply) | %OK
-  addExecutor(trid:Nat,eTypes:List(eType),maxTasks:Nat) | %OK
-  addExecutor' | %OK
-  exec_executorConnected(trid:Nat,eTypes:List(eType)) | %OK
-  exec_executorConnected'(reply:Reply) | %OK
-  addExecutorState(eid:Nat,eTypes:List(eType),maxTasks:Nat) | %OK
-  addExecutorState' | %OK
-  getExecutorsConnected | %OK
-  getExecutorsConnected'(eTypes:List(eType)) | %OK
-  selectJobs(status:Status,minor:List(MinorStatus)) | %OK
-  selectJobs'(jidList:List(Nat)) | %OK
-  getTaskIds | %OK
-  getTaskIds'(knownJids:List(Nat)) | %OK
-  __loadJobs(eTypes:List(eType)) | %OK
-  __loadJobs'(reply:Reply) | %OK
-  conn_drop(trid:Nat) | %OK
-  conn_drop' | %OK
+  conn_connected(trid:Nat,eTypes:List(eType),maxTasks:Nat) | 
+  conn_connected'(reply:Reply) | 
+  addExecutor(trid:Nat,eTypes:List(eType),maxTasks:Nat) | 
+  addExecutor' | 
+  exec_executorConnected(trid:Nat,eTypes:List(eType)) | 
+  exec_executorConnected'(reply:Reply) | 
+  addExecutorState(eid:Nat,eTypes:List(eType),maxTasks:Nat) | 
+  addExecutorState' | 
+  getExecutorsConnected | 
+  getExecutorsConnected'(eTypes:List(eType)) | 
+  db_selectJobs(status:Status,minor:List(MinorStatus)) | 
+  db_selectJobs'(jidList:List(Nat)) | 
+  getTaskIds | 
+  getTaskIds'(knownJids:List(Nat)) | 
+  __loadJobs(eTypes:List(eType)) | 
+  __loadJobs'(reply:Reply) | 
+  conn_drop(trid:Nat) | 
+  conn_drop' | 
   __doPeriodicStuff |
   __doPeriodicStuff' |
-  fastTrackDispatch(jid:Nat,jobState:TaskObject) | %OK
-  fastTrackDispatch'(reply:Reply,eType:eType) | %OK 
+  fastTrackDispatch(jid:Nat,jobState:TaskObject) | 
+  fastTrackDispatch'(reply:Reply,eType:eType) |  
   loadModules(instance:Nat,modules:List(eType)) |
   loadModules'(instance:Nat) |
   createExecutorReactor |
@@ -315,7 +313,17 @@ sort Method = struct
   __modules_keys |
   __modules_keys'(modules:List(eType)) |
   __execTypes_getExecutorsConnected |
-  __execTypes_getExecutorsConnected'(etypes:List(eType))
+  __execTypes_getExecutorsConnected'(etypes:List(eType)) |
+  checkPlatformSupported(jobState:TaskObject) |
+  checkPlatformSupported'(reply:Reply) |
+  checkInputSandbox(jobState:TaskObject) |
+  checkInputSandbox'(reply:Reply) |
+  __resolveInputData(jobState:TaskObject) |
+  __resolveInputData'(reply:Reply) |
+  __getSitesRequired(jobState:TaskObject) |
+  __getSitesRequired'(reply:Reply) |
+  db_setStatus(jid:Nat,fullStatus:FullStatus) |
+  db_setStatus'
   
 ;
 
@@ -331,7 +339,7 @@ sort Message = struct ProcessTask |
 sort Mind = struct OptimizationMind | OtherMind;
 
 sort MinorStatus = struct NewMinor | JobPath | JobSanity | InputData | JobScheduling | PilotAgentSubmission | FailedMinor | JobRescheduled | MarkedForTermination |
-    MaxReschedulings | All | None;
+    MaxReschedulings | None;
 
 sort eType = MinorStatus;
 % struct JobPath | JobSanity | InputData | JobScheduling | None ;
@@ -850,6 +858,35 @@ eqn
     !(etype(instance)==etype) -> __instances_delAfterPop(instance|>instances,etype) = instance|>__instances_delAfterPop(instances,etype);
 
 %-----------------
+map setStatus:List(TaskObject) # Nat # FullStatus -> List(TaskObject);
+    getJobAttributes:List(TaskObject) # Nat -> FullStatus;
+    selectJobs:List(TaskObject) # Status # List(MinorStatus) -> List(Nat);
+
+var list:List(TaskObject);
+    newStatus:FullStatus;
+    jid:Nat;
+    job:TaskObject;
+    major:Status;
+    minors:List(MinorStatus);
+    minor:MinorStatus;
+% sort TaskObject = struct taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType,status:FullStatus) | NullObj;
+
+eqn
+   setStatus([],jid,newStatus) = [];
+   (taskID(job)==jid) -> setStatus(job|>list,jid,newStatus) = taskObj(jid,optimizationChain(job),eType(job),newStatus)|>setStatus(list,jid,newStatus);
+  !(taskID(job)!=jid) -> setStatus(job|>list,jid,newStatus) = job|>setStatus(list,jid,newStatus);
+
+   getJobAttributes([],jid) = statusBundle(Failed,FailedMinor);
+   (taskID(job)==jid) -> getJobAttributes(job|>list,jid) = status(job);
+   !(taskID(job)==jid) -> getJobAttributes(job|>list,jid) = getJobAttributes(list,jid);
+
+   selectJobs([],major,minors) = [];
+   (status(status(job))==major && minorStatus(status(job)) in minors) -> selectJobs(job|>list,major,minors) = taskID(job)|>selectJobs(list,major,minors);
+   (status(status(job))==major && minors==[]) -> selectJobs(job|>list,major,minors) = taskID(job)|>selectJobs(list,major,minors);
+   (status(status(job))!=major) ->  selectJobs(job|>list,major,minors) =  selectJobs(list,major,minors);
+%-----------------
+
+
 map indexOf: List(eType) # eType -> Int;
     indexOf': List(eType) # eType # Nat -> Int;
 
@@ -1049,6 +1086,40 @@ proc ExecutorReactor_mem(id:Nat,executorModules:__executorModules,minds:__minds)
   sum mind:Mind,mindClusterId:Nat.method_var_begin(id,__minds_set(mind,mindClusterId)).method_var_end(id,__minds_set')
     .ExecutorReactor_mem(id,executorModules,__minds_set(minds,mind,mindClusterId))
 ;
+
+%-----------
+proc JobDB_mem(id:Nat,jobs:List(TaskObject)) = 
+  sum jid:Nat,fullStatus:FullStatus.method_var_begin(id,db_setStatus(jid,fullStatus)).method_var_end(id,db_setStatus')
+  .JobDB_mem(id,setStatus(jobs,jid,fullStatus))
+  +
+  sum jid:Nat.method_var_begin(id,db_getJobAttributes(jid)).  (
+		      method_var_end(id,db_getJobAttributes'(OK,getJobAttributes(jobs,jid))) +
+		      method_var_end(id,db_getJobAttributes'(ERROR,getJobAttributes(jobs,jid)))
+		      )
+  .JobDB_mem(id,jobs)
+  +
+    sum jid:Nat.method_var_begin(id,db_rescheduleJob(jid)) % not implemented, change!
+   % max reschedulings modeled as a nondeterministic choice (see __dispatchTask SD)
+%   .  (
+%   method_call_begin(id, db_setJobAttributes(jid,statusBundle(Received,JobRescheduled)))
+%   +
+%   method_call_begin(id, db_setJobAttributes(jid,statusBundle(Failed,MaxReschedulings)))  
+%   )
+%   sum reply:Reply.method_call_end(id,db_setJobAttributes'(reply)).
+   .method_var_end(id,db_rescheduleJob'(OK))
+  .JobDB_mem(id,jobs)
+  + % not implemented
+  sum jid:Nat,fullStatus:FullStatus.method_var_begin(id,db_setJobAttributes(jid,fullStatus)).
+   (method_var_end(id,db_setJobAttributes'(OK)) + method_var_end(id, db_setJobAttributes'(ERROR)))
+  .JobDB_mem(id,jobs)
+  +
+  sum status:Status,minorStatus:List(MinorStatus).method_var_begin(id,db_selectJobs(status,minorStatus)).
+  method_var_end(id,db_selectJobs'([2,4]))
+  .JobDB_mem(id,jobs)
+
+;
+
+
 
 % end-memory processes
 
@@ -1368,7 +1439,7 @@ proc CachedJobState_recheckValidity(id:Nat) =
 proc JobState_getAttributes(id:Nat) = 
 (
   sum attrs:TypeAttr.method_var_begin(id,getAttributes(attrs)).
-  method_var_end(id,getAttributes'(OK)) % not implemented 
+  method_var_end(id,getAttributes'(OK)) % not implemented, selects Status/MinorStatus 
   
 
 )
@@ -1514,33 +1585,105 @@ proc CachedJobState_getManifest(id:Nat) =
 %---------DONE client---------  
 proc ModInstance_optimizeJob(id:Nat,nameInstance:eType) = 
   sum jid:Nat,jobState:TaskObject.method_var_begin(id,optimizeJob(jid,jobState)).
-    method_call_begin(id,getManifest(jobState)).
-    sum reply:Reply.method_call_end(id,getManifest'(reply)).
-    (reply!=OK) ->
-      method_var_end(id,optimizeJob'(reply,jobState))
-      <>
+  (nameInstance==JobPath)-> 
       (
-	method_call_begin(id,getInputData(jobState)).
-	sum inputData:Bool.method_call_end(id,getInputData'(inputData)).
-	%result = self.__setOptimizerChain( jobState, opPath )
-	(
-	  (inputData -> % FIXED, CHANGE!! THIS IS FOR JobPath only :(
-	  method_call_begin(id,__setOptimizerChain(jobState,[JobPath,JobSanity,InputData,JobScheduling]))
-	  <>
-	  method_call_begin(id,__setOptimizerChain(jobState,[JobPath,JobSanity,JobScheduling]))
-	  ).
-	  sum reply1:Reply,jobState1:TaskObject.method_call_end(id,__setOptimizerChain'(reply1,jobState1)).
-	  (reply1!=OK) ->
-	    method_var_end(id,optimizeJob'(reply1,jobState1))
+	  method_call_begin(id,getManifest(jobState)).
+	  sum reply:Reply.method_call_end(id,getManifest'(reply)).
+	  (reply!=OK) ->
+	    method_var_end(id,optimizeJob'(reply,jobState))
 	    <>
 	    (
-	      %    return self.setNextOptimizer( jobState )
-	      method_call_begin(id,setNextOptimizer(jobState)).
-	      sum reply2:Reply.method_call_end(id,setNextOptimizer'(reply2))
+	      method_call_begin(id,getInputData(jobState)).
+	      sum inputData:Bool.method_call_end(id,getInputData'(inputData)).
+	      %result = self.__setOptimizerChain( jobState, opPath )
+	      (
+		(inputData -> 
+		method_call_begin(id,__setOptimizerChain(jobState,[JobPath,JobSanity,InputData,JobScheduling]))
+		<>
+		method_call_begin(id,__setOptimizerChain(jobState,[JobPath,JobSanity,JobScheduling]))
+		).
+		sum reply1:Reply,jobState1:TaskObject.method_call_end(id,__setOptimizerChain'(reply1,jobState1)).
+		(reply1!=OK) ->
+		  method_var_end(id,optimizeJob'(reply1,jobState1))
+		  <>
+		  (
+		    %    return self.setNextOptimizer( jobState )
+		    method_call_begin(id,setNextOptimizer(jobState)).
+		    sum reply2:Reply.method_call_end(id,setNextOptimizer'(reply2)).
+		    method_var_end(id,optimizeJob'(reply2,jobState))
+		  )
+	      )
 	    )
+      ) 
+    <>
+   (nameInstance==JobSanity) ->
+    (
+	method_call_begin(id,getManifest(jobState)).
+	sum reply:Reply.method_call_end(id,getManifest'(reply)).
+	(reply!=OK) ->
+	  method_var_end(id,optimizeJob'(reply,jobState))
+	<>
+	(
+	  method_call_begin(id,getInputData(jobState)).
+	  sum inputData:Bool.method_call_end(id,getInputData'(inputData)).
+	  !inputData -> method_var_end(id,optimizeJob'(reply,jobState))
+	  <>
+	    method_call_begin(id,checkPlatformSupported(jobState)).
+	    sum platformCheck:Reply.method_call_end(id,checkPlatformSupported'(platformCheck)).
+	    (platformCheck!=OK) -> method_var_end(id,optimizeJob'(platformCheck,jobState))
+	      <>
+	      method_call_begin(id,checkInputSandbox(jobState)).
+	      sum inputsandbox:Reply.method_call_end(id,checkInputSandbox'(inputsandbox)).
+	      (inputsandbox!=OK) -> method_var_end(id,optimizeJob'(inputsandbox,jobState))
+	      <>
+		    method_call_begin(id,setNextOptimizer(jobState)).
+		    sum reply2:Reply.method_call_end(id,setNextOptimizer'(reply2)).
+		    method_var_end(id,optimizeJob'(reply2,jobState))
 	)
-      )
+    ) <>
+   (nameInstance==InputData) ->
+    (
+	method_call_begin(id,__resolveInputData(jobState)).
+	sum reply:Reply.method_call_end(id,__resolveInputData'(reply)).
+	(reply!=OK) -> method_var_end(id,optimizeJob'(reply,jobState))
+	<>
+	  method_call_begin(id,setNextOptimizer(jobState)).
+	  sum reply2:Reply.method_call_end(id,setNextOptimizer'(reply2)).
+	  method_var_end(id,optimizeJob'(reply2,jobState))
+    ) <>
+    (nameInstance==JobScheduling) ->
+    (
+      method_call_begin(id,__getSitesRequired(jobState)).
+      sum reply:Reply.method_call_end(id,__getSitesRequired'(reply)).
+      (reply!=OK) -> method_var_end(id,optimizeJob'(reply,jobState))
+      <>
+	method_var_end(id,optimizeJob'(OK,jobState))
+    )
 ;
+% JobSanity
+proc ModInstance_checkPlatformSupported(id:Nat) = 
+  sum jobState:TaskObject.method_var_begin(id,checkPlatformSupported(jobState)).
+  ( method_var_end(id,checkPlatformSupported'(OK)) + method_var_end(id,checkPlatformSupported'(ERROR)))
+;
+
+% JobSanity
+proc ModInstance_checkInputSandbox(id:Nat) = 
+  sum jobState:TaskObject.method_var_begin(id,checkInputSandbox(jobState)).
+  ( method_var_end(id,checkInputSandbox'(OK)) + method_var_end(id,checkInputSandbox'(ERROR)))
+;
+
+% InputData
+proc ModInstance___resolveInputData(id:Nat) = 
+  sum jobState:TaskObject.method_var_begin(id,__resolveInputData(jobState)).
+  ( method_var_end(id,__resolveInputData'(OK)) + method_var_end(id,__resolveInputData'(ERROR)))
+;
+
+% JobScheduling
+proc ModInstance___getSitesRequired(id:Nat) = 
+  sum jobState:TaskObject.method_var_begin(id,__getSitesRequired(jobState)).
+  ( method_var_end(id,__getSitesRequired'(OK)) + method_var_end(id,__getSitesRequired'(ERROR)))
+;
+
 
 %---------DONE client---------  
 proc ModInstance_setNextOptimizer(id:Nat,nameInstance:eType) = 
@@ -1826,7 +1969,9 @@ sum jid:Nat,cachedJobState:TaskObject.method_var_begin(id,exec_TaskError(jid,cac
 
 %-----------DONE server---
 proc JobState_setStatus1(id:Nat) =
-  sum jobState:TaskObject,fullStatus:FullStatus.method_var_begin(id, setStatus1(jobState,fullStatus)).  % refine, needs to talk to JobDB
+  sum jobState:TaskObject,fullStatus:FullStatus.method_var_begin(id, setStatus1(jobState,fullStatus)). 
+  method_call_begin(id, db_setStatus(taskID(jobState),fullStatus)).
+  method_call_end(id,db_setStatus').
   method_var_end(id,setStatus1'(OK)) 
 ;
 
@@ -1868,55 +2013,25 @@ proc JobState_setManifest(id:Nat) =
 %-----------DONE server---
 proc JobState_rescheduleJob(id:Nat) =
  sum jobState:TaskObject.method_var_begin(id,rescheduleJob(jobState)).
-  method_call_begin(id,rescheduleJobDB(22)).% fixed jid for now = 22
-  sum reply:Reply.method_call_end(id, rescheduleJobDB'(reply)).
+  method_call_begin(id,db_rescheduleJob(taskID(jobState))).
+  sum reply:Reply.method_call_end(id, db_rescheduleJob'(reply)).
   method_var_end(id,rescheduleJob'(reply))
 ;
 
-%-----------DONE server---
-proc JobDB_rescheduleJobDB(id:Nat) =
-  sum jid:Nat.method_var_begin(id,rescheduleJobDB(jid)).
-   % max reschedulings modeled as a nondeterministic choice (see __dispatchTask SD)
-  (
-  method_call_begin(id, setJobAttributes(jid,statusBundle(Received,JobRescheduled)))
-  +
-  method_call_begin(id, setJobAttributes(jid,statusBundle(Failed,MaxReschedulings)))  
-  ).
-  sum reply:Reply.method_call_end(id,setJobAttributes'(reply)).
-  method_var_end(id,rescheduleJobDB'(reply))
-;
-
-
-%-----------DONE server---
-proc JobDB_setJobAttributes(id:Nat) =  % refine
-  sum jid:Nat,fullStatus:FullStatus.method_var_begin(id,setJobAttributes(jid,fullStatus)).
-  (method_var_end(id,setJobAttributes'(OK)) + method_var_end(id, setJobAttributes'(ERROR)))
-;
-
-
-
-%-----------DONE server---
-proc JobDB_getJobAttributes(id:Nat) =  % refine
-  sum jid:Nat.method_var_begin(id,getJobAttributes(jid)).
-  (
-  method_var_end(id,getJobAttributes'(OK,statusBundle(Checking,JobSanity))) +
-  method_var_end(id,getJobAttributes'(ERROR,statusBundle(Failed,FailedMinor)))
-  )
-;
 
 %-----------DONE server---
 proc JobState_commitCache(id:Nat) =
   sum cachedJobState:TaskObject,initState:FullStatus,trace:List(FullStatus).method_var_begin(id,commitCache(cachedJobState,initState,trace)).
-  method_call_begin(id,getJobAttributes(22)).  % jid fixed = 22
-  sum reply:Reply, currentStatus:FullStatus.method_call_end(id,getJobAttributes'(reply,currentStatus)).
+  method_call_begin(id,db_getJobAttributes(taskID(cachedJobState))).
+  sum reply:Reply, currentStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply,currentStatus)).
   ((reply!=OK) || (initState!=currentStatus)) -> method_var_end(id,commitCache'(reply,currentStatus))
     <>
   (
-      method_call_begin(id,setJobAttributes(22, trace.0)).  % fixed trace element pos=0 for update, change it!!
-      sum reply1:Reply.method_call_end(id,setJobAttributes'(reply1)).
+      method_call_begin(id,db_setJobAttributes(22, trace.0)).  % fixed trace element pos=0 for update, change it!!
+      sum reply1:Reply.method_call_end(id,db_setJobAttributes'(reply1)).
       (reply!=OK) -> method_var_end(id,commitCache'(reply1,currentStatus)) <>
-	method_call_begin(id,getJobAttributes(22)).
-	sum reply2:Reply,newInitStatus:FullStatus.method_call_end(id,getJobAttributes'(reply2,newInitStatus)).
+	method_call_begin(id,db_getJobAttributes(22)).
+	sum reply2:Reply,newInitStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply2,newInitStatus)).
 	method_var_end(id,commitCache'(reply2,newInitStatus))
   )
 ;
@@ -1925,8 +2040,8 @@ proc JobState_commitCache(id:Nat) =
 proc CachedJobState_cleanState(id:Nat) = 
     sum jobState:TaskObject, skipInitState:Bool.method_var_begin(id,cleanState(jobState,skipInitState)).
     ((!skipInitState) -> 
-      method_call_begin(id,getJobAttributes(22)). % jid fixed = 22, should be deduced from CachedJobState?
-      sum reply:Reply,newInitStatus:FullStatus.method_call_end(id,getJobAttributes'(reply,newInitStatus))
+      method_call_begin(id,db_getJobAttributes(taskID(jobState))). % jid fixed = 22, should be deduced from CachedJobState?
+      sum reply:Reply,newInitStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply,newInitStatus))
       <> internal)
       .method_var_end(id,cleanState')
       % !! __initState should be updated after this: self.__initState = result[ 'Value' ]
@@ -1994,8 +2109,8 @@ proc CachedJobState_getStatus(id:Nat) =
 %-----------DONE server---
 proc JobState_getStatus(id:Nat) = 
   sum jobState:TaskObject,jid:Nat.method_var_begin(id,getStatus1(jobState,jid)). % NOPE, USE JobDB
-  method_call_begin(id, getJobAttributes(jid)).
-  sum reply:Reply,fullStatus:FullStatus.method_call_end(id,getJobAttributes'(reply,fullStatus)).
+  method_call_begin(id, db_getJobAttributes(jid)).
+  sum reply:Reply,fullStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply,fullStatus)).
   method_var_end(id,getStatus1'(reply,fullStatus))
 ;
 
@@ -2391,22 +2506,17 @@ proc JobManagerHandler___sendNewJobsToMind(id:Nat) = % <--- THIS IS WHERE IT STA
 %-----------DONE server---
 proc JobManagerHandler_killJob(id:Nat) = % THIS SHOULD CAUSE RACE CONDITIONS
   sum jobID:Nat.method_var_begin(id,killJob(jobID)).
-  method_call_begin(id,setJobStatus(jobID,statusBundle(Killed,MarkedForTermination))).
-  method_call_end(id,setJobStatus').
+  method_call_begin(id,db_setStatus(jobID,statusBundle(Killed,MarkedForTermination))).
+  method_call_end(id,db_setStatus').
   method_var_end(id,killJob')
 ;
 
-%-----------DONE server---
-proc JobDB_setJobStatus(id:Nat) = 
-  sum jobID:Nat,status:FullStatus.method_var_begin(id,setJobStatus(jobID,status)). % refine
-  method_var_end(id,setJobStatus')
-;
 
 %-----------DONE server---
 proc JobManager_resetJob(id:Nat) = 
   sum jobID:Nat.method_var_begin(id,resetJobAPI(jobID)).
-  method_call_begin(id,rescheduleJobDB(jobID)).
-  sum reply:Reply.method_call_end(id,rescheduleJobDB'(reply)).
+  method_call_begin(id,db_rescheduleJob(jobID)).
+  sum reply:Reply.method_call_end(id,db_rescheduleJob'(reply)).
   DISET_call_send(id,msg1(OptimizeJobs,[jobID])).
   method_var_end(id,resetJobAPI')
 ;
@@ -2515,14 +2625,14 @@ proc OptimizationMindHandler___loadJobs(id:Nat) =
      (etypes==[]) -> method_var_end(id,__loadJobs'(OK)) 
       <> 
       (
-	method_call_begin(id,selectJobs(Received,[All])).
-	sum jidList:List(Nat).method_call_end(id,selectJobs'(jidList)).
+	method_call_begin(id,db_selectJobs(Received,[])).
+	sum jidList:List(Nat).method_call_end(id,db_selectJobs'(jidList)).
 	method_call_begin(id,getTaskIds).	
 	sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
 	loop___loadJobs(id,jidList,knownJids)
 	
-	.method_call_begin(id,selectJobs(Checking,etypes)). 
-	sum jidList:List(Nat).method_call_end(id,selectJobs'(jidList)).
+	.method_call_begin(id,db_selectJobs(Checking,etypes)). 
+	sum jidList:List(Nat).method_call_end(id,db_selectJobs'(jidList)).
 	method_call_begin(id,getTaskIds).
 	sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
 	loop___loadJobs(id,jidList,knownJids).
@@ -2544,12 +2654,6 @@ proc loop___loadJobs(id:Nat,jidList:List(Nat),knownJids:List(Nat)) =
   internal
 ;
 
-%-----------DONE server---
-proc JobDB_selectJobs(id:Nat) = 
-  % very low level, refine! Fixed for now
-    sum status:Status,minorStatus:List(MinorStatus).method_var_begin(id,selectJobs(status,minorStatus)).
-    method_var_end(id,selectJobs'([2,4]))
-;
 
 %-----------DONE server---
 proc ExecutorDispatcher_getTaskIds(id:Nat) =
@@ -2762,7 +2866,7 @@ proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) ||  %fixed taskId=2
 		JobState_setManifest(id) ||
 		CachedJobState_cleanState(id) ||
 		JobState_rescheduleJob(id) ||
-		JobDB_rescheduleJobDB(id) ||
+% 		JobDB_db_rescheduleJob(id) ||
 		OptimizationMindHandler_exec_dispatch(id) ||
 		CachedJobState_resetJob(id) ||
 		OptimizationMindHandler_msg_OptimizeJobs(id) ||
@@ -2778,7 +2882,7 @@ proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) ||  %fixed taskId=2
 		ExecutorDispatcher___doPeriodicStuff(id) ||
 		ExecutorDispatcher_getExecutorsConnected(id) ||
 		ExecutorDispatcher_getTaskIds(id) ||
-		JobDB_selectJobs(id) ||
+% 		JobDB_db_selectJobs(id) ||
 		OptimizationMindHandler___loadJobs(id) ||
 		OptimizationMindHandler_exec_executorConnected(id) ||
 		ExecutorState_addExecutor(id) ||
@@ -2786,7 +2890,7 @@ proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) ||  %fixed taskId=2
 		OptimizationMindHandler_conn_drop(id) ||
 		OptimizationMindHandler_conn_connected(id) ||
 		JobManager_resetJob(id) ||
-		JobDB_setJobStatus(id) ||
+% 		JobDB_db_setJobStatus(id) ||
 		MindCluster_connect(id) ||
 		ModInstance_ex_getMind(id,JobSanity) ||
 		ModInstance_setMind(id,JobSanity) ||
