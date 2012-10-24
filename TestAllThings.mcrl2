@@ -2505,10 +2505,10 @@ proc ExecutorDispatcher___addTaskIfNew(id:Nat) =
 
 %-----------DONE server---
 proc JobManagerHandler_submitJob(id:Nat) =
-  sum jobIDs:List(Nat).method_var_begin(id,submitJob(jobIDs)).
-  method_call_begin(id,__sendNewJobsToMind(jobIDs)).
+  method_begin(id,submitJob([1,2,3,4])).
+  method_call_begin(id,__sendNewJobsToMind([1,2,3,4])).
   method_call_end(id,__sendNewJobsToMind').
-  method_var_end(id,submitJob')
+  method_end(id,submitJob')
 ;
 
 
@@ -2831,98 +2831,130 @@ proc MindCluster_connect(id:Nat) =
     sum reply:Reply.method_call_end(id,conn_connected'(reply)).
     method_var_end(id,connect')
 ;
+%----service----
 
+proc startService(id:Nat) = JobManagerHandler_submitJob(id) ||
+JobManagerHandler___sendNewJobsToMind(id) ||
+OptimizationMindHandler_msg_OptimizeJobs(id) ||
+OptimizationMindHandler_forgetTask(id) ||
+CachedJobState_cleanState(id) ||
+OptimizationMindHandler_executeTask(id) ||
+ExecutorDispatcher_removeTask(id) ||
+ExecutorState_removeTask(id);
+%-----client---
+proc startClient(id:Nat) = 
+dirac_executor(id) ||
+ExecutorReactor_go(id) ||
+ExecutorReactor_loadModules(id) ||
+ExecutorReactor_createExecutorReactor(id);
 %-----------
-proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) ||  %fixed taskId=2
-		  ExecutorState_getExecutorOfTask(id) ||
-				  ExecutorQueues_deleteTask(id) ||
-				ExecutorState_removeTask(id) ||
-				ExecutorDispatcher___sendTaskToExecutor(id) ||
-				 ExecutorState_freeSlots(id) ||
-				ExecutorQueues_popTask(id) ||
-			      ExecutorState_addTask(id) ||
-			      ExecutorDispatcher___msgTaskToExecutor(id) ||
-			    ExecutorQueues_pushTask(id) ||
-			  MindCallbacks_cbSendTask(id) ||
-		      OptimizationMindHandler___sendTask(id) ||
-		    OptimizationMindHandler_exec_prepareToSend(id) ||
-		      OptimizationMindHandler_exec_serializeTask(id) ||
-		    CachedJobState_recheckValidity(id) ||
-		  CachedJobState_serialize(id) ||
-		MindCluster___processTask(id) ||
-		MindCluster___moduleProcess(id) ||
-		MindCluster___getInstance(id) ||
-		MindCluster___storeInstance(id) ||
-		ModInstance__ex_processTask(id,JobSanity) ||
-		ModInstance___deserialize(id,JobSanity) ||
-		CachedJobState_deserialize(id) ||
-		ModInstance_processTask(id,JobSanity) ||
-		CachedJobState_getManifest(id) ||
-		ModInstance_optimizeJob(id,JobSanity) ||
-		CachedJobState_getInputData(id) ||
-		ModInstance___setOptimizerChain(id,JobSanity) ||
-		CachedJobState_setOptParameter(id) ||
-		CachedJobState_getOptParameter(id) ||
-% 		CachedJobState_setParameter(id) ||  
-		CachedJobState_setStatus(id) ||
-		ExecutorDispatcher___fillExecutors(id) ||
-		ExecutorState_getIdleExecutor(id) ||
-		ExecutorDispatcher___unfreezeTasks(id) ||
-		ExecutorDispatcher___dispatchTask(id) ||
-		ExecutorDispatcher___removeFromFreezer(id) ||
-		ExecutorDispatcher___getNextExecutor(id) ||
-		ExecutorDispatcher_getTask(id) ||
-		ExecutorDispatcher___freezeTask(id) ||
-		MindCallbacks_cbTaskError(id) ||
-		OptimizationMindHandler_exec_TaskError(id) ||
-		JobState_setStatus1(id) ||
-		CachedJobState_commitChanges(id) ||
-		JobState_commitCache(id) ||
-		MindCallbacks_cbDispatch(id) ||
-		JobState_setManifest(id) ||
-		CachedJobState_cleanState(id) ||
-		JobState_rescheduleJob(id) ||
-% 		JobDB_db_rescheduleJob(id) ||
-		OptimizationMindHandler_exec_dispatch(id) ||
-		CachedJobState_resetJob(id) ||
-		OptimizationMindHandler_msg_OptimizeJobs(id) ||
-		ExecutorDispatcher_addTask(id) ||
-		ExecutorDispatcher___addTaskIfNew(id) ||
-		OptimizationMindHandler_forgetTask(id) ||
-		JobManagerHandler_submitJob(id) ||
-		JobManagerHandler___sendNewJobsToMind(id) ||
-		JobManagerHandler_killJob(id) ||
-		OptimizationMindHandler_msg_TaskDone(id) ||
-		OptimizationMindHandler_deserializeTask(id) ||
-		ExecutorDispatcher_taskProcessed(id) ||
-		ExecutorDispatcher___doPeriodicStuff(id) ||
-		ExecutorDispatcher_getExecutorsConnected(id) ||
-		ExecutorDispatcher_getTaskIds(id) ||
-% 		JobDB_db_selectJobs(id) ||
-		OptimizationMindHandler___loadJobs(id) ||
-		OptimizationMindHandler_exec_executorConnected(id) ||
-		ExecutorState_addExecutor(id) ||
-		ExecutorDispatcher_addExecutor(id) ||
-		OptimizationMindHandler_conn_drop(id) ||
-		OptimizationMindHandler_conn_connected(id) ||
-		JobManager_resetJob(id) ||
-% 		JobDB_db_setJobStatus(id) ||
-		MindCluster_connect(id) ||
-		ModInstance_ex_getMind(id,JobSanity) ||
-		ModInstance_setMind(id,JobSanity) ||
-		ModInstance_initialize(id,JobSanity) ||
-		ModInstance__ex_initialize(id,JobSanity) ||
-		MindCluster_addModule(id) ||
-		ExecutorReactor_go(id) ||
-		ExecutorReactor_loadModules(id) ||
-		JobState_getAttributes(id);
-
-proc P(id:Nat) = 
-    method_call_begin(id,removeTaskDispatcher(2)) % taskid=2 fixed
-   .method_call_end(id,removeTaskDispatcher')
-;
-
-proc All(id:Nat) = P(id) || methodsP(id);
+% proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) || 
+% 		  ExecutorState_getExecutorOfTask(id) ||
+% 				  ExecutorQueues_deleteTask(id) ||
+% 				ExecutorState_removeTask(id) ||
+% 				ExecutorDispatcher___sendTaskToExecutor(id) ||
+% 				 ExecutorState_freeSlots(id) ||
+% 				ExecutorQueues_popTask(id) ||
+% 			      ExecutorState_addTask(id) ||
+% 			      ExecutorDispatcher___msgTaskToExecutor(id) ||
+% 			    ExecutorQueues_pushTask(id) ||
+% 			  MindCallbacks_cbSendTask(id) ||
+% 		      OptimizationMindHandler___sendTask(id) ||
+% 		    OptimizationMindHandler_exec_prepareToSend(id) ||
+% 		      OptimizationMindHandler_exec_serializeTask(id) ||
+% 		    CachedJobState_recheckValidity(id) ||
+% 		  CachedJobState_serialize(id) ||
+% 		MindCluster___processTask(id) ||
+% 		MindCluster___moduleProcess(id) ||
+% 		MindCluster___getInstance(id) ||
+% 		MindCluster___storeInstance(id) ||
+% 		ModInstance__ex_processTask(id,JobSanity) ||
+% 		ModInstance___deserialize(id,JobSanity) ||
+% 		CachedJobState_deserialize(id) ||
+% 		ModInstance_processTask(id,JobSanity) ||
+% 		CachedJobState_getManifest(id) ||
+% 		ModInstance_optimizeJob(id,JobSanity) ||
+% 		CachedJobState_getInputData(id) ||
+% 		ModInstance___setOptimizerChain(id,JobSanity) ||
+% 		CachedJobState_setOptParameter(id) ||
+% 		CachedJobState_getOptParameter(id) ||
+% 		CachedJobState_setStatus(id) ||
+% 		ExecutorDispatcher___fillExecutors(id) ||
+% 		ExecutorState_getIdleExecutor(id) ||
+% 		ExecutorDispatcher___unfreezeTasks(id) ||
+% 		ExecutorDispatcher___dispatchTask(id) ||
+% 		ExecutorDispatcher___removeFromFreezer(id) ||
+% 		ExecutorDispatcher___getNextExecutor(id) ||
+% 		ExecutorDispatcher_getTask(id) ||
+% 		ExecutorDispatcher___freezeTask(id) ||
+% 		MindCallbacks_cbTaskError(id) ||
+% 		OptimizationMindHandler_exec_TaskError(id) ||
+% 		JobState_setStatus1(id) ||
+% 		CachedJobState_commitChanges(id) ||
+% 		JobState_commitCache(id) ||
+% 		MindCallbacks_cbDispatch(id) ||
+% 		JobState_setManifest(id) ||
+% 		CachedJobState_cleanState(id) ||
+% 		JobState_rescheduleJob(id) ||
+% 		OptimizationMindHandler_exec_dispatch(id) ||
+% 		CachedJobState_resetJob(id) ||
+% 		OptimizationMindHandler_msg_OptimizeJobs(id) ||
+% 		ExecutorDispatcher_addTask(id) ||
+% 		ExecutorDispatcher___addTaskIfNew(id) ||
+% 		OptimizationMindHandler_forgetTask(id) ||
+% 		JobManagerHandler_submitJob(id) ||
+% 		JobManagerHandler___sendNewJobsToMind(id) ||
+% 		JobManagerHandler_killJob(id) ||
+% 		OptimizationMindHandler_msg_TaskDone(id) ||
+% 		OptimizationMindHandler_deserializeTask(id) ||
+% 		ExecutorDispatcher_taskProcessed(id) ||
+% 		ExecutorDispatcher___doPeriodicStuff(id) ||
+% 		ExecutorDispatcher_getExecutorsConnected(id) ||
+% 		ExecutorDispatcher_getTaskIds(id) ||
+% 		OptimizationMindHandler___loadJobs(id) ||
+% 		OptimizationMindHandler_exec_executorConnected(id) ||
+% 		ExecutorState_addExecutor(id) ||
+% 		ExecutorDispatcher_addExecutor(id) ||
+% 		OptimizationMindHandler_conn_drop(id) ||
+% 		OptimizationMindHandler_conn_connected(id) ||
+% 		JobManager_resetJob(id) ||
+% 		MindCluster_connect(id) ||
+% 		ModInstance_ex_getMind(id,JobSanity) ||
+% 		ModInstance_setMind(id,JobSanity) ||
+% 		ModInstance_initialize(id,JobSanity) ||
+% 		ModInstance__ex_initialize(id,JobSanity) ||
+% 		MindCluster_addModule(id) ||
+% 		ExecutorReactor_go(id) ||
+% 		ExecutorReactor_loadModules(id) ||
+% 		ModInstance_fastTrackDispatch(id,JobSanity) ||
+% 		ModInstance_checkPlatformSupported(id) ||
+% 		ModInstance_checkInputSandbox(id) ||
+% 		ModInstance___resolveInputData(id) ||
+% 		ModInstance___getSitesRequired(id) ||
+% 		ModInstance_setNextOptimizer(id,JobSanity) ||
+% 		ModInstance___serialize(id,JobSanity) ||
+% 		CachedJobState_getStatus(id) ||
+% 		JobState_getStatus(id) ||
+% 		OptimizationMindHandler_msg_TaskError(id) ||
+% 		OptimizationMindHandler_msg_TaskFreeze(id) ||
+% 		OptimizationMindHandler_msg_ExecutorError(id) ||
+% 		ExecutorDispatcher_freezeTask(id) ||
+% 		MindCallbacks_cbTaskFreeze(id) ||
+% 		OptimizationMindHandler_exec_taskFreeze(id) ||
+% 		MindCallbacks_cbTaskProcessed(id) ||
+% 		OptimizationMindHandler_exec_taskProcessed(id) ||
+% 		ExecutorDispatcher___taskReceived(id) ||
+% 		OptimizationMindHandler_executeTask(id) ||
+% 		dirac_executor(id) ||
+% 		ExecutorReactor_createExecutorReactor(id) ||
+% 		JobState_getAttributes(id);
+% 
+% proc P(id:Nat) = 
+%     method_call_begin(id,removeTaskDispatcher(2)) % taskid=2 fixed
+%    .method_call_end(id,removeTaskDispatcher')
+% ;
+% 
+% proc All(id:Nat) = P(id) || methodsP(id);
 
 init hide ({internal},
  allow({internal,method_begin,method_end, DISET_call
@@ -2941,7 +2973,7 @@ DISET_call_send|DISET_call_receive->
 DISET_call
 }, 
 % 				P(1) || ProcP(1)
-				All(1)
+				startService(1) || startClient(1)
 )));
 
 
