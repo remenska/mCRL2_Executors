@@ -1,0 +1,77 @@
+service
+ExecutorDispatcher_removeTask(id) || 
+ExecutorDispatcher___sendTaskToExecutor(id) ||
+ExecutorDispatcher___msgTaskToExecutor(id) ||
+ExecutorDispatcher___fillExecutors(id) ||
+ExecutorState_getIdleExecutor(id) ||
+ExecutorDispatcher___unfreezeTasks(id) ||
+ExecutorDispatcher___dispatchTask(id) ||
+ExecutorDispatcher___removeFromFreezer(id) ||
+ExecutorDispatcher___getNextExecutor(id) ||
+ExecutorDispatcher_getTask(id) ||
+ExecutorDispatcher___freezeTask(id) ||
+ExecutorDispatcher_addTask(id) ||
+ExecutorDispatcher___addTaskIfNew(id) ||
+ExecutorDispatcher_taskProcessed(id) ||
+ExecutorDispatcher___doPeriodicStuff(id) ||
+ExecutorDispatcher_getExecutorsConnected(id) ||
+ExecutorDispatcher_getTaskIds(id) ||
+ExecutorDispatcher_addExecutor(id) ||
+ExecutorDispatcher_freezeTask(id) ||
+ExecutorDispatcher___taskReceived(id) ||
+
+ExecutorState_getExecutorOfTask(id) ||
+ExecutorState_freeSlots(id) ||
+ExecutorState_removeTask(id) ||
+ExecutorState_addTask(id) ||
+ExecutorState_addExecutor(id) ||
+
+ExecutorQueues_deleteTask(id) ||
+ExecutorQueues_popTask(id) ||
+ExecutorQueues_pushTask(id) ||
+
+MindCallbacks_cbSendTask(id) ||
+MindCallbacks_cbTaskError(id) ||
+MindCallbacks_cbDispatch(id) ||
+MindCallbacks_cbTaskFreeze(id) ||
+MindCallbacks_cbTaskProcessed(id) ||
+
+OptimizationMindHandler___sendTask(id) ||
+OptimizationMindHandler_exec_prepareToSend(id) ||
+OptimizationMindHandler_exec_serializeTask(id) ||
+OptimizationMindHandler_exec_TaskError(id) ||
+OptimizationMindHandler_exec_dispatch(id) ||
+OptimizationMindHandler_msg_OptimizeJobs(id) ||
+OptimizationMindHandler_forgetTask(id) ||
+OptimizationMindHandler_msg_TaskDone(id) ||
+OptimizationMindHandler_deserializeTask(id) ||
+OptimizationMindHandler___loadJobs(id) ||
+OptimizationMindHandler_exec_executorConnected(id) ||
+OptimizationMindHandler_conn_drop(id) ||
+OptimizationMindHandler_conn_connected(id) ||
+OptimizationMindHandler_msg_TaskError(id) ||
+OptimizationMindHandler_msg_TaskFreeze(id) ||
+OptimizationMindHandler_msg_ExecutorError(id) ||
+OptimizationMindHandler_exec_taskFreeze(id) ||
+OptimizationMindHandler_exec_taskProcessed(id) ||
+OptimizationMindHandler_executeTask(id) ||
+
+CachedJobState_recheckValidity(id) ||
+CachedJobState_serialize(id) ||
+CachedJobState_commitChanges(id) ||
+CachedJobState_cleanState(id) ||
+CachedJobState_resetJob(id) ||
+
+JobState_setStatus1(id) ||
+JobState_commitCache(id) ||
+JobState_setManifest(id) ||
+JobState_rescheduleJob(id) ||
+JobState_getAttributes(id);
+
+JobManagerHandler_submitJob(id) ||
+JobManagerHandler___sendNewJobsToMind(id) ||
+JobManagerHandler_killJob(id) ||
+JobManager_resetJob(id) ||
+
+
+
