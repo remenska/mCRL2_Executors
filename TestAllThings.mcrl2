@@ -357,7 +357,7 @@ sort FullStatus = struct statusBundle(status:Status,minorStatus:MinorStatus);
 % sort MinorStatus = struct MinorStatus1 | MinorStatus2;
 
 sort TypeAttr = struct Attr1 | Attr2;
-sort TaskObject = struct taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType,status:FullStatus) | NullObj;
+sort TaskObject = struct taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType,status:FullStatus,initState:FullStatus,cache:List(FullStatus)) | NullObj;
 % ==================DATA 
 
 
@@ -880,7 +880,7 @@ var list:List(TaskObject);
 
 eqn
    setStatus([],jid,newStatus) = [];
-   (taskID(job)==jid) -> setStatus(job|>list,jid,newStatus) = taskObj(jid,optimizationChain(job),eType(job),newStatus)|>setStatus(list,jid,newStatus);
+   (taskID(job)==jid) -> setStatus(job|>list,jid,newStatus) = taskObj(jid,optimizationChain(job),eType(job),newStatus,initState(job),cache(job))|>setStatus(list,jid,newStatus);
   !(taskID(job)!=jid) -> setStatus(job|>list,jid,newStatus) = job|>setStatus(list,jid,newStatus);
 
    getJobAttributes([],jid) = statusBundle(Failed,FailedMinor);
@@ -893,7 +893,7 @@ eqn
    (status(status(job))!=major) ->  selectJobs(job|>list,major,minors) =  selectJobs(list,major,minors);
    
    setOptParameter([],jid,opChain) = [];
-   (taskID(job)==jid) -> setOptParameter(job|>list,jid,opChain) = taskObj(jid,opChain,eType(job),status(job))|>setOptParameter(list,jid,opChain);
+   (taskID(job)==jid) -> setOptParameter(job|>list,jid,opChain) = taskObj(jid,opChain,eType(job),status(job),initState(job),cache(job))|>setOptParameter(list,jid,opChain);
    !(taskID(job)==jid) -> setOptParameter(job|>list,jid,opChain) = job|>setOptParameter(list,jid,opChain);
 
   getOptParameter([],jid) = [];
@@ -1990,7 +1990,7 @@ proc JobState_setStatus1(id:Nat) =
 proc CachedJobState_commitChanges(id:Nat) =
   sum cachedJobState:TaskObject.method_var_begin(id,commitChanges(cachedJobState)).
   % self.__jobState.commitCache( self.__initState, changes, self.__jobLog )
-  method_call_begin(id,commitCache(cachedJobState, statusBundle(Checking,JobSanity),[statusBundle(Checking,JobScheduling)])).  % jobState should be passed, not cachedJobState! revise;  initialState fixed, trace fixed 
+  method_call_begin(id,commitCache(cachedJobState, initState(cachedJobState),cache(cachedJobState))). 
   sum reply:Reply,newState:FullStatus.method_call_end(id,commitCache'(reply,newState)).
   (reply!=OK) ->
     method_call_begin(id,cleanState(cachedJobState,false)).
@@ -2037,20 +2037,26 @@ proc JobState_commitCache(id:Nat) =
   ((reply!=OK) || (initState!=currentStatus)) -> method_var_end(id,commitCache'(reply,currentStatus))
     <>
   (
-      method_call_begin(id,db_setJobAttributes(22, trace.0)).  % fixed trace element pos=0 for update, change it!!
-      sum reply1:Reply.method_call_end(id,db_setJobAttributes'(reply1)).
-      (reply!=OK) -> method_var_end(id,commitCache'(reply1,currentStatus)) <>
-	method_call_begin(id,db_getJobAttributes(22)).
+	loop__commitCache(id,taskID(cachedJobState),cache(cachedJobState)).
+	method_call_begin(id,db_getJobAttributes(taskID(cachedJobState))).
 	sum reply2:Reply,newInitStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply2,newInitStatus)).
 	method_var_end(id,commitCache'(reply2,newInitStatus))
   )
+;
+
+proc loop__commitCache(id:Nat,jid:Nat,trace:List(FullStatus)) =
+  (trace!=[]) ->
+     method_call_begin(id,db_setJobAttributes(jid, head(trace))).
+     sum reply1:Reply.method_call_end(id,db_setJobAttributes'(reply1))
+     .loop__commitCache(id,jid,tail(trace))
+    <> internal
 ;
 
 %-----------DONE server---
 proc CachedJobState_cleanState(id:Nat) = 
     sum jobState:TaskObject, skipInitState:Bool.method_var_begin(id,cleanState(jobState,skipInitState)).
     ((!skipInitState) -> 
-      method_call_begin(id,db_getJobAttributes(taskID(jobState))). % jid fixed = 22, should be deduced from CachedJobState?
+      method_call_begin(id,db_getJobAttributes(taskID(jobState))). 
       sum reply:Reply,newInitStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply,newInitStatus))
       <> internal)
       .method_var_end(id,cleanState')
@@ -2180,9 +2186,9 @@ proc loop_msg_OptimizeJobs(id:Nat,jids:List(Nat)) =
     method_call_begin(id,forgetTask(head(jids))).
     method_call_end(id,forgetTask').
     % !! FIX: instance of CachedJobState should be passed. Here it's Bool; CachedJobState( jid ). plus in constructor there is "cleanState"; cachedJobState=true
-    method_call_begin(id,cleanState(taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor)),false)).
+    method_call_begin(id,cleanState(taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[]),false)).
     method_call_end(id,cleanState'). 
-    method_call_begin(id,executeTask(head(jids),taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor)))).
+    method_call_begin(id,executeTask(head(jids),taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[]))).
     sum reply:Reply.method_call_end(id,executeTask'(reply))
     
     .loop_msg_OptimizeJobs(id,tail(jids))
@@ -2655,7 +2661,7 @@ proc loop___loadJobs(id:Nat,jidList:List(Nat),knownJids:List(Nat)) =
    (
      !(head(jidList) in knownJids) -> 
       (
-	method_call_begin(id,executeTask(head(jidList),taskObj(4,[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor)))). % cls.executeTask( jid, CachedJobState( jid ) ) <-- CachedJobState = true <- fixed!
+	method_call_begin(id,executeTask(head(jidList),taskObj(head(jidList),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[]))). % cls.executeTask( jid, CachedJobState( jid ) ) <-- CachedJobState = true <- fixed!
 	sum reply:Reply.method_call_end(id,executeTask'(reply))
     ) <> internal
   .loop___loadJobs(id,tail(jidList),knownJids)
