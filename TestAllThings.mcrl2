@@ -31,8 +31,8 @@ sort Method = struct
   serialize(taskObj:TaskObject) | 
   serialize'(result:Reply) | 
   msg(msg:Message,eId:Nat, taskObj:TaskObject) |
-  getAttributes(attributes:TypeAttr) |
-  getAttributes'(result:Reply) | 
+%   getAttributes(attributes:TypeAttr) |
+%   getAttributes'(result:Reply) | 
   removeTaskDispatcher(taskid:Nat) | 
   removeTaskDispatcher' | 	% should return reply:Reply
   __moduleProcess(etype:eType,taskId:Nat,taskObj:TaskObject) |
@@ -61,8 +61,8 @@ sort Method = struct
   __setOptimizerChain'(reply:Reply,jobState:TaskObject) |  
   setOptParameter(opPath:List(eType),jobState:TaskObject) | 
   setOptParameter'(reply:Reply) | 
-  setParameter(opPath:List(eType),jobState:TaskObject) |	
-  setParameter'(reply:Reply) | 
+%   setParameter(opPath:List(eType),jobState:TaskObject) |	
+%   setParameter'(reply:Reply) | 
   setNextOptimizer(jobState:TaskObject) | 
   setNextOptimizer'(reply:Reply) | 
   getOptParameter(jobState:TaskObject) | 
@@ -323,8 +323,13 @@ sort Method = struct
   __getSitesRequired(jobState:TaskObject) |
   __getSitesRequired'(reply:Reply) |
   db_setStatus(jid:Nat,fullStatus:FullStatus) |
-  db_setStatus'
-  
+  db_setStatus' |
+  getJobAttributes(jid:Nat) | 
+  getJobAttributes'(reply:Reply,currentStatus:FullStatus) |
+  db_setOptParameter(jid:Nat,opPath:List(eType)) |
+  db_setOptParameter'(reply:Reply) |
+  db_getOptParameter(jid:Nat) |
+  db_getOptParameter'(opPath:List(eType))
 ;
 
 sort Reply = struct OK | ERROR ;
@@ -631,7 +636,7 @@ sort __taskInExec1 = struct __taskInExec1(taskid:Nat,eid:Nat);
 sort __taskInExec = List(__taskInExec1);
 
 map __taskInExec_get:__taskInExec # Nat -> Int;
-    __taskInExec_set:__taskInExec # Nat # Nat -> __taskInExec; %<--- WHAT HAPPENS IF I SET taskid to eid, but taskid is already in list??<-now fixed to pop it before
+    __taskInExec_set:__taskInExec # Nat # Nat -> __taskInExec; 
     __taskInExec_pop:__taskInExec # Nat -> __taskInExec;
     __taskInExec_keys:__taskInExec -> List(Nat);
     
@@ -665,7 +670,7 @@ map
     __queues_append:__queues # eType # Nat -> __queues;
     __queues_addetype:__queues # eType -> __queues;
     __queues_index:__queues # eType # Nat -> Int; 
-    __queues_pop:__queues # eType # Nat -> Int; % pop from a position, NOT a taskid, but it's always pop(0) so the first one! But it must remove the taskid also!!!!!
+    __queues_pop:__queues # eType # Nat -> Int; 
     __queues_delAtPos:__queues # eType # Nat -> __queues;
     __queues_helperPos:List(Nat) # Nat -> Int;
     __queues_helperPos':List(Nat) # Nat # Nat -> Int;
@@ -861,6 +866,8 @@ eqn
 map setStatus:List(TaskObject) # Nat # FullStatus -> List(TaskObject);
     getJobAttributes:List(TaskObject) # Nat -> FullStatus;
     selectJobs:List(TaskObject) # Status # List(MinorStatus) -> List(Nat);
+    setOptParameter:List(TaskObject) # Nat # List(eType) -> List(TaskObject);
+    getOptParameter:List(TaskObject) # Nat -> List(eType);
 
 var list:List(TaskObject);
     newStatus:FullStatus;
@@ -869,7 +876,7 @@ var list:List(TaskObject);
     major:Status;
     minors:List(MinorStatus);
     minor:MinorStatus;
-% sort TaskObject = struct taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType,status:FullStatus) | NullObj;
+    opChain:List(eType);
 
 eqn
    setStatus([],jid,newStatus) = [];
@@ -884,6 +891,14 @@ eqn
    (status(status(job))==major && minorStatus(status(job)) in minors) -> selectJobs(job|>list,major,minors) = taskID(job)|>selectJobs(list,major,minors);
    (status(status(job))==major && minors==[]) -> selectJobs(job|>list,major,minors) = taskID(job)|>selectJobs(list,major,minors);
    (status(status(job))!=major) ->  selectJobs(job|>list,major,minors) =  selectJobs(list,major,minors);
+   
+   setOptParameter([],jid,opChain) = [];
+   (taskID(job)==jid) -> setOptParameter(job|>list,jid,opChain) = taskObj(jid,opChain,eType(job),status(job))|>setOptParameter(list,jid,opChain);
+   !(taskID(job)==jid) -> setOptParameter(job|>list,jid,opChain) = job|>setOptParameter(list,jid,opChain);
+
+  getOptParameter([],jid) = [];
+  (taskID(job)==jid) -> getOptParameter(job|>list,jid) = optimizationChain(job);
+  !(taskID(job)==jid) -> getOptParameter(job|>list,jid) = getOptParameter(list,jid);
 %-----------------
 
 
@@ -1090,38 +1105,36 @@ proc ExecutorReactor_mem(id:Nat,executorModules:__executorModules,minds:__minds)
 %-----------
 proc JobDB_mem(id:Nat,jobs:List(TaskObject)) = 
   sum jid:Nat,fullStatus:FullStatus.method_var_begin(id,db_setStatus(jid,fullStatus)).method_var_end(id,db_setStatus')
-  .JobDB_mem(id,setStatus(jobs,jid,fullStatus))
+  .JobDB_mem(id,setStatus(jobs,jid,fullStatus)) % OK
   +
   sum jid:Nat.method_var_begin(id,db_getJobAttributes(jid)).  (
 		      method_var_end(id,db_getJobAttributes'(OK,getJobAttributes(jobs,jid))) +
 		      method_var_end(id,db_getJobAttributes'(ERROR,getJobAttributes(jobs,jid)))
-		      )
+		      )% OK
   .JobDB_mem(id,jobs)
   +
-    sum jid:Nat.method_var_begin(id,db_rescheduleJob(jid)) % not implemented, change!
+    sum jid:Nat.method_var_begin(id,db_rescheduleJob(jid)) % OK
    % max reschedulings modeled as a nondeterministic choice (see __dispatchTask SD)
-%   .  (
-%   method_call_begin(id, db_setJobAttributes(jid,statusBundle(Received,JobRescheduled)))
-%   +
-%   method_call_begin(id, db_setJobAttributes(jid,statusBundle(Failed,MaxReschedulings)))  
-%   )
-%   sum reply:Reply.method_call_end(id,db_setJobAttributes'(reply)).
-   .method_var_end(id,db_rescheduleJob'(OK)).
+   .(method_var_end(id,db_rescheduleJob'(OK)) + method_var_end(id,db_rescheduleJob'(ERROR))).
   (
     JobDB_mem(id,setStatus(jobs,jid,statusBundle(Received,JobRescheduled)))
     +
     JobDB_mem(id,setStatus(jobs,jid,statusBundle(Failed,MaxReschedulings)))
-  )
-  .JobDB_mem(id,jobs)
-  + % not implemented
+  ).JobDB_mem(id,jobs)  % OK
+  + 
   sum jid:Nat,fullStatus:FullStatus.method_var_begin(id,db_setJobAttributes(jid,fullStatus)).
    (method_var_end(id,db_setJobAttributes'(OK)) + method_var_end(id, db_setJobAttributes'(ERROR)))
-  .JobDB_mem(id,jobs)
+  .JobDB_mem(id,setStatus(jobs,jid,fullStatus))  % OK
   +
   sum status:Status,minorStatus:List(MinorStatus).method_var_begin(id,db_selectJobs(status,minorStatus)).
   method_var_end(id,db_selectJobs'(selectJobs(jobs,status,minorStatus)))
+  .JobDB_mem(id,jobs)  % OK
+  +
+  sum jid:Nat,opPath:List(eType).method_var_begin(id,db_setOptParameter(jid,opPath)).method_var_end(id,db_setOptParameter'(OK))
+  .JobDB_mem(id,setOptParameter(jobs,jid,opPath))
+  +
+  sum jid:Nat.method_var_begin(id,db_getOptParameter(jid)).method_var_end(id,db_getOptParameter'(getOptParameter(jobs,jid)))
   .JobDB_mem(id,jobs)
-
 ;
 
 
@@ -1162,7 +1175,7 @@ proc ExecutorDispatcher_removeTask(id:Nat) =
       method_call_end(id,deleteTask').
       method_call_begin(id,removeTask(taskId,0)). % eid=0 fixed! to represent eId=None
       sum result:Bool.method_call_end(id,removeTask'(result)).
-      ((eId>0) -> method_call_begin(id,__sendTaskToExecutor(eId,[],true)).method_call_end(id,__sendTaskToExecutor') % fixed [] for eTypes=false;checkIdle=true is ok, should be
+      ((eId>0) -> method_call_begin(id,__sendTaskToExecutor(eId,[],true)).method_call_end(id,__sendTaskToExecutor') % fixed [] for eTypes=false;checkIdle=true is ok
       .method_var_end(id,removeTaskDispatcher')
       <> internal
       )
@@ -1423,14 +1436,14 @@ proc OptimizationMindHandler_exec_serializeTask(id:Nat) =
 % .OptimizationMindHandler_exec_serializeTask(id)
 ;
 
-%-----------DONE server, but needs recheck
+%-----------DONE server----
 proc CachedJobState_recheckValidity(id:Nat) =
 (
   sum taskObj:TaskObject.method_var_begin(id,recheckValidity(taskObj)).
   % if graceTime <= 0 or now - self.__lastValidState > graceTime <-- Condition made into nondeterministic choice
   (
-   method_call_begin(id,getAttributes(Attr1)). % getAttributes should maybe return the Status, not OK|ERROR
-   sum reply:Reply.method_call_end(id,getAttributes'(reply)).
+   method_call_begin(id,getJobAttributes(taskID(taskObj))).
+   sum reply:Reply,fullStatus:FullStatus.method_call_end(id,getJobAttributes'(reply,fullStatus)).
     method_var_end(id,recheckValidity'(reply))
     + 
     internal
@@ -1443,8 +1456,10 @@ proc CachedJobState_recheckValidity(id:Nat) =
 %-----------server--------
 proc JobState_getAttributes(id:Nat) = 
 (
-  sum attrs:TypeAttr.method_var_begin(id,getAttributes(attrs)).
-  method_var_end(id,getAttributes'(OK)) % not implemented, selects Status/MinorStatus 
+  sum jid:Nat.method_var_begin(id,getJobAttributes(jid)).
+    method_call_begin(id,db_getJobAttributes(jid)).
+    sum reply:Reply,fullStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply,fullStatus)).
+  method_var_end(id,getJobAttributes'(reply,fullStatus))
   
 
 )
@@ -1454,7 +1469,7 @@ proc JobState_getAttributes(id:Nat) =
 %-----------server AND client both??-----
 proc CachedJobState_serialize(id:Nat) =
 (
-  sum jobState:TaskObject.method_var_begin(id,serialize(jobState)).		  % refine, not implemented yet!!
+  sum jobState:TaskObject.method_var_begin(id,serialize(jobState)).	
   method_var_end(id,serialize'(OK))
 )
 % . CachedJobState_serialize(id)
@@ -1487,20 +1502,20 @@ proc MindCluster___moduleProcess(id:Nat) =
       method_var_end(id,__moduleProcess'(OK,TaskError))
     <>
       (
-	method_call_begin(id,__modules_keys).
-	sum modules:List(eType).method_call_end(id,__modules_keys'(modules)).
-	(fastTrackType!=None && (fastTrackType in modules)) -> 
-	  % return self.__moduleProcess( fastTrackType, taskId, taskStub, fastTrackLevel + 1 ) 
-	  %<-- HOW TO RECURSIVELY CALL? Like this below?? test it on a hypotethical example
-	  % or just ignore the if section below, it's a new implementation anyways
-	  method_call_begin(id,__moduleProcess(fastTrackType,taskId,taskObj)).
-	  sum reply:Reply,message:Message.method_call_end(id,__moduleProcess'(reply,message)).
-	  method_var_end(id,__moduleProcess'(reply,message))
-	<> (
-	method_var_end(id,__moduleProcess'(OK,TaskFreeze))
-	+
-	method_var_end(id,__moduleProcess'(OK,TaskDone))
-	  )
+% 	  method_call_begin(id,__modules_keys).
+% 	  sum modules:List(eType).method_call_end(id,__modules_keys'(modules)).
+% 	  (fastTrackType!=None && (fastTrackType in modules)) -> 
+	    % return self.__moduleProcess( fastTrackType, taskId, taskStub, fastTrackLevel + 1 ) 
+	    %<-- HOW TO RECURSIVELY CALL? Like this below?? test it on a hypotethical example
+	    % or just ignore the if section below, it's a new implementation anyways
+% 	    method_call_begin(id,__moduleProcess(fastTrackType,taskId,taskObj)).
+% 	    sum reply:Reply,message:Message.method_call_end(id,__moduleProcess'(reply,message)).
+% 	    method_var_end(id,__moduleProcess'(reply,message))
+% 	    <> (
+	      method_var_end(id,__moduleProcess'(OK,TaskFreeze))
+	      +
+	      method_var_end(id,__moduleProcess'(OK,TaskDone))
+% 	      )
       )
     )
 ;
@@ -1600,7 +1615,6 @@ proc ModInstance_optimizeJob(id:Nat,nameInstance:eType) =
 	    (
 	      method_call_begin(id,getInputData(jobState)).
 	      sum inputData:Bool.method_call_end(id,getInputData'(inputData)).
-	      %result = self.__setOptimizerChain( jobState, opPath )
 	      (
 		(inputData -> 
 		method_call_begin(id,__setOptimizerChain(jobState,[JobPath,JobSanity,InputData,JobScheduling]))
@@ -1612,7 +1626,6 @@ proc ModInstance_optimizeJob(id:Nat,nameInstance:eType) =
 		  method_var_end(id,optimizeJob'(reply1,jobState1))
 		  <>
 		  (
-		    %    return self.setNextOptimizer( jobState )
 		    method_call_begin(id,setNextOptimizer(jobState)).
 		    sum reply2:Reply.method_call_end(id,setNextOptimizer'(reply2)).
 		    method_var_end(id,optimizeJob'(reply2,jobState))
@@ -1729,40 +1742,32 @@ proc ModInstance___setOptimizerChain(id:Nat,nameInstance:eType) =
   sum jobState:TaskObject,opPath:List(eType).method_var_begin(id,__setOptimizerChain(jobState,opPath)).
     method_call_begin(id,setOptParameter(opPath,jobState)).
     sum reply:Reply.method_call_end(id,setOptParameter'(reply)).
-    (reply!=OK) ->
-      method_var_end(id,__setOptimizerChain'(reply,jobState))
-      <>
-      method_call_begin(id,setParameter(opPath,jobState)).
-      sum reply1:Reply.method_call_end(id,setParameter'(reply1)).
-      method_var_end(id,__setOptimizerChain'(reply1,jobState))
+    method_var_end(id,__setOptimizerChain'(reply,jobState))
 ;
 
 
 %---------client---------
 proc CachedJobState_setOptParameter(id:Nat) =
-  sum opPath:List(eType),jobState:TaskObject.method_var_begin(id,setOptParameter(opPath,jobState)). % refine
-  method_var_end(id,setOptParameter'(OK))
+  sum opPath:List(eType),jobState:TaskObject.method_var_begin(id,setOptParameter(opPath,jobState)).
+    method_call_begin(id,db_setOptParameter(taskID(jobState),opPath)).
+    sum reply:Reply.method_call_end(id,db_setOptParameter'(reply)).
+  method_var_end(id,setOptParameter'(reply))
 ;
 
 %---------client AND SERVER?---------
 proc CachedJobState_getOptParameter(id:Nat) =
-  sum jobState:TaskObject.method_var_begin(id,getOptParameter(jobState)). % refine
-  method_var_end(id,getOptParameter'(OK,[JobPath,JobSanity,JobScheduling])) % fixed optimization chain for now, needs to talk to DB!! CHANGE!
+  sum jobState:TaskObject.method_var_begin(id,getOptParameter(jobState)).
+    method_call_begin(id,db_getOptParameter(taskID(jobState))).
+    sum opPath:List(eType).method_call_end(id,db_getOptParameter'(opPath)).
+  method_var_end(id,getOptParameter'(OK,opPath))
 ;
-
-%---------client---------
-proc CachedJobState_setParameter(id:Nat) =
-  sum opPath:List(eType),jobState:TaskObject.method_var_begin(id,setParameter(opPath,jobState)). % refine
-  method_var_end(id,setParameter'(OK))
-;
-
-%---------client---------
-
 
 %---------client--------- 
 proc ModInstance___serialize(id:Nat,nameInstance:eType) =
-  sum taskid:Nat,taskStub:TaskObject.method_var_begin(id,__serialize(taskid,taskStub)). % refine
-  method_var_end(id,__serialize'(OK,taskStub)) 
+  sum taskid:Nat,taskStub:TaskObject.method_var_begin(id,__serialize(taskid,taskStub)).
+    method_call_begin(id,serialize(taskStub)).
+    sum reply:Reply.method_call_end(id,serialize'(reply)).
+  method_var_end(id,__serialize'(reply,taskStub)) 
 ;
 
 %---------client--------- 
@@ -1966,7 +1971,7 @@ sum jid:Nat,cachedJobState:TaskObject.method_var_begin(id,exec_TaskError(jid,cac
   method_call_begin(id,commitChanges(cachedJobState)).
   sum reply:Reply.method_call_end(id,commitChanges'(reply)).
   %     jobState = JobState( jid )     <----- SEE HOW TO MODEL THIS, MISSING, instead jobState, cachedJobState is passed below
-%     result = jobState.getStatus()
+%     result = jobState.getStatus()  ^-----UPDATE: this is quite ok, except maybe for performance analysis, how many are created?
   method_call_begin(id,setStatus1(cachedJobState,statusBundle(Failed,FailedMinor))).
   sum reply:Reply.method_call_end(id,setStatus1'(reply)).
   method_var_end(id,exec_TaskError'(reply))
@@ -1994,7 +1999,7 @@ proc CachedJobState_commitChanges(id:Nat) =
     <>
     % if self.__manifest and self.__manifest.isDirty(): <---  model nondeterministic choice?
     (
-      method_call_begin(id,setManifest(cachedJobState)). % jobState should be passed, not cachedJobState! revise; + manifest argument?
+      method_call_begin(id,setManifest(cachedJobState)). 
       sum reply1:Reply.method_call_end(id,setManifest'(reply1)).
       (reply1!=OK) ->
 	method_call_begin(id,cleanState(cachedJobState,false)).
@@ -2005,7 +2010,7 @@ proc CachedJobState_commitChanges(id:Nat) =
       +
       internal
     ).
-    %if self.__insertIntoTQ:  <---  model nondeterministic choice? MISSING!
+    
     method_var_end(id,commitChanges'(OK))
 ;
 
@@ -2098,7 +2103,7 @@ proc CachedJobState_resetJob(id:Nat) =
 %-----------DONE server---
 proc JobState_resetJob(id:Nat) =
   sum jobState:TaskObject.method_var_begin(id,resetJob1(jobState)).
-  	method_call_begin(id,rescheduleJob(jobState)).  % jobState should be passed!!!no,jid should be passed!
+  	method_call_begin(id,rescheduleJob(jobState)). 
 	sum reply2:Reply.method_call_end(id,rescheduleJob'(reply2)).
     method_var_end(id,resetJob1'(reply2))
 ;
@@ -2113,7 +2118,7 @@ proc CachedJobState_getStatus(id:Nat) =
 
 %-----------DONE server---
 proc JobState_getStatus(id:Nat) = 
-  sum jobState:TaskObject,jid:Nat.method_var_begin(id,getStatus1(jobState,jid)). % NOPE, USE JobDB
+  sum jobState:TaskObject,jid:Nat.method_var_begin(id,getStatus1(jobState,jid)).
   method_call_begin(id, db_getJobAttributes(jid)).
   sum reply:Reply,fullStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply,fullStatus)).
   method_var_end(id,getStatus1'(reply,fullStatus))
@@ -2852,7 +2857,7 @@ proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) ||  %fixed taskId=2
 		ModInstance___setOptimizerChain(id,JobSanity) ||
 		CachedJobState_setOptParameter(id) ||
 		CachedJobState_getOptParameter(id) ||
-		CachedJobState_setParameter(id) ||  
+% 		CachedJobState_setParameter(id) ||  
 		CachedJobState_setStatus(id) ||
 		ExecutorDispatcher___fillExecutors(id) ||
 		ExecutorState_getIdleExecutor(id) ||
