@@ -329,8 +329,10 @@ sort Method = struct
   db_setOptParameter(jid:Nat,opPath:List(eType)) |
   db_setOptParameter'(reply:Reply) |
   db_getOptParameter(jid:Nat) |
-  db_getOptParameter'(opPath:List(eType))
-;
+  db_getOptParameter'(opPath:List(eType)) |
+  db_insertNewJobIntoDB(jids:List(Nat)) |% refine later to get one job at a time. Currently to avoid loops
+  db_insertNewJobIntoDB'
+  ;
 
 sort Reply = struct OK | ERROR ;
 
@@ -868,6 +870,7 @@ map setStatus:List(TaskObject) # Nat # FullStatus -> List(TaskObject);
     selectJobs:List(TaskObject) # Status # List(MinorStatus) -> List(Nat);
     setOptParameter:List(TaskObject) # Nat # List(eType) -> List(TaskObject);
     getOptParameter:List(TaskObject) # Nat -> List(eType);
+    insertJobs:List(TaskObject) # List(Nat) -> List(TaskObject);
 
 var list:List(TaskObject);
     newStatus:FullStatus;
@@ -876,6 +879,7 @@ var list:List(TaskObject);
     major:Status;
     minors:List(MinorStatus);
     minor:MinorStatus;
+    jids:List(Nat);
     opChain:List(eType);
 
 eqn
@@ -899,6 +903,10 @@ eqn
   getOptParameter([],jid) = [];
   (taskID(job)==jid) -> getOptParameter(job|>list,jid) = optimizationChain(job);
   !(taskID(job)==jid) -> getOptParameter(job|>list,jid) = getOptParameter(list,jid);
+  
+  insertJobs(list,[]) = list;
+  insertJobs(list,jid|>jids) = taskObj(jid,[],None,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[])|>insertJobs(list,jids);
+  
 %-----------------
 
 
@@ -1135,6 +1143,9 @@ proc JobDB_mem(id:Nat,jobs:List(TaskObject)) =
   +
   sum jid:Nat.method_var_begin(id,db_getOptParameter(jid)).method_var_end(id,db_getOptParameter'(getOptParameter(jobs,jid)))
   .JobDB_mem(id,jobs)
+  +
+  sum jids:List(Nat).method_var_begin(id,db_insertNewJobIntoDB(jids)).method_var_end(id,db_insertNewJobIntoDB')
+  .JobDB_mem(id,insertJobs(jobs,jids))
 ;
 
 
@@ -1212,10 +1223,10 @@ proc ExecutorQueues_deleteTask(id:Nat) =
       
       method_call_begin(id,__queues_index(etype,taskId)).
       sum iPos:Int.method_call_end(id,__queues_index'(iPos)).
-      (iPos!=-1) -> 
+      ((iPos!=-1) -> 
 	  method_call_begin(id,__queues_delAtPos(etype,Int2Nat(iPos))).
 	  method_call_end(id,__queues_delAtPos')
-	  <> internal
+	  <> internal)
     .method_var_end(id,deleteTask')
 
 )
@@ -1225,9 +1236,11 @@ proc ExecutorQueues_deleteTask(id:Nat) =
 proc ExecutorState_removeTask(id:Nat) = 
 (
     sum taskId:Nat,eId:Nat.method_var_begin(id,removeTask(taskId,eId)).
-    (eId==0) -> method_call_begin(id,__taskInExec_get(taskId)).
+    ((eId==0) -> (method_call_begin(id,__taskInExec_get(taskId)).
 		sum eId:Int.method_call_end(id,__taskInExec_get'(eId))
-		<> internal
+		)
+		<> internal)
+		
 	      .method_call_begin(id,__execTasks_removetaskid(Int2Nat(eId),taskId)).
 	      method_call_end(id,__execTasks_removetaskid').
 	      method_call_begin(id,__taskInExec_pop(taskId)).
@@ -1246,11 +1259,11 @@ proc ExecutorDispatcher___sendTaskToExecutor(id:Nat) =
 	(checkIdle && noSlots==0) ->
 	method_var_end(id,__sendTaskToExecutor') <> 
 	  (
-	    (eTypes==[]) -> 
+	    ((eTypes==[]) -> 
 	    (
 	      method_call_begin(id,__idMap_get(eId)).
 	      sum eTypes:List(eType).method_call_end(id,__idMap_get'(eTypes))
-	    ) <> internal.
+	    ) <> internal).
 	  (eTypes==[]) -> method_var_end(id,__sendTaskToExecutor') <>
 	     (
 		method_call_begin(id,popTask(eTypes)).
@@ -1524,7 +1537,9 @@ proc MindCluster___moduleProcess(id:Nat) =
 proc MindCluster___storeInstance(id:Nat) =
   sum etype:eType,modInstance:Nat.method_var_begin(id,__storeInstance(etype,modInstance)).
     method_call_begin(id,__instances_keys).sum etypes:List(eType).method_call_end(id,__instances_keys'(etypes)).
-    !(etype in etypes) -> method_call_begin(id,__instances_addModule(etype)).method_call_end(id,__instances_addModule') <> internal
+    (!(etype in etypes) -> 
+      method_call_begin(id,__instances_addModule(etype)).
+      method_call_end(id,__instances_addModule') <> internal)
     .method_call_begin(id,__instances_append(etype,modInstance)).method_call_end(id,__instances_append').
   method_var_end(id,__storeInstance')
 ;
@@ -1791,8 +1806,8 @@ proc CachedJobState_deserialize(id:Nat) =
 proc MindCluster___getInstance(id:Nat) = 
   sum etype:eType.method_var_begin(id,__getInstance(etype)).
     method_call_begin(id,__instances_keys).sum etypes:List(eType).method_call_end(id,__instances_keys'(etypes)).
-    !(etype in etypes) -> method_call_begin(id,__instances_addModule(etype)).method_call_end(id,__instances_addModule')
-	      <> internal
+    (!(etype in etypes) -> method_call_begin(id,__instances_addModule(etype)).method_call_end(id,__instances_addModule')
+	      <> internal)
     .method_call_begin(id,__instances_pop(etype)).sum inst:Int.method_call_end(id,__instances_pop'(inst)).
     (inst!=-1) ->  method_var_end(id,__getInstance'(Int2Nat(inst)))
     <>
@@ -2001,12 +2016,12 @@ proc CachedJobState_commitChanges(id:Nat) =
     (
       method_call_begin(id,setManifest(cachedJobState)). 
       sum reply1:Reply.method_call_end(id,setManifest'(reply1)).
-      (reply1!=OK) ->
+      ((reply1!=OK) ->
 	method_call_begin(id,cleanState(cachedJobState,false)).
 	method_call_end(id,cleanState'). 
 	method_call_begin(id,rescheduleJob(cachedJobState)).  % jobState should be passed!!!
 	sum reply2:Reply.method_call_end(id,rescheduleJob'(reply2)).
-	method_var_end(id,commitChanges'(reply1)) <> internal
+	method_var_end(id,commitChanges'(reply1)) <> internal)
       +
       internal
     ).
@@ -2506,6 +2521,8 @@ proc ExecutorDispatcher___addTaskIfNew(id:Nat) =
 %-----------DONE server---
 proc JobManagerHandler_submitJob(id:Nat) =
   method_begin(id,submitJob([1,2,3,4])).
+  method_call_begin(id,db_insertNewJobIntoDB([1,2,3,4])).
+  method_call_end(id,db_insertNewJobIntoDB').
   method_call_begin(id,__sendNewJobsToMind([1,2,3,4])).
   method_call_end(id,__sendNewJobsToMind').
   method_end(id,submitJob')
@@ -2582,12 +2599,12 @@ proc ExecutorDispatcher_addExecutor(id:Nat) =
 proc loop_addExecutor(id:Nat,eTypes:List(eType)) =
   (eTypes!=[]) ->
    method_call_begin(id,__execTypes_get_eTypes).sum etypes:List(eType).method_call_end(id,__execTypes_get_eTypes'(etypes)).
-   (head(eTypes) in etypes) -> 
+   ((head(eTypes) in etypes) -> 
 	(
 	  method_call_begin(id,__execTypes_add(head(eTypes))).method_call_end(id,__execTypes_add').
 	  method_call_begin(id,__execTypes_inc(head(eTypes))).method_call_end(id,__execTypes_inc')
 	)
-      <> internal
+      <> internal)
    .method_call_begin(id,__fillExecutors(head(eTypes),true)).
    method_call_end(id,__fillExecutors')
    .loop_addExecutor(id,tail(eTypes))
@@ -2601,9 +2618,9 @@ proc ExecutorState_addExecutor(id:Nat) =
     method_call_begin(id,__maxTasks_add(eid,max(1,maxTasks))).method_call_end(id,__maxTasks_add').
     method_call_begin(id,__execTasks_keys).
     sum eids:List(Nat).method_call_end(id,__execTasks_keys'(eids)).
-    !(eid in eids) -> 
+    (!(eid in eids) -> 
 	method_call_begin(id,__execTasks_addeid(eid)).method_call_end(id,__execTasks_addeid') 
-	<> internal
+	<> internal)
   .loop_addExecutor1(id,eTypes,eid)
   .method_var_end(id,addExecutorState')
 ;
@@ -2612,8 +2629,8 @@ proc loop_addExecutor1(id:Nat,etypes:List(eType),eid:Nat) =
   (etypes!=[]) -> 
   (
     method_call_begin(id,__typeToId_keys).sum etypes1:List(eType).method_call_end(id,__typeToId_keys'(etypes1)).
-    !(head(etypes) in etypes1) -> method_call_begin(id,__typeToId_addeType(head(etypes))).method_call_end(id,__typeToId_addeType')
-			      <> internal
+    (!(head(etypes) in etypes1) -> method_call_begin(id,__typeToId_addeType(head(etypes))).method_call_end(id,__typeToId_addeType')
+			      <> internal)
 	.method_call_begin(id,__typeToId_addeid(head(etypes),eid)).method_call_end(id,__typeToId_addeid')
 	.loop_addExecutor1(id,tail(etypes),eid)
   ) <> internal
@@ -2631,13 +2648,13 @@ proc OptimizationMindHandler_exec_executorConnected(id:Nat) =
 % !! this is also periodic: result = ThreadScheduler.gThreadScheduler.addPeriodicTask( period, cls.__loadJobs )
 proc OptimizationMindHandler___loadJobs(id:Nat) = 
   sum etypes:List(eType).method_var_begin(id,__loadJobs(etypes)).
-    (etypes==[]) ->
+    ((etypes==[]) ->
      ( method_call_begin(id,getExecutorsConnected).
      sum etypes:List(eType).method_call_end(id,getExecutorsConnected'(etypes)) 
       % should take into account only those with >0 counter AND ignore jobPath, change!
       % CHANGED: getExecutorsConnected is only called here, so I changed its implementation to
       % take the above into account 
-     ) <> internal .
+     ) <> internal) .
      (etypes==[]) -> method_var_end(id,__loadJobs'(OK)) 
       <> 
       (
@@ -2659,11 +2676,11 @@ proc OptimizationMindHandler___loadJobs(id:Nat) =
 proc loop___loadJobs(id:Nat,jidList:List(Nat),knownJids:List(Nat)) =
   (jidList!=[]) ->
    (
-     !(head(jidList) in knownJids) -> 
+     (!(head(jidList) in knownJids) -> 
       (
 	method_call_begin(id,executeTask(head(jidList),taskObj(head(jidList),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[]))). % cls.executeTask( jid, CachedJobState( jid ) ) <-- CachedJobState = true <- fixed!
 	sum reply:Reply.method_call_end(id,executeTask'(reply))
-    ) <> internal
+    ) <> internal)
   .loop___loadJobs(id,tail(jidList),knownJids)
   )
    <> 
@@ -2762,9 +2779,9 @@ proc loop_go(id:Nat,instance:Nat,modules:List(eType)) =
     method_call_begin(id,__minds_keys).
     sum minds:List(Mind).method_call_end(id,__minds_keys'(minds)).
    % self.__minds[ mind ] = self.MindCluster( mind, self.__aliveLock ) is missing
-    !(mind in minds) -> method_call_begin(id,__minds_set(mind,instance)).
+    (!(mind in minds) -> method_call_begin(id,__minds_set(mind,instance)).
 			method_call_end(id,__minds_set')
-      <> internal
+      <> internal)
     .method_call_begin(id,addModule(instance,mind,head(modules))).
     method_call_end(id,addModule')
     .loop_go(id,instance,tail(modules))
@@ -2840,13 +2857,27 @@ OptimizationMindHandler_forgetTask(id) ||
 CachedJobState_cleanState(id) ||
 OptimizationMindHandler_executeTask(id) ||
 ExecutorDispatcher_removeTask(id) ||
-ExecutorState_removeTask(id);
+ExecutorState_removeTask(id) ||
+ExecutorState_getExecutorOfTask(id) ||
+ExecutorState_mem(id,[],[],[],[]) ||
+ExecutorQueues_mem(id,[],[]) ||
+ExecutorDispatcher_mem(id,[],[],[],[]) ||
+ExecutorQueues_deleteTask(id) ||
+ExecutorDispatcher_addTask(id) ||
+ExecutorDispatcher___addTaskIfNew(id) ||
+ExecutorDispatcher___dispatchTask(id) ||
+JobDB_mem(id,[])
+
+;
+
 %-----client---
 proc startClient(id:Nat) = 
 dirac_executor(id) ||
 ExecutorReactor_go(id) ||
 ExecutorReactor_loadModules(id) ||
-ExecutorReactor_createExecutorReactor(id);
+ExecutorReactor_createExecutorReactor(id) ||
+ExecutorReactor_mem(id,[],[])
+;
 %-----------
 % proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) || 
 % 		  ExecutorState_getExecutorOfTask(id) ||
