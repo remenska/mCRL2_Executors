@@ -368,11 +368,12 @@ var tf:__taskFreezer;
 
 eqn
     __taskFreezer_append(tf,tid) = tf<|tid;
-
+% __taskFreezer_index'([1], 2, 0)
+% __taskFreezer_index'([2], 3, 1)
     __taskFreezer_index(tf,tid) = __taskFreezer_index'(tf,tid,0);
     __taskFreezer_index'([],tid,n) = -1;
-    tf.n==tid -> __taskFreezer_index'(tf,tid, n) = n;
-    tf.n!=tid -> __taskFreezer_index'(tf,tid,n) = __taskFreezer_index'(tf,tid,n+1);
+    head(tf)==tid -> __taskFreezer_index'(tf,tid,n) = n;
+    head(tf)!=tid -> __taskFreezer_index'(tf,tid,n) = __taskFreezer_index'(tail(tf),tid,n+1);
 
     __taskFreezer_pop(tf,tid) = __taskFreezer_pop'(tf,tid,0);   
     __taskFreezer_pop'([],tid,n) = [];
@@ -862,8 +863,11 @@ proc ExecutorDispatcher_mem(id:Nat,execTypes:__execTypes,tasks:__tasks,freezer:_
   method_var_begin(id,__taskFreezer_len).method_var_end(id,__taskFreezer_len'(#freezer))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
-  sum iP:Nat.method_var_begin(id,__tasks_get(iP)).method_var_end(id,__tasks_get'(__tasks_get(tasks,iP)))
+  method_var_begin(id,__idMap_keys).method_var_end(id,__idMap_keys'(__idMap_keys(idMap)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+%     +
+%   sum iP:Nat.method_var_begin(id,__tasks_get(iP)).method_var_end(id,__tasks_get'(__tasks_get(tasks,iP)))
+%     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
 ;
 
 %-----------
@@ -1045,7 +1049,8 @@ proc loop_popTask(id:Nat,eTypes:List(eType)) =
       method_call_end(id,__taskInQueue_del').
       method_var_end(id,popTask'(Int2Nat(taskid),head(eTypes)))
       <>
-      loop_popTask(id,tail(eTypes)))
+      loop_popTask(id,tail(eTypes))
+      )
     <>
 %     internal
     method_var_end(id,popTask'(0,None))
@@ -1144,8 +1149,8 @@ proc ExecutorDispatcher___fillExecutors(id:Nat) =
 %-----------DONE server---
 proc ExecutorDispatcher___unfreezeTasks(id:Nat) =
   sum etype:eType.method_var_begin(id,__unfreezeTasks(etype)).
-  loop___unfreezeTasks(id,0,etype).
-  method_var_end(id,__unfreezeTasks')
+  loop___unfreezeTasks(id,0,etype)
+%   method_var_end(id,__unfreezeTasks')
 .ExecutorDispatcher___unfreezeTasks(id)
 ;
 
@@ -1172,7 +1177,7 @@ proc loop___unfreezeTasks(id:Nat,iP:Nat,etype:eType) =
 	      loop___unfreezeTasks(id,iP,etype)
       )
     )
-    <> internal
+    <>  method_var_end(id,__unfreezeTasks')
 ;
 
 %----------- DONE server---
@@ -1800,11 +1805,15 @@ proc OptimizationMindHandler_forgetTask(id:Nat) =
 proc OptimizationMindHandler_conn_connected(id:Nat) = 
 %   sum trid:Nat,eTypes:List(eType),maxTasks:Nat.method_var_begin(id,conn_connected(trid,eTypes,maxTasks)).
   (
-    sum trid:Nat,eTypes:List(eType),maxTasks:Nat.
+%     sum trid:Nat,eTypes:List(eType),maxTasks:Nat.
     method_begin(id,conn_connected(1,[JobSanity,JobPath,InputData,JobScheduling],1)).
-    method_call_begin(id,addExecutor(trid,eTypes,maxTasks)).
+%     method_call_begin(id,addExecutor(trid,eTypes,maxTasks)).
+    method_call_begin(id,addExecutor(1,[JobSanity,JobPath,InputData,JobScheduling],1)).
+
     method_call_end(id,addExecutor').
-    method_call_begin(id,exec_executorConnected(trid,eTypes)).
+    method_call_begin(id,exec_executorConnected(1,[JobSanity,JobPath,InputData,JobScheduling])).
+%         method_call_begin(id,exec_executorConnected(trid,eTypes)).
+
     sum reply:Reply.method_call_end(id,exec_executorConnected'(reply)).
     method_end(id,conn_connected'(reply))
   )
@@ -2033,14 +2042,14 @@ proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) ||
 		OptimizationMindHandler_executeTask(id) ||
 ExecutorState_mem(id,[],[],[],[]) ||
 ExecutorQueues_mem(id,[],[]) ||
-ExecutorDispatcher_mem(id,[],[],[],[])
+ExecutorDispatcher_mem(id,[],[],[1],[])
 % JobDB_mem(id,[])
 
 ;
 
 proc P(id:Nat) = 
-    method_call_begin(id,removeTaskDispatcher(2)) % taskid=2 fixed
-   .method_call_end(id,removeTaskDispatcher')
+    method_call_begin(id,__removeFromFreezer(1)) % taskid=2 fixed
+   .sum result:Bool.method_call_end(id,__removeFromFreezer'(result))
 ;
 % 
 proc All(id:Nat) = P(id) || methodsP(id);
