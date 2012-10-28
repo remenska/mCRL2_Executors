@@ -738,12 +738,13 @@ proc ExecutorQueues_mem(id:Nat,queues:__queues,taskInQueue:__taskInQueue) =
   sum etype:eType,pos:Nat.method_var_begin(id,__queues_pop(etype,pos)).method_var_end(id,__queues_pop'(__queues_pop(queues,etype,0)))
       .ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
    +    
-  method_var_begin(id, __taskInQueue_keys).method_var_end(id,__taskInQueue_keys'(__taskInQueue_keys(taskInQueue)))   
+  method_var_begin(id, __taskInQueue_keys).method_var_end(id,__taskInQueue_keys'(__taskInQueue_keys(taskInQueue)))
+      .ExecutorQueues_mem(id,queues,taskInQueue)
    +
   method_var_begin(id,__queues_keys).method_var_end(id,__queues_keys'(__queues_keys(queues)))
       .ExecutorQueues_mem(id,queues,taskInQueue)
    +
-  sum etype:eType.method_var_begin(id,__queues_addetype(etype)).method_var_begin(id,__queues_addetype')
+  sum etype:eType.method_var_begin(id,__queues_addetype(etype)).method_var_end(id,__queues_addetype')
       .ExecutorQueues_mem(id,__queues_addetype(queues,etype),taskInQueue)
    +
   sum etype:eType,taskid:Nat.method_var_begin(id,__queues_insert(etype,taskid)).method_var_end(id,__queues_insert')
@@ -865,9 +866,9 @@ proc ExecutorDispatcher_mem(id:Nat,execTypes:__execTypes,tasks:__tasks,freezer:_
     +
   method_var_begin(id,__idMap_keys).method_var_end(id,__idMap_keys'(__idMap_keys(idMap)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
-%     +
-%   sum iP:Nat.method_var_begin(id,__tasks_get(iP)).method_var_end(id,__tasks_get'(__tasks_get(tasks,iP)))
-%     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+    +
+  sum iP:Nat.method_var_begin(id,__taskFreezer_get(iP)).method_var_end(id,__taskFreezer_get'(__taskFreezer_get(freezer,iP)))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
 ;
 
 %-----------
@@ -986,7 +987,8 @@ proc ExecutorDispatcher___sendTaskToExecutor(id:Nat) =
 	    (
 	      method_call_begin(id,__idMap_get(eId)).
 	      sum eTypes:List(eType).method_call_end(id,__idMap_get'(eTypes))
-	    ) <> internal).
+	    ) <> internal
+	    ).
 	  (eTypes==[]) -> method_var_end(id,__sendTaskToExecutor') <>
 	     (
 		method_call_begin(id,popTask(eTypes)).
@@ -1098,14 +1100,17 @@ proc ExecutorQueues_pushTask(id:Nat) =
       (
 	method_call_begin(id,__queues_keys).
 	sum etypes:List(eType).method_call_end(id,__queues_keys'(etypes)).
-	!(eType in etypes) ->
+	(!(eType in etypes) ->
 	    method_call_begin(id,__queues_addetype(eType)).
 	    method_call_end(id,__queues_addetype')
 	    <>
 	    internal
-	.(ahead) -> method_call_begin(id,__queues_insert(eType,taskId)).method_call_end(id,__queues_insert')
+	 )   
+	.(
+	  (ahead) -> method_call_begin(id,__queues_insert(eType,taskId)).method_call_end(id,__queues_insert')
 	    <>
 		  method_call_begin(id,__queues_append(eType,taskId)).method_call_end(id,__queues_append')
+         )
       ).
 	method_call_begin(id,__taskInQueue_set(taskId,eType)).method_call_end(id,__taskInQueue_set').
 	method_var_end(id,pushTask')
@@ -1430,11 +1435,12 @@ proc OptimizationMindHandler_msg_TaskDone(id:Nat) =
       sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskDone,eId, taskObj)). 
       method_call_begin(id,exec_deserializeTask(taskObj)).
       sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).   
-      (reply!=OK) -> internal <>
+      ((reply!=OK) -> internal <>
 	(
 	  method_call_begin(id,taskProcessed(eId,taskID(taskObj1),taskObj1)). 
 	  sum reply1:Reply.method_call_end(id,taskProcessed'(reply1))
 	)
+      )
   ).OptimizationMindHandler_msg_TaskDone(id)
 ;
 
@@ -1444,11 +1450,12 @@ proc OptimizationMindHandler_msg_TaskError(id:Nat) =
       sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskError,eId, taskObj)).
       method_call_begin(id,exec_deserializeTask(taskObj)).
       sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).
-      (reply!=OK) -> internal <>
+      ((reply!=OK) -> internal <>
 	(
 	  method_call_begin(id,removeTaskDispatcher(taskID(taskObj1))).method_call_end(id,removeTaskDispatcher').
 	  method_call_begin(id,exec_TaskError(taskID(taskObj1),taskObj1)). %msgObj vs taskObj
 	  sum reply:Reply.method_call_end(id,exec_TaskError'(reply))
+	)
 	)
   ).OptimizationMindHandler_msg_TaskError(id)
 ;
@@ -1460,11 +1467,12 @@ proc OptimizationMindHandler_msg_TaskFreeze(id:Nat) =
     sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskFreeze,eId, taskObj)).
     method_call_begin(id,exec_deserializeTask(taskObj)).
     sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).
-    (reply!=OK) -> internal <>
+    ((reply!=OK) -> internal <>
       (
 	method_call_begin(id,freezeTask(eId,taskID(taskObj1),taskObj1)).
 	sum reply1:Reply.method_call_end(id,freezeTask'(reply1))
       )
+     )
   ).OptimizationMindHandler_msg_TaskFreeze(id)
 ;
 
@@ -1850,7 +1858,7 @@ proc ExecutorDispatcher_addExecutor(id:Nat) =
 proc loop_addExecutor(id:Nat,eTypes:List(eType)) =
   (eTypes!=[]) ->
    method_call_begin(id,__execTypes_get_eTypes).sum etypes:List(eType).method_call_end(id,__execTypes_get_eTypes'(etypes)).
-   ((head(eTypes) in etypes) -> 
+   (!(head(eTypes) in etypes) -> 
 	(
 	  method_call_begin(id,__execTypes_add(head(eTypes))).method_call_end(id,__execTypes_add').
 	  method_call_begin(id,__execTypes_inc(head(eTypes))).method_call_end(id,__execTypes_inc')
@@ -2052,7 +2060,9 @@ proc P(id:Nat) =
    .sum result:Bool.method_call_end(id,__removeFromFreezer'(result))
 ;
 % 
-proc All(id:Nat) = P(id) || methodsP(id);
+proc All(id:Nat) = 
+% P(id) || 
+methodsP(id);
 
 init hide ({internal},
  allow({internal,method_begin,method_end, DISET_call
