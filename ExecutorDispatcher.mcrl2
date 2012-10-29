@@ -1337,10 +1337,6 @@ proc MindCallbacks_cbDispatch(id:Nat) =
 proc OptimizationMindHandler_exec_dispatch(id:Nat) = 
   (
       sum jid:Nat,jobState:TaskObject,pathExecuted:List(eType).method_var_begin(id, exec_dispatch(jid,jobState,pathExecuted)).
-      
-	
-% sort TaskObject = struct taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType,status:FullStatus,initState:FullStatus,cache:List(FullStatus)) | NullObj;
-% sort FullStatus = struct statusBundle(status:Status,minorStatus:MinorStatus);
 
       (status(status(jobState))==Received) -> method_var_end(id,exec_dispatch'(OK,JobPath))
 	  <>
@@ -1352,6 +1348,7 @@ proc OptimizationMindHandler_exec_dispatch(id:Nat) =
 	         method_var_end(id,exec_dispatch'(ERROR,None))
      
   )
+
 .OptimizationMindHandler_exec_dispatch(id)
 ;
  
