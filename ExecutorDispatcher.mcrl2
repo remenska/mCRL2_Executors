@@ -702,7 +702,7 @@ eqn
   !(taskID(job)==jid) -> getOptParameter(job|>list,jid) = getOptParameter(list,jid);
   
   insertJobs(list,[]) = list;
-  insertJobs(list,jid|>jids) = taskObj(jid,[],None,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[])|>insertJobs(list,jids);
+  insertJobs(list,jid|>jids) = taskObj(jid,[],None,statusBundle(Received,JobAccepted),statusBundle(Received,JobAccepted),[])|>insertJobs(list,jids);
   
 %-----------------
 
@@ -1426,7 +1426,7 @@ proc loop_msg_OptimizeJobs(id:Nat,jids:List(Nat)) =
     % !! FIX: instance of CachedJobState should be passed. Here it's Bool; CachedJobState( jid ). plus in constructor there is "cleanState"; cachedJobState=true
 %     method_call_begin(id,cleanState(taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[]),false)).
 %     method_call_end(id,cleanState'). 
-    method_call_begin(id,executeTask(head(jids),taskObj(head(jids),[JobPath,JobSanity,InputData,JobScheduling],JobPath,statusBundle(Received,JobAccepted),statusBundle(New,NewMinor),[]))).
+    method_call_begin(id,executeTask(head(jids),taskObj(head(jids),[JobPath,JobSanity,InputData,JobScheduling],JobPath,statusBundle(Received,JobAccepted),statusBundle(Received,JobAccepted),[]))).
     sum reply:Reply.method_call_end(id,executeTask'(reply))
     
     .loop_msg_OptimizeJobs(id,tail(jids))
@@ -1997,7 +1997,7 @@ proc loop___loadJobs(id:Nat,jidList:List(Nat),knownJids:List(Nat)) =
    (
      (!(head(jidList) in knownJids) -> 
       (
-	method_call_begin(id,executeTask(head(jidList),taskObj(head(jidList),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[]))). % cls.executeTask( jid, CachedJobState( jid ) ) <-- CachedJobState = true <- fixed!
+	method_call_begin(id,executeTask(head(jidList),taskObj(head(jidList),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(Received,JobAccepted),statusBundle(Received,JobAccepted),[]))). % cls.executeTask( jid, CachedJobState( jid ) ) <-- CachedJobState = true <- fixed!
 	sum reply:Reply.method_call_end(id,executeTask'(reply))
     ) <> internal)
   .loop___loadJobs(id,tail(jidList),knownJids)
