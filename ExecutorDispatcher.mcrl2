@@ -972,7 +972,7 @@ proc ExecutorState_removeTask(id:Nat) =
 	      method_call_end(id,__execTasks_removetaskid').
 	      method_call_begin(id,__taskInExec_pop(taskId)).
 	      method_call_end(id,__taskInExec_pop').
-	      (eId==-1) -> method_var_end(id,removeTask'(false)) <> method_var_end(id,removeTask'(true))
+	      (eId==-1 || eId==0) -> method_var_end(id,removeTask'(false)) <> method_var_end(id,removeTask'(true))
 )
 .ExecutorState_removeTask(id)
 ;
