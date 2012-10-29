@@ -249,7 +249,7 @@ sort Message = struct ProcessTask |
 sort Mind = struct OptimizationMind | OtherMind;
 
 sort MinorStatus = struct NewMinor | JobPath | JobSanity | InputData | JobScheduling | PilotAgentSubmission | FailedMinor | JobRescheduled | MarkedForTermination |
-    MaxReschedulings | None;
+   JobAccepted | MaxReschedulings | None;
 
 sort eType = MinorStatus;
 % struct JobPath | JobSanity | InputData | JobScheduling | None ;
@@ -1127,7 +1127,7 @@ proc MindCallbacks_cbSendTask(id:Nat) =
 (
   sum taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType. method_var_begin(id,cbSendTask(taskId,taskObj,eId,eType)). 
   (
-  method_var_end(id,cbSendTask'(OK))
+  method_var_end(id,cbSendTask'(OK)).DISET_call_send(id,msg(ProcessTask,eId, taskObj))
   +
   method_var_end(id,cbSendTask'(ERROR))
 
@@ -1426,7 +1426,7 @@ proc loop_msg_OptimizeJobs(id:Nat,jids:List(Nat)) =
     % !! FIX: instance of CachedJobState should be passed. Here it's Bool; CachedJobState( jid ). plus in constructor there is "cleanState"; cachedJobState=true
 %     method_call_begin(id,cleanState(taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[]),false)).
 %     method_call_end(id,cleanState'). 
-    method_call_begin(id,executeTask(head(jids),taskObj(head(jids),[JobPath,JobSanity,InputData,JobScheduling],JobPath,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[]))).
+    method_call_begin(id,executeTask(head(jids),taskObj(head(jids),[JobPath,JobSanity,InputData,JobScheduling],JobPath,statusBundle(Received,JobAccepted),statusBundle(New,NewMinor),[]))).
     sum reply:Reply.method_call_end(id,executeTask'(reply))
     
     .loop_msg_OptimizeJobs(id,tail(jids))
@@ -1642,6 +1642,54 @@ proc ExecutorDispatcher_removeExecutor(id:Nat) =
 ).ExecutorDispatcher_removeExecutor(id)
 ;
 
+proc MindCluster___processTask(id:Nat) = 
+(
+  sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(ProcessTask,eId, taskObj)). 
+%   method_call_begin(id,__moduleProcess(eType(taskObj),taskID(taskObj),taskObj)). 
+%   sum reply:Reply,message:Message.method_call_end(id,__moduleProcess'(reply,message)).
+%   (reply!=OK) ->
+    (
+    DISET_call_send(id,msg(ExecutorError,eId,taskObj))
+    +
+    DISET_call_send(id,msg(TaskFreeze,eId,taskObj))
+    +
+    DISET_call_send(id,msg(TaskDone,eId,taskObj))
+    )
+)
+. MindCluster___processTask(id)
+;
+
+%---------DONE client---------
+% proc MindCluster___moduleProcess(id:Nat) = 
+%   sum etype:eType,taskId:Nat,taskObj:TaskObject.method_var_begin(id,__moduleProcess(etype,taskId,taskObj)). 
+%     method_call_begin(id,__getInstance(etype)).
+%     sum modInstance:Nat.method_call_end(id,__getInstance'(modInstance)).
+%     method_call_begin(id,_ex_processTask(modInstance,taskId,taskObj)).
+%     sum reply:Reply,fastTrackType:eType.method_call_end(id,_ex_processTask'(reply,fastTrackType)).
+%     method_call_begin(id,__storeInstance(etype,modInstance)).
+%     method_call_end(id,__storeInstance').
+%     ((reply!=OK) ->
+%       method_var_end(id,__moduleProcess'(OK,TaskError))
+%     <>
+%       (
+% % 	  method_call_begin(id,__modules_keys).
+% % 	  sum modules:List(eType).method_call_end(id,__modules_keys'(modules)).
+% % 	  (fastTrackType!=None && (fastTrackType in modules)) -> 
+% 	    % return self.__moduleProcess( fastTrackType, taskId, taskStub, fastTrackLevel + 1 ) 
+% 	    %<-- HOW TO RECURSIVELY CALL? Like this below?? test it on a hypotethical example
+% 	    % or just ignore the if section below, it's a new implementation anyways
+% % 	    method_call_begin(id,__moduleProcess(fastTrackType,taskId,taskObj)).
+% % 	    sum reply:Reply,message:Message.method_call_end(id,__moduleProcess'(reply,message)).
+% % 	    method_var_end(id,__moduleProcess'(reply,message))
+% % 	    <> (
+% 	      method_var_end(id,__moduleProcess'(OK,TaskFreeze))
+% 	      +
+% 	      method_var_end(id,__moduleProcess'(OK,TaskDone))
+% % 	      )
+%       )
+%     )
+% ;
+% 
 %-----------DONE server---
 proc loop_removeExecutor(id:Nat,tasksInExec:List(Nat)) =
   (tasksInExec!=[]) ->
