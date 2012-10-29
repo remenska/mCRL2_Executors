@@ -736,8 +736,9 @@ proc ExecutorQueues_mem(id:Nat,queues:__queues,taskInQueue:__taskInQueue) =
   sum etype:eType,pos:Nat.method_var_begin(id,__queues_delAtPos(etype,pos)).method_var_end(id,__queues_delAtPos')
       .ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
    +
-  sum etype:eType,pos:Nat.method_var_begin(id,__queues_pop(etype,pos)).method_var_end(id,__queues_pop'(__queues_pop(queues,etype,0)))
-      .ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
+  sum etype:eType,pos:Nat.method_var_begin(id,__queues_pop(etype,pos)).method_var_end(id,__queues_pop'(__queues_pop(queues,etype,0))).
+    (__queues_pop(queues,etype,0)!=-1) -> ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue) <> ExecutorQueues_mem(id,queues,taskInQueue)
+%       .ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
    +    
   method_var_begin(id, __taskInQueue_keys).method_var_end(id,__taskInQueue_keys'(__taskInQueue_keys(taskInQueue)))
       .ExecutorQueues_mem(id,queues,taskInQueue)
