@@ -1337,19 +1337,20 @@ proc MindCallbacks_cbDispatch(id:Nat) =
 proc OptimizationMindHandler_exec_dispatch(id:Nat) = 
   (
       sum jid:Nat,jobState:TaskObject,pathExecuted:List(eType).method_var_begin(id, exec_dispatch(jid,jobState,pathExecuted)).
-      (
-      method_var_end(id,exec_dispatch'(ERROR,None)) 
-      +
-      method_var_end(id,exec_dispatch'(OK,None))
-      +
-      method_var_end(id,exec_dispatch'(OK,JobPath)) 
-      +
-      method_var_end(id,exec_dispatch'(OK,JobSanity)) 
-    +
-      method_var_end(id,exec_dispatch'(OK,InputData))
-    +
-      method_var_end(id,exec_dispatch'(OK,JobScheduling))  
-      )
+      
+	
+% sort TaskObject = struct taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType,status:FullStatus,initState:FullStatus,cache:List(FullStatus)) | NullObj;
+% sort FullStatus = struct statusBundle(status:Status,minorStatus:MinorStatus);
+
+      (status(status(jobState))==Received) -> method_var_end(id,exec_dispatch'(OK,JobPath))
+	  <>
+	(status(status(jobState))!=Checking) -> method_var_end(id,exec_dispatch'(OK,None)) 
+	<>
+	(minorStatus(status(jobState)) in optimizationChain(jobState)) ->
+	    method_var_end(id,exec_dispatch'(OK,minorStatus2eType(minorStatus(status(jobState)))))
+	    <>
+	         method_var_end(id,exec_dispatch'(ERROR,None))
+     
   )
 .OptimizationMindHandler_exec_dispatch(id)
 ;
@@ -1428,7 +1429,7 @@ proc loop_msg_OptimizeJobs(id:Nat,jids:List(Nat)) =
     % !! FIX: instance of CachedJobState should be passed. Here it's Bool; CachedJobState( jid ). plus in constructor there is "cleanState"; cachedJobState=true
 %     method_call_begin(id,cleanState(taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[]),false)).
 %     method_call_end(id,cleanState'). 
-    method_call_begin(id,executeTask(head(jids),taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[]))).
+    method_call_begin(id,executeTask(head(jids),taskObj(head(jids),[JobPath,JobSanity,InputData,JobScheduling],JobPath,statusBundle(New,NewMinor),statusBundle(New,NewMinor),[]))).
     sum reply:Reply.method_call_end(id,executeTask'(reply))
     
     .loop_msg_OptimizeJobs(id,tail(jids))
