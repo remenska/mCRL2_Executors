@@ -123,7 +123,7 @@ sort Method = struct
   addExecutorState' | 
   getExecutorsConnected | 
   getExecutorsConnected'(eTypes:List(eType)) | 
-  db_selectJobs(status:Status,minor:List(MinorStatus)) | 
+%   db_selectJobs(status:Status,minor:List(MinorStatus)) | 
 %   db_selectJobs'(jidList:List(Nat)) | 
   getTaskIds | 
   getTaskIds'(knownJids:List(Nat)) | 
@@ -618,7 +618,8 @@ eqn
     !(etype(el)==etype) -> __queues_index(el|>list,etype,taskid) = __queues_index(list,etype,taskid);
     
     __queues_pop([],etype,pos) = -1;
-    etype(el)==etype -> __queues_pop(el|>list,etype,pos) = Nat2Int(head(taskids(el)));
+    etype(el)==etype && taskids(el)!=[] -> __queues_pop(el|>list,etype,pos) = Nat2Int(head(taskids(el)));
+    etype(el)==etype && taskids(el)==[] -> __queues_pop(el|>list,etype,pos) = -1;
     !(etype(el)==etype) -> __queues_pop(el|>list,etype,pos) = __queues_pop(list,etype,pos);
     
     __queues_delAtPosHelper(lst,pos) = __queues_delAtPosHelper'(lst,pos,0);
@@ -1932,13 +1933,13 @@ proc OptimizationMindHandler___loadJobs(id:Nat) =
   % 	sum jidList:List(Nat).method_call_end(id,db_selectJobs'(jidList)).
 	  method_call_begin(id,getTaskIds).	
 	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
-	  loop___loadJobs(id,[1,2],knownJids).
+	  loop___loadJobs(id,[5,6],knownJids). % THIS IS FIXED, CHANGE!!! THAT IS, UNCOMMENT BELOW
 	  
   % 	.method_call_begin(id,db_selectJobs(Checking,etypes)). 
   % 	sum jidList:List(Nat).method_call_end(id,db_selectJobs'(jidList)).
 	  method_call_begin(id,getTaskIds).
 	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
-	  loop___loadJobs(id,[1,2],knownJids).
+	  loop___loadJobs(id,[5,6],knownJids).
 	  method_var_end(id,__loadJobs'(OK))
 	)
   ).OptimizationMindHandler___loadJobs(id)
