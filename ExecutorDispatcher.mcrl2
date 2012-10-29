@@ -534,7 +534,7 @@ eqn
 
     __execTasks_removetaskid([],eid,taskid) = [];
     eid(et)==eid -> __execTasks_removetaskid(et|>execTasks,eid,taskid) = __execTasks1(eid(et),__execTasks_removeHelper(taskids(et),taskid))|>__execTasks_removetaskid(execTasks,eid,taskid);
-    !(eid(et)==eid) -> __execTasks_removetaskid(et|>execTasks,eid,taskid) = __execTasks_removetaskid(execTasks,eid,taskid);
+    !(eid(et)==eid) -> __execTasks_removetaskid(et|>execTasks,eid,taskid) = et|>__execTasks_removetaskid(execTasks,eid,taskid);
 
 %-----------------
 
