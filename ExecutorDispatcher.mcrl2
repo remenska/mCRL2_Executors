@@ -233,7 +233,9 @@ sort Method = struct
   __execTypes_getExecutorsConnected |
   __execTypes_getExecutorsConnected'(etypes:List(eType)) |
   getJobAttributes(jid:Nat) | 
-  getJobAttributes'(reply:Reply,currentStatus:FullStatus)
+  getJobAttributes'(reply:Reply,currentStatus:FullStatus) |
+  __tasks_update(taskid:Nat,taskObj:TaskObject) |
+  __tasks_update'
 ;
 
 
@@ -871,6 +873,9 @@ proc ExecutorDispatcher_mem(id:Nat,execTypes:__execTypes,tasks:__tasks,freezer:_
     +
   sum iP:Nat.method_var_begin(id,__taskFreezer_get(iP)).method_var_end(id,__taskFreezer_get'(__taskFreezer_get(freezer,iP)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+    +
+  sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,__tasks_update(taskid,taskObj)).method_var_end(id,__tasks_update')
+    .ExecutorDispatcher_mem(id,execTypes,__tasks_update(tasks,taskid,taskObj),freezer,idMap)
 ;
 
 %-----------
@@ -1576,6 +1581,9 @@ proc ExecutorDispatcher_taskProcessed(id:Nat) =
 		      )
 			<>
 			(
+			  % HERE I'M MISSING __tasks_update
+			  method_call_begin(id,__tasks_update(taskId,taskObj)).
+			  method_call_end(id,__tasks_update').
 			  method_call_begin(id,__dispatchTask(taskId,true)).
 			  sum reply2:Reply.method_call_end(id,__dispatchTask'(reply2)).
 			  method_call_begin(id,__sendTaskToExecutor(eId,[eType],false)).
@@ -1668,7 +1676,8 @@ proc MindCluster___processTask(id:Nat) =
     +
     DISET_call_send(id,msg(TaskFreeze,eId,taskObj))
     +
-    ( (eType(taskObj)==JobPath) -> 
+    ( (eType(taskObj)==JobPath) ->
+      
       DISET_call_send(id,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobPath,statusBundle(Checking,JobSanity),initState(taskObj),cache(taskObj))))
      <>
       (eType(taskObj)==JobSanity) ->
