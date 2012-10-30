@@ -1677,6 +1677,8 @@ proc MindCluster___processTask(id:Nat) =
 
     DISET_call_send(id,msg(ExecutorError,eId,taskObj))
     +
+    DISET_call_send(id,msg(TaskError,eId,taskObj))
+    +
     DISET_call_send(id,msg(TaskFreeze,eId,taskObj))
     +
     ( (eType(taskObj)==JobPath) ->
