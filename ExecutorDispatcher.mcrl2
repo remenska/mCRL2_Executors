@@ -968,7 +968,7 @@ proc ExecutorState_removeTask(id:Nat) =
 (
     sum taskId:Nat,eId:Nat.method_var_begin(id,removeTask(taskId,eId)).
     ((eId==0) -> (method_call_begin(id,__taskInExec_get(taskId)). 
-		sum eId1:Int.method_call_end(id,__taskInExec_get'(eId))
+		sum eId:Int.method_call_end(id,__taskInExec_get'(eId))
 	      .method_call_begin(id,__execTasks_removetaskid(Int2Nat(eId),taskId)).
 	      method_call_end(id,__execTasks_removetaskid').
 	      method_call_begin(id,__taskInExec_pop(taskId)).
@@ -2011,13 +2011,15 @@ proc OptimizationMindHandler_exec_executorConnected(id:Nat) =
 proc OptimizationMindHandler___loadJobs(id:Nat) = 
   (
       sum etypes:List(eType).method_var_begin(id,__loadJobs(etypes)).
-      ((etypes==[]) ->
-      ( method_call_begin(id,getExecutorsConnected).
-      sum etypes:List(eType).method_call_end(id,getExecutorsConnected'(etypes)) 
-	% should take into account only those with >0 counter AND ignore jobPath, change!
-	% CHANGED: getExecutorsConnected is only called here, so I changed its implementation to
-	% take the above into account 
-      ) <> internal) .
+      (
+      (etypes==[]) ->
+	  ( method_call_begin(id,getExecutorsConnected).
+	  sum etypes:List(eType).method_call_end(id,getExecutorsConnected'(etypes)) 
+	    % should take into account only those with >0 counter AND ignore jobPath, change!
+	    % CHANGED: getExecutorsConnected is only called here, so I changed its implementation to
+	    % take the above into account 
+	  ) <> 
+	internal) .
       (etypes==[]) -> method_var_end(id,__loadJobs'(OK)) 
 	<> 
 	(
