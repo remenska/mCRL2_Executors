@@ -971,14 +971,20 @@ proc ExecutorState_removeTask(id:Nat) =
 	    method_call_begin(id,__taskInExec_get(taskId)). 
 	    sum eId:Int.method_call_end(id,__taskInExec_get'(eId)).
 	    !(eId>0)->
-	    method_call_begin(id,__execTasks_removetaskid(Int2Nat(eId),taskId)).
+	      (
+	      method_call_begin(id,__execTasks_removetaskid(Int2Nat(eId),taskId)).
 	      method_call_end(id,__execTasks_removetaskid').
 	      method_call_begin(id,__taskInExec_pop(taskId)).
 	      method_call_end(id,__taskInExec_pop').
 	      method_var_end(id,removeTask'(true))
-% 		)
-		<> method_var_end(id,removeTask'(false)) 
-% 	      (
+		)
+		<> 
+	      (
+	      method_call_begin(id,__taskInExec_pop(taskId)).
+	      method_call_end(id,__taskInExec_pop').
+	      method_var_end(id,removeTask'(false))
+	      )
+% 	      
 % 		method_call_begin(id,__execTasks_removetaskid(Int2Nat(eId),taskId)).
 % 	      method_call_end(id,__execTasks_removetaskid').
 % 	      method_call_begin(id,__taskInExec_pop(taskId)).
