@@ -1668,14 +1668,14 @@ proc MindCluster___processTask(id:Nat) =
     +
     DISET_call_send(id,msg(TaskFreeze,eId,taskObj))
     +
-    ( (minorStatus(status(taskObj))==JobPath) -> 
-      DISET_call_send(id,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobSanity,statusBundle(status(status(taskObj)),JobSanity),initState(taskObj),cache(taskObj))))
+    ( (eType(taskObj)==JobPath) -> 
+      DISET_call_send(id,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobPath,statusBundle(Checking,JobSanity),initState(taskObj),cache(taskObj))))
      <>
-      (minorStatus(status(taskObj))==JobSanity) ->
-      DISET_call_send(id,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobScheduling,statusBundle(status(status(taskObj)),JobScheduling),initState(taskObj),cache(taskObj))))
+      (eType(taskObj)==JobSanity) ->
+      DISET_call_send(id,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobSanity,statusBundle(Checking,JobScheduling),initState(taskObj),cache(taskObj))))
      <>
-     (minorStatus(status(taskObj))==JobScheduling) ->
-      DISET_call_send(id,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),eType(taskObj),statusBundle(Waiting,PilotAgentSubmission),initState(taskObj),cache(taskObj))))
+     (eType(taskObj)==JobScheduling) ->
+      DISET_call_send(id,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobScheduling,statusBundle(Waiting,PilotAgentSubmission),initState(taskObj),cache(taskObj))))
      <>
       DISET_call_send(id,msg(TaskError,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),eType(taskObj),statusBundle(Failed,FailedMinor),initState(taskObj),cache(taskObj))))
     
