@@ -1452,12 +1452,12 @@ proc OptimizationMindHandler_msg_TaskDone(id:Nat) =
       sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskDone,eId, taskObj)). 
       method_call_begin(id,exec_deserializeTask(taskObj)).
       sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).   
-      ((reply!=OK) -> internal <>
+%       ((reply!=OK) -> internal <> 
 	(
 	  method_call_begin(id,taskProcessed(eId,taskID(taskObj1),taskObj1)). 
 	  sum reply1:Reply.method_call_end(id,taskProcessed'(reply1))
 	)
-      )
+%       )
   ).OptimizationMindHandler_msg_TaskDone(id)
 ;
 
@@ -1467,13 +1467,13 @@ proc OptimizationMindHandler_msg_TaskError(id:Nat) =
       sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskError,eId, taskObj)).
       method_call_begin(id,exec_deserializeTask(taskObj)).
       sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).
-      ((reply!=OK) -> internal <>
+%       ((reply!=OK) -> internal <>
 	(
 	  method_call_begin(id,removeTaskDispatcher(taskID(taskObj1))).method_call_end(id,removeTaskDispatcher').
 	  method_call_begin(id,exec_TaskError(taskID(taskObj1),taskObj1)). %msgObj vs taskObj
 	  sum reply:Reply.method_call_end(id,exec_TaskError'(reply))
 	)
-	)
+% 	)
   ).OptimizationMindHandler_msg_TaskError(id)
 ;
 
@@ -1484,12 +1484,12 @@ proc OptimizationMindHandler_msg_TaskFreeze(id:Nat) =
     sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskFreeze,eId, taskObj)).
     method_call_begin(id,exec_deserializeTask(taskObj)).
     sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).
-    ((reply!=OK) -> internal <>
+%     ((reply!=OK) -> internal <>
       (
 	method_call_begin(id,freezeTask(eId,taskID(taskObj1),taskObj1)).
 	sum reply1:Reply.method_call_end(id,freezeTask'(reply1))
       )
-     )
+%      )
   ).OptimizationMindHandler_msg_TaskFreeze(id)
 ;
 
@@ -1676,6 +1676,8 @@ proc MindCluster___processTask(id:Nat) =
     (
 
     DISET_call_send(id,msg(ExecutorError,eId,taskObj))
+    +
+    DISET_call_send(id,msg(TaskError,eId,taskObj))
     +
     DISET_call_send(id,msg(TaskFreeze,eId,taskObj))
     +
