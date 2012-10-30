@@ -1260,6 +1260,7 @@ proc ExecutorDispatcher___dispatchTask(id:Nat) =
     )
 ).ExecutorDispatcher___dispatchTask(id)
 ;
+% sort TaskObject = struct taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType,status:FullStatus,initState:FullStatus,cache:List(FullStatus)) | NullObj;
 
 %-----------DONE server---
 proc ExecutorDispatcher___getNextExecutor(id:Nat) =
@@ -1273,6 +1274,8 @@ proc ExecutorDispatcher___getNextExecutor(id:Nat) =
       sum reply:Reply,etype:eType.method_call_end(id,cbDispatch'(reply,etype)).
       (reply!=OK) -> method_var_end(id,__getNextExecutor'(ERROR,None))
 	<>
+	method_call_begin(id, __tasks_update(taskid,taskObj(taskID(taskObj),optimizationChain(taskObj),etype,status(taskObj),initState(taskObj),cache(taskObj))  )).
+	method_call_end(id, __tasks_update').
 	method_var_end(id,__getNextExecutor'(OK,etype))
       )
   ).ExecutorDispatcher___getNextExecutor(id)
