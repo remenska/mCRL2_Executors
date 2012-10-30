@@ -967,17 +967,22 @@ proc ExecutorQueues_deleteTask(id:Nat) =
 proc ExecutorState_removeTask(id:Nat) = 
 (
     sum taskId:Nat,eId:Nat.method_var_begin(id,removeTask(taskId,eId)).
-    ((eId==0) -> (method_call_begin(id,__taskInExec_get(taskId)).
-		sum eId:Int.method_call_end(id,__taskInExec_get'(eId))
-		)
-		<> internal
-    )
-		
+    ((eId==0) -> (method_call_begin(id,__taskInExec_get(taskId)). 
+		sum eId1:Int.method_call_end(id,__taskInExec_get'(eId))
 	      .method_call_begin(id,__execTasks_removetaskid(Int2Nat(eId),taskId)).
 	      method_call_end(id,__execTasks_removetaskid').
 	      method_call_begin(id,__taskInExec_pop(taskId)).
 	      method_call_end(id,__taskInExec_pop').
 	      (eId==-1 || eId==0) -> method_var_end(id,removeTask'(false)) <> method_var_end(id,removeTask'(true))
+		)
+		<> (
+		method_call_begin(id,__execTasks_removetaskid(Int2Nat(eId),taskId)).
+	      method_call_end(id,__execTasks_removetaskid').
+	      method_call_begin(id,__taskInExec_pop(taskId)).
+	      method_call_end(id,__taskInExec_pop').
+	      (eId==-1 || eId==0) -> method_var_end(id,removeTask'(false)) <> method_var_end(id,removeTask'(true))
+		    )
+    )
 )
 .ExecutorState_removeTask(id)
 ;
