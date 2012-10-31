@@ -1015,42 +1015,61 @@ proc ExecutorState_removeTask(id:Nat) =
 %-----------DONE server-----
 proc ExecutorDispatcher___sendTaskToExecutor(id:Nat) = 
 (
-      sum eId:Nat,eTypes:List(eType),checkIdle:Bool.method_var_begin(id,__sendTaskToExecutor(eId,eTypes,checkIdle)). 
-	method_call_begin(id,freeSlots(eId)). 
-	sum noSlots:Nat.method_call_end(id,freeSlots'(noSlots)).
-	(checkIdle && noSlots==0) ->
-	method_var_end(id,__sendTaskToExecutor'(0)) <> % taskid=0 for no task 
-	  (
-	    ((eTypes==[]) -> 
+    sum eId:Nat,eTypes:List(eType),checkIdle:Bool.method_var_begin(id,__sendTaskToExecutor(eId,eTypes,checkIdle)). 
+    method_call_begin(id,freeSlots(eId)). 
+    sum noSlots:Nat.method_call_end(id,freeSlots'(noSlots)).
+    (checkIdle && noSlots==0) ->
+      method_var_end(id,__sendTaskToExecutor'(0)) <> % taskid=0 for no task 
 	    (
-	      method_call_begin(id,__idMap_get(eId)).
-	      sum eTypes:List(eType).method_call_end(id,__idMap_get'(eTypes))
-	    ) <> internal
-	    ).
-	  (eTypes==[]) -> method_var_end(id,__sendTaskToExecutor'(0)) <> % taskid=0 for Invalid executor
-	     (
-		method_call_begin(id,popTask(eTypes)).
-		sum taskId:Nat,eType:eType.method_call_end(id,popTask'(taskId,eType)).
-		(taskId==0) ->
-		    method_var_end(id,__sendTaskToExecutor'(0)) <> % no more tasks!
+	      (eTypes==[]) -> 
 		  (
-		    method_call_begin(id,addTask(eId,taskId)).
-		    method_call_end(id,addTask').
-		    method_call_begin(id,__msgTaskToExecutor(taskId,eId,eType)). 
-		    sum reply:Reply.method_call_end(id,__msgTaskToExecutor'(reply)).
-		    (reply!=OK) ->
-		    method_call_begin(id,pushTask(eType,taskId,true)). % ahead=true in call!
-		    method_call_end(id,pushTask').
-		    method_call_begin(id,removeTask(taskId,0)).  % eid=0 fixed for eid==None!
-		    sum result:Bool.method_call_end(id,removeTask'(result)).
-		    method_var_end(id,__sendTaskToExecutor'(0))
-		    <> 
+		    method_call_begin(id,__idMap_get(eId)).
+		    sum eTypes:List(eType).method_call_end(id,__idMap_get'(eTypes)).
+		    (eTypes==[]) -> method_var_end(id,__sendTaskToExecutor'(0)) <>
 		      (
-			method_var_end(id,__sendTaskToExecutor'(taskId))
+			method_call_begin(id,popTask(eTypes)).
+			sum taskId:Nat,eType:eType.method_call_end(id,popTask'(taskId,eType)).
+		      (taskId==0) ->
+		      method_var_end(id,__sendTaskToExecutor'(0)) <> % no more tasks!
+			(
+			method_call_begin(id,addTask(eId,taskId)).
+			method_call_end(id,addTask').
+			method_call_begin(id,__msgTaskToExecutor(taskId,eId,eType)). 
+			sum reply:Reply.method_call_end(id,__msgTaskToExecutor'(reply)).
+			(reply!=OK) ->
+			method_call_begin(id,pushTask(eType,taskId,true)). % ahead=true in call!
+			method_call_end(id,pushTask').
+			method_call_begin(id,removeTask(taskId,0)).  % eid=0 fixed for eid==None!
+			sum result:Bool.method_call_end(id,removeTask'(result)).
+			method_var_end(id,__sendTaskToExecutor'(0))
+			<>  method_var_end(id,__sendTaskToExecutor'(taskId))
+			)
 		      )
-		  )
-	      )
-	  )
+		  ) <> 
+		  (
+% 		    (eTypes==[]) -> method_var_end(id,__sendTaskToExecutor'(0)) <>
+% 		      (
+			method_call_begin(id,popTask(eTypes)).
+			sum taskId:Nat,eType:eType.method_call_end(id,popTask'(taskId,eType)).
+		      (taskId==0) ->
+		      method_var_end(id,__sendTaskToExecutor'(0)) <> % no more tasks!
+			(
+			method_call_begin(id,addTask(eId,taskId)).
+			method_call_end(id,addTask').
+			method_call_begin(id,__msgTaskToExecutor(taskId,eId,eType)). 
+			sum reply:Reply.method_call_end(id,__msgTaskToExecutor'(reply)).
+			(reply!=OK) ->
+			method_call_begin(id,pushTask(eType,taskId,true)). % ahead=true in call!
+			method_call_end(id,pushTask').
+			method_call_begin(id,removeTask(taskId,0)).  % eid=0 fixed for eid==None!
+			sum result:Bool.method_call_end(id,removeTask'(result)).
+			method_var_end(id,__sendTaskToExecutor'(0))
+			<>  method_var_end(id,__sendTaskToExecutor'(taskId))
+			)
+% 		      )
+		   )
+	    )
+	
 
 )
 .ExecutorDispatcher___sendTaskToExecutor(id)
