@@ -740,8 +740,10 @@ proc ExecutorQueues_mem(id:Nat,queues:__queues,taskInQueue:__taskInQueue) =
   sum etype:eType,pos:Nat.method_var_begin(id,__queues_delAtPos(etype,pos)).method_var_end(id,__queues_delAtPos')
       .ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
    +
-  sum etype:eType,pos:Nat.method_var_begin(id,__queues_pop(etype,pos)).method_var_end(id,__queues_pop'(__queues_pop(queues,etype,0))).
-    (__queues_pop(queues,etype,0)!=-1) -> ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue) <> ExecutorQueues_mem(id,queues,taskInQueue)
+  sum etype:eType,pos:Nat.method_var_begin(id,__queues_pop(etype,pos)).
+    (__queues_pop(queues,etype,0)!=-1)
+     ->  method_var_end(id,__queues_pop'(__queues_pop(queues,etype,0))).ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
+    <> method_var_end(id,__queues_pop'(__queues_pop(queues,etype,0))).ExecutorQueues_mem(id,queues,taskInQueue)
 %       .ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
    +    
   method_var_begin(id, __taskInQueue_keys).method_var_end(id,__taskInQueue_keys'(__taskInQueue_keys(taskInQueue)))
@@ -2073,9 +2075,9 @@ proc OptimizationMindHandler___loadJobs(id:Nat) =
 	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
 	  loop___loadJobs(id,[],knownJids). % THIS IS FIXED, CHANGE!!! THAT IS, UNCOMMENT BELOW
 % 	  loop___loadJobs(id,[555,666],knownJids). % THIS IS FIXED, CHANGE!!! THAT IS, UNCOMMENT BELOW
-	  method_call_begin(id,getTaskIds).
-	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
-	  loop___loadJobs(id,[],knownJids).
+% 	  method_call_begin(id,getTaskIds).
+% 	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
+% 	  loop___loadJobs(id,[],knownJids).
 % 	  	  loop___loadJobs(id,[555,666],knownJids).
 
 	  method_var_end(id,__loadJobs'(OK))
