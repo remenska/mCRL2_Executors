@@ -1268,8 +1268,8 @@ proc ExecutorDispatcher___dispatchTask(id:Nat) =
 		sum taskObj:TaskObject.method_call_end(id,getTask'(taskObj)).
 		method_call_begin(id,removeTaskDispatcher(taskid)).
 		method_call_end(id,removeTaskDispatcher').
-		method_call_begin(id,cbTaskError(taskid,taskObj)). 
-		method_call_end(id,cbTaskError').
+% 		method_call_begin(id,cbTaskError(taskid,taskObj)). 
+% 		method_call_end(id,cbTaskError').
 		method_var_end(id,__dispatchTask'(ERROR))
 	    ) 
 	    <>
@@ -1356,8 +1356,8 @@ proc ExecutorDispatcher___freezeTask(id:Nat) =
 		% if not isFrozen <-- modeled as a nondeterministic choice, after 10 retries
 	      method_call_begin(id,removeTaskDispatcher(taskid)).
 	      method_call_end(id,removeTaskDispatcher').
-	      method_call_begin(id,cbTaskError(taskid,taskObj)).
-	      method_call_end(id,cbTaskError').
+% 	      method_call_begin(id,cbTaskError(taskid,taskObj)).
+% 	      method_call_end(id,cbTaskError').
 	      method_var_end(id,__freezeTask'(false))
 	    )
 	)
@@ -1365,24 +1365,15 @@ proc ExecutorDispatcher___freezeTask(id:Nat) =
 .ExecutorDispatcher___freezeTask(id)
 ;
 
-
-%-----------DONE server---
-proc MindCallbacks_cbTaskError(id:Nat) = 
-  sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,cbTaskError(taskid,taskObj)).
-  method_call_begin(id,exec_TaskError(taskid,taskObj)).
-  sum reply:Reply.method_call_end(id,exec_TaskError'(reply)).
-  method_var_end(id,cbTaskError')
-.MindCallbacks_cbTaskError(id)
-;
-
-
-%-----------CHECK server---
-proc OptimizationMindHandler_exec_TaskError(id:Nat) =
-(
-    sum jid:Nat,cachedJobState:TaskObject.method_var_begin(id,exec_TaskError(jid,cachedJobState)).
-    (method_var_end(id,exec_TaskError'(OK)) + method_var_end(id,exec_TaskError'(ERROR)))
-).OptimizationMindHandler_exec_TaskError(id)
-;
+% 
+% %-----------DONE server---
+% proc MindCallbacks_cbTaskError(id:Nat) = 
+%   sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,cbTaskError(taskid,taskObj)).
+% %   method_call_begin(id,exec_TaskError(taskid,taskObj)).
+% %   sum reply:Reply.method_call_end(id,exec_TaskError'(reply)).
+%   method_var_end(id,cbTaskError')
+% .MindCallbacks_cbTaskError(id)
+% ;
 
 %-----------DONE server---
 proc MindCallbacks_cbDispatch(id:Nat) = 
@@ -1499,11 +1490,11 @@ proc loop_msg_OptimizeJobs(id:Nat,jids:List(Nat)) =
 proc OptimizationMindHandler_msg_TaskDone(id:Nat) =
   (
       sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskDone,eId, taskObj)). 
-      method_call_begin(id,exec_deserializeTask(taskObj)).
-      sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).   
+%       method_call_begin(id,exec_deserializeTask(taskObj)).
+%       sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).   
 %       ((reply!=OK) -> internal <> 
 	(
-	  method_call_begin(id,taskProcessed(eId,taskID(taskObj1),taskObj1)). 
+	  method_call_begin(id,taskProcessed(eId,taskID(taskObj),taskObj)). 
 	  sum reply1:Reply.method_call_end(id,taskProcessed'(reply1))
 	)
 %       )
@@ -1514,13 +1505,13 @@ proc OptimizationMindHandler_msg_TaskDone(id:Nat) =
 proc OptimizationMindHandler_msg_TaskError(id:Nat) =
   (
       sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskError,eId, taskObj)).
-      method_call_begin(id,exec_deserializeTask(taskObj)).
-      sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).
+%       method_call_begin(id,exec_deserializeTask(taskObj)).
+%       sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).
 %       ((reply!=OK) -> internal <>
 	(
-	  method_call_begin(id,removeTaskDispatcher(taskID(taskObj1))).method_call_end(id,removeTaskDispatcher').
-	  method_call_begin(id,exec_TaskError(taskID(taskObj1),taskObj1)). %msgObj vs taskObj
-	  sum reply:Reply.method_call_end(id,exec_TaskError'(reply))
+	  method_call_begin(id,removeTaskDispatcher(taskID(taskObj))).method_call_end(id,removeTaskDispatcher')
+% 	  method_call_begin(id,exec_TaskError(taskID(taskObj),taskObj)). %msgObj vs taskObj
+% 	  sum reply:Reply.method_call_end(id,exec_TaskError'(reply))
 	)
 % 	)
   ).OptimizationMindHandler_msg_TaskError(id)
@@ -1531,11 +1522,11 @@ proc OptimizationMindHandler_msg_TaskError(id:Nat) =
 proc OptimizationMindHandler_msg_TaskFreeze(id:Nat) =
   (
     sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskFreeze,eId, taskObj)).
-    method_call_begin(id,exec_deserializeTask(taskObj)).
-    sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).
+%     method_call_begin(id,exec_deserializeTask(taskObj)).
+%     sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).
 %     ((reply!=OK) -> internal <>
       (
-	method_call_begin(id,freezeTask(eId,taskID(taskObj1),taskObj1)).
+	method_call_begin(id,freezeTask(eId,taskID(taskObj),taskObj)).
 	sum reply1:Reply.method_call_end(id,freezeTask'(reply1))
       )
 %      )
@@ -1568,11 +1559,12 @@ proc ExecutorDispatcher_freezeTask(id:Nat) =
 	(
 	  method_call_begin(id,cbTaskFreeze(taskid,taskObj,eType)).
 	  sum reply1:Reply.method_call_end(id,cbTaskFreeze'(reply1)).
-	  (reply1!=OK) -> 
+% 	  (reply1!=OK) -> 
 	    method_call_begin(id,__sendTaskToExecutor(eid,[],false)).
 	    sum tid:Nat.method_call_end(id,__sendTaskToExecutor'(tid)).
 	    method_var_end(id,freezeTask'(reply1))
-	    <>
+% 	    <>
+	    +
 	    method_call_begin(id,__freezeTask(taskid,eType)).
 	    sum result:Bool.method_call_end(id,__freezeTask'(result)).
 	    method_call_begin(id,__sendTaskToExecutor(eid,[eType],false)).
@@ -1584,25 +1576,25 @@ proc ExecutorDispatcher_freezeTask(id:Nat) =
 ;
 
 %-----------DONE server---
-proc MindCallbacks_cbTaskFreeze(id:Nat) = 
-  (
-    sum taskid:Nat,taskObj:TaskObject,etype:eType.method_var_begin(id,cbTaskFreeze(taskid,taskObj,etype)).
-    (
-    method_var_end(id,cbTaskFreeze'(OK)) +
-    method_var_end(id,cbTaskFreeze'(ERROR))
-    )
-  ).MindCallbacks_cbTaskFreeze(id)
-;
+% proc MindCallbacks_cbTaskFreeze(id:Nat) = 
+%   (
+%     sum taskid:Nat,taskObj:TaskObject,etype:eType.method_var_begin(id,cbTaskFreeze(taskid,taskObj,etype)).
+%     (
+%     method_var_end(id,cbTaskFreeze'(OK)) +
+%     method_var_end(id,cbTaskFreeze'(ERROR))
+%     )
+%   ).MindCallbacks_cbTaskFreeze(id)
+% ;
 
 %-----------CHECK server---
-proc OptimizationMindHandler_deserializeTask(id:Nat) = 
-  (
-    sum taskStub:TaskObject.method_var_begin(id,exec_deserializeTask(taskStub)).
-    (
-    method_var_end(id,exec_deserializeTask'(OK,taskStub)) +method_var_end(id,exec_deserializeTask'(ERROR,taskStub))
-    )
-  ).OptimizationMindHandler_deserializeTask(id)
-;
+% proc OptimizationMindHandler_deserializeTask(id:Nat) = 
+%   (
+%     sum taskStub:TaskObject.method_var_begin(id,exec_deserializeTask(taskStub)).
+%     (
+%     method_var_end(id,exec_deserializeTask'(OK,taskStub)) +method_var_end(id,exec_deserializeTask'(ERROR,taskStub))
+%     )
+%   ).OptimizationMindHandler_deserializeTask(id)
+% ;
 
 %-----------DONE server---
 proc ExecutorDispatcher_taskProcessed(id:Nat) = 
@@ -2077,14 +2069,9 @@ proc OptimizationMindHandler___loadJobs(id:Nat) =
       (etypes==[]) -> method_var_end(id,__loadJobs'(OK)) 
 	<> 
 	(
-  % 	method_call_begin(id,db_selectJobs(Received,[])).
-  % 	sum jidList:List(Nat).method_call_end(id,db_selectJobs'(jidList)).
 	  method_call_begin(id,getTaskIds).	
 	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
 	  loop___loadJobs(id,[555,666],knownJids). % THIS IS FIXED, CHANGE!!! THAT IS, UNCOMMENT BELOW
-
-  % 	.method_call_begin(id,db_selectJobs(Checking,etypes)). 
-  % 	sum jidList:List(Nat).method_call_end(id,db_selectJobs'(jidList)).
 	  method_call_begin(id,getTaskIds).
 	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
 	  loop___loadJobs(id,[555,666],knownJids).
@@ -2148,66 +2135,67 @@ proc loop___doPeriodicStuff(id:Nat,etypes:List(eType)) =
 
 
 proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) || 
-		  ExecutorState_getExecutorOfTask(id) ||
-				  ExecutorQueues_deleteTask(id) ||
-				ExecutorState_removeTask(id) ||
-				ExecutorDispatcher___sendTaskToExecutor(id) ||
-				 ExecutorState_freeSlots(id) ||
-				ExecutorQueues_popTask(id) ||
-			      ExecutorState_addTask(id) ||
-			      ExecutorDispatcher___msgTaskToExecutor(id) ||
-			    ExecutorQueues_pushTask(id) ||
-			  MindCallbacks_cbSendTask(id) ||
-		ExecutorDispatcher___fillExecutors(id) ||
+		ExecutorState_getExecutorOfTask(id) ||
+		ExecutorState_removeTask(id) ||
+		ExecutorState_addTask(id) ||
+		ExecutorState_freeSlots(id) ||
 		ExecutorState_getIdleExecutor(id) ||
+		ExecutorState_addExecutor(id) ||
+		ExecutorState_mem(id,[],[],[],[]) ||
+
+		ExecutorQueues_mem(id,[],[]) ||
+		ExecutorQueues_deleteTask(id) ||
+		ExecutorQueues_popTask(id) ||
+		ExecutorQueues_pushTask(id) ||
+
+		ExecutorDispatcher___msgTaskToExecutor(id) ||
+		ExecutorDispatcher_addTask(id) ||
+		ExecutorDispatcher___addTaskIfNew(id) ||
+		ExecutorDispatcher___fillExecutors(id) ||
 		ExecutorDispatcher___dispatchTask(id) ||
 		ExecutorDispatcher___unfreezeTasks(id) ||
 		ExecutorDispatcher___removeFromFreezer(id) ||
 		ExecutorDispatcher___getNextExecutor(id) ||
 		ExecutorDispatcher_getTask(id) ||
 		ExecutorDispatcher___freezeTask(id) ||
-		MindCallbacks_cbTaskError(id) ||
-		OptimizationMindHandler_exec_TaskError(id) ||
-
-		MindCallbacks_cbDispatch(id) ||
-
-		OptimizationMindHandler_exec_dispatch(id) ||
-
-		OptimizationMindHandler_msg_OptimizeJobs(id) ||
-		ExecutorDispatcher_addTask(id) ||
-		ExecutorDispatcher___addTaskIfNew(id) ||
-		OptimizationMindHandler_forgetTask(id) ||
-		JobManagerHandler_submitJob(id) ||
-		JobManagerHandler___sendNewJobsToMind(id) ||
-		JobManagerHandler_killJob(id) ||
-		OptimizationMindHandler_msg_TaskDone(id) ||
-		OptimizationMindHandler_deserializeTask(id) ||
+		ExecutorDispatcher_freezeTask(id) ||
+		ExecutorDispatcher___taskReceived(id) ||
+		ExecutorDispatcher_addExecutor(id) ||
+		ExecutorDispatcher___sendTaskToExecutor(id) ||
 		ExecutorDispatcher_taskProcessed(id) ||
 		ExecutorDispatcher___doPeriodicStuff(id) ||
 		ExecutorDispatcher_getExecutorsConnected(id) ||
 		ExecutorDispatcher_getTaskIds(id) ||
-		OptimizationMindHandler___loadJobs(id) ||
-		OptimizationMindHandler_exec_executorConnected(id) ||
-		ExecutorState_addExecutor(id) ||
-		ExecutorDispatcher_addExecutor(id) ||
-		OptimizationMindHandler_conn_drop(id) ||
-		OptimizationMindHandler_conn_connected(id) ||
+		ExecutorDispatcher_mem(id,[],[],[],[]) ||
+
+% 		MindCallbacks_cbTaskError(id) ||
+		MindCallbacks_cbDispatch(id) ||
+		MindCallbacks_cbSendTask(id) ||
+% 		MindCallbacks_cbTaskFreeze(id) ||
+		MindCallbacks_cbTaskProcessed(id) ||
+
+		MindCluster___processTask(id) ||
+
+		JobManagerHandler_submitJob(id) ||
+		JobManagerHandler___sendNewJobsToMind(id) ||
+		JobManagerHandler_killJob(id) ||
 		JobManager_resetJob(id) ||
 
-		OptimizationMindHandler_msg_TaskError(id) ||
-		OptimizationMindHandler_msg_TaskFreeze(id) ||
-		OptimizationMindHandler_msg_ExecutorError(id) ||
-		ExecutorDispatcher_freezeTask(id) ||
-		MindCallbacks_cbTaskFreeze(id) ||
-% 		OptimizationMindHandler_exec_taskFreeze(id) ||
-		MindCallbacks_cbTaskProcessed(id) ||
-% 		OptimizationMindHandler_exec_taskProcessed(id) ||
-		ExecutorDispatcher___taskReceived(id) ||
-		OptimizationMindHandler_executeTask(id) ||
-		MindCluster___processTask(id) ||
-ExecutorState_mem(id,[],[],[],[]) ||
-ExecutorQueues_mem(id,[],[]) ||
-ExecutorDispatcher_mem(id,[],[],[],[])
+% 		OptimizationMindHandler_exec_TaskError(id) ||
+		OptimizationMindHandler_forgetTask(id) || %OK
+		OptimizationMindHandler_conn_drop(id) || %OK
+		OptimizationMindHandler_conn_connected(id) || %ОК
+		OptimizationMindHandler_msg_TaskError(id) || %OK
+		OptimizationMindHandler_msg_TaskFreeze(id) || %OK
+		OptimizationMindHandler_msg_ExecutorError(id) || %OK
+		OptimizationMindHandler___loadJobs(id) ||
+		OptimizationMindHandler_exec_executorConnected(id) ||
+		OptimizationMindHandler_executeTask(id) || %OK
+		OptimizationMindHandler_exec_dispatch(id) ||
+		OptimizationMindHandler_msg_OptimizeJobs(id) ||
+		OptimizationMindHandler_msg_TaskDone(id) %OK
+% 		OptimizationMindHandler_deserializeTask(id)
+
 % JobDB_mem(id,[])
 
 ;
