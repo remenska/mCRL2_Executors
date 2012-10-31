@@ -927,8 +927,10 @@ proc ExecutorDispatcher_removeTask(id:Nat) =
       sum result:Bool.method_call_end(id,removeTask'(result)).
       method_call_begin(id,__taskFreezer_index(taskId)).
       sum ind:Int.method_call_end(id,__taskFreezer_index'(ind)).
-      method_call_begin(id,__taskFreezer_pop(Int2Nat(ind))).
-      method_call_end(id,__taskFreezer_pop').
+      ((ind>0) -> (
+		  method_call_begin(id,__taskFreezer_pop(Int2Nat(ind))).
+		  method_call_end(id,__taskFreezer_pop')
+		    ) <> internal).
       ((eId>0) -> 
       method_call_begin(id,__sendTaskToExecutor(eId,[],true)).
       sum tid:Nat.method_call_end(id,__sendTaskToExecutor'(tid)) % fixed [] for eTypes=false;checkIdle=true is ok
