@@ -948,7 +948,7 @@ proc ExecutorState_getExecutorOfTask(id:Nat) =
 	sum taskId:Nat.method_var_begin(id,getExecutorOfTask(taskId)).
 	  method_call_begin(id,__taskInExec_get(taskId)).
 	  sum eid:Int.method_call_end(id,__taskInExec_get'(eid)).
-	  (eid!=-1) -> method_var_end(id,getExecutorOfTask'(Int2Nat(eid)))
+	  (eid>0) -> method_var_end(id,getExecutorOfTask'(Int2Nat(eid)))
 	    <>
 		    method_var_end(id,getExecutorOfTask'(0)) % represents NONE
 
@@ -1621,7 +1621,7 @@ proc ExecutorDispatcher_taskProcessed(id:Nat) =
 			  sum tid:Nat.method_call_end(id,__sendTaskToExecutor'(tid)).
 			  method_var_end(id,taskProcessed'(reply2))
 			)
-		    
+
 		 )
 	      )
        )
@@ -2061,7 +2061,7 @@ proc OptimizationMindHandler___loadJobs(id:Nat) =
 	  method_call_begin(id,getTaskIds).	
 	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
 	  loop___loadJobs(id,[555,666],knownJids). % THIS IS FIXED, CHANGE!!! THAT IS, UNCOMMENT BELOW
-	  
+
   % 	.method_call_begin(id,db_selectJobs(Checking,etypes)). 
   % 	sum jidList:List(Nat).method_call_end(id,db_selectJobs'(jidList)).
 	  method_call_begin(id,getTaskIds).
@@ -2219,5 +2219,4 @@ DISET_call
 				All(1)
 
 )));
-
 
