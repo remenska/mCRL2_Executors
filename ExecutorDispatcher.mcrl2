@@ -1557,12 +1557,12 @@ proc ExecutorDispatcher_freezeTask(id:Nat) =
 	  method_var_end(id,freezeTask'(OK))
 	<>
 	(
-	  method_call_begin(id,cbTaskFreeze(taskid,taskObj,eType)).
-	  sum reply1:Reply.method_call_end(id,cbTaskFreeze'(reply1)).
+% 	  method_call_begin(id,cbTaskFreeze(taskid,taskObj,eType)).
+% 	  sum reply1:Reply.method_call_end(id,cbTaskFreeze'(reply1)).
 % 	  (reply1!=OK) -> 
 	    method_call_begin(id,__sendTaskToExecutor(eid,[],false)).
 	    sum tid:Nat.method_call_end(id,__sendTaskToExecutor'(tid)).
-	    method_var_end(id,freezeTask'(reply1))
+	    method_var_end(id,freezeTask'(ERROR))
 % 	    <>
 	    +
 	    method_call_begin(id,__freezeTask(taskid,eType)).
