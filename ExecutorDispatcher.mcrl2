@@ -235,7 +235,9 @@ sort Method = struct
   getJobAttributes(jid:Nat) | 
   getJobAttributes'(reply:Reply,currentStatus:FullStatus) |
   __tasks_update(taskid:Nat,taskObj:TaskObject) |
-  __tasks_update'
+  __tasks_update' |
+  __tasks_pop(taskid:Nat) |
+  __tasks_pop'
 ;
 
 
@@ -876,6 +878,9 @@ proc ExecutorDispatcher_mem(id:Nat,execTypes:__execTypes,tasks:__tasks,freezer:_
     +
   sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,__tasks_update(taskid,taskObj)).method_var_end(id,__tasks_update')
     .ExecutorDispatcher_mem(id,execTypes,__tasks_update(tasks,taskid,taskObj),freezer,idMap)
+    +
+  sum taskid:Nat.method_var_begin(id,__tasks_pop(taskid)).method_var_end(id,__tasks_pop')
+    .ExecutorDispatcher_mem(id,execTypes,__tasks_pop(tasks,taskid),freezer,idMap)
 ;
 
 %-----------
@@ -910,18 +915,27 @@ eqn
 %-----------DONE server---
 proc ExecutorDispatcher_removeTask(id:Nat) =
 (
+    
     sum taskId:Nat.method_var_begin(id,removeTaskDispatcher(taskId)).
+    method_call_begin(id,__tasks_pop(taskId)).
+    method_call_end(id,__tasks_pop'). 
     method_call_begin(id,getExecutorOfTask(taskId)). 
   sum eId:Nat.method_call_end(id,getExecutorOfTask'(eId)).
     ( method_call_begin(id,deleteTask(taskId)).
       method_call_end(id,deleteTask').
       method_call_begin(id,removeTask(taskId,0)). % eid=0 fixed! to represent eId=None
       sum result:Bool.method_call_end(id,removeTask'(result)).
-      ((eId>0) -> method_call_begin(id,__sendTaskToExecutor(eId,[],true)).sum tid:Nat.method_call_end(id,__sendTaskToExecutor'(tid)) % fixed [] for eTypes=false;checkIdle=true is ok
+      method_call_begin(id,__taskFreezer_index(taskId)).
+      sum ind:Int.method_call_end(id,__taskFreezer_index'(ind)).
+      method_call_begin(id,__taskFreezer_pop(Int2Nat(ind))).
+      method_call_end(id,__taskFreezer_pop').
+      ((eId>0) -> 
+      method_call_begin(id,__sendTaskToExecutor(eId,[],true)).
+      sum tid:Nat.method_call_end(id,__sendTaskToExecutor'(tid)) % fixed [] for eTypes=false;checkIdle=true is ok
       .method_var_end(id,removeTaskDispatcher')
-      <> internal
+      <> method_var_end(id,removeTaskDispatcher')
       )
-    ).method_var_end(id,removeTaskDispatcher')
+    )
 
 )
 . ExecutorDispatcher_removeTask(id)
@@ -1011,7 +1025,7 @@ proc ExecutorDispatcher___sendTaskToExecutor(id:Nat) =
 	      sum eTypes:List(eType).method_call_end(id,__idMap_get'(eTypes))
 	    ) <> internal
 	    ).
-	  (eTypes==[]) -> method_var_end(id,__sendTaskToExecutor'(0)) <> % taskid=0 for no task 
+	  (eTypes==[]) -> method_var_end(id,__sendTaskToExecutor'(0)) <> % taskid=0 for Invalid executor
 	     (
 		method_call_begin(id,popTask(eTypes)).
 		sum taskId:Nat,eType:eType.method_call_end(id,popTask'(taskId,eType)).
@@ -1260,13 +1274,13 @@ proc ExecutorDispatcher___dispatchTask(id:Nat) =
 		    method_call_end(id,removeTaskDispatcher').
 		    method_var_end(id,__dispatchTask'(OK))
 		    )
-		  <> (
-		      method_call_begin(id,pushTask(etype,taskid,false)). 
-		      method_call_end(id, pushTask').
-		      method_call_begin(id,__fillExecutors(etype,defrozeIfNeeded)).
-		      method_call_end(id,__fillExecutors').
-		      method_var_end(id,__dispatchTask'(OK))
-		      )
+		    <> (
+			method_call_begin(id,pushTask(etype,taskid,false)). 
+			method_call_end(id, pushTask').
+			method_call_begin(id,__fillExecutors(etype,defrozeIfNeeded)).
+			method_call_end(id,__fillExecutors').
+			method_var_end(id,__dispatchTask'(OK))
+			)
 		  )
 	      )
 	    )  
@@ -1957,6 +1971,7 @@ proc ExecutorDispatcher_addExecutor(id:Nat) =
 	method_call_begin(id,addExecutorState(eid,eTypes,maxTasks)).
 	method_call_end(id,addExecutorState').
 	loop_addExecutor(id,eTypes).
+	loop_addExecutor2(id,eTypes).
 	method_var_end(id,addExecutor')
       )
 ).ExecutorDispatcher_addExecutor(id)
@@ -1972,10 +1987,19 @@ proc loop_addExecutor(id:Nat,eTypes:List(eType)) =
 	  method_call_begin(id,__execTypes_inc(head(eTypes))).method_call_end(id,__execTypes_inc')
 	)
       <> internal)
-   .method_call_begin(id,__fillExecutors(head(eTypes),true)).
-   method_call_end(id,__fillExecutors')
+%    .method_call_begin(id,__fillExecutors(head(eTypes),true)).
+%    method_call_end(id,__fillExecutors')
    .loop_addExecutor(id,tail(eTypes))
   <> internal
+;
+
+proc loop_addExecutor2(id:Nat,eTypes:List(eType)) =
+(eTypes!=[]) ->
+  (
+   method_call_begin(id,__fillExecutors(head(eTypes),true)).
+   method_call_end(id,__fillExecutors')
+   .loop_addExecutor2(id,tail(eTypes))
+   ) <> internal
 ;
 
 
@@ -2081,14 +2105,15 @@ proc ExecutorDispatcher_getExecutorsConnected(id:Nat) =
 
 %-----------DONE server---
 proc ExecutorDispatcher___doPeriodicStuff(id:Nat) =
-  method_var_begin(id,__doPeriodicStuff).
+%   method_var_begin(id,__doPeriodicStuff).
     method_call_begin(id,__unfreezeTasks(None)).
     method_call_end(id,__unfreezeTasks').
     method_call_begin(id,__execTypes_get_eTypes).
     sum etypes:List(eType).method_call_end(id,__execTypes_get_eTypes'(etypes)).
     loop___doPeriodicStuff(id,etypes).
-  method_var_end(id,__doPeriodicStuff') 
-.ExecutorDispatcher___doPeriodicStuff(id);
+%   method_var_end(id,__doPeriodicStuff') 
+% .
+ExecutorDispatcher___doPeriodicStuff(id);
 
 %-----------DONE server---
 proc loop___doPeriodicStuff(id:Nat,etypes:List(eType)) = 
