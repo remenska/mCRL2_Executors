@@ -2071,10 +2071,13 @@ proc OptimizationMindHandler___loadJobs(id:Nat) =
 	(
 	  method_call_begin(id,getTaskIds).	
 	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
-	  loop___loadJobs(id,[555,666],knownJids). % THIS IS FIXED, CHANGE!!! THAT IS, UNCOMMENT BELOW
+	  loop___loadJobs(id,[],knownJids). % THIS IS FIXED, CHANGE!!! THAT IS, UNCOMMENT BELOW
+% 	  loop___loadJobs(id,[555,666],knownJids). % THIS IS FIXED, CHANGE!!! THAT IS, UNCOMMENT BELOW
 	  method_call_begin(id,getTaskIds).
 	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
-	  loop___loadJobs(id,[555,666],knownJids).
+	  loop___loadJobs(id,[],knownJids).
+% 	  	  loop___loadJobs(id,[555,666],knownJids).
+
 	  method_var_end(id,__loadJobs'(OK))
 	)
   ).OptimizationMindHandler___loadJobs(id)
