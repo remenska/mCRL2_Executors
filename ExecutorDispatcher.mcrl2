@@ -948,7 +948,7 @@ proc ExecutorState_getExecutorOfTask(id:Nat) =
 	sum taskId:Nat.method_var_begin(id,getExecutorOfTask(taskId)).
 	  method_call_begin(id,__taskInExec_get(taskId)).
 	  sum eid:Int.method_call_end(id,__taskInExec_get'(eid)).
-	  (eid!=-1) -> method_var_end(id,getExecutorOfTask'(Int2Nat(eid)))
+	  (eid>0) -> method_var_end(id,getExecutorOfTask'(Int2Nat(eid)))
 	    <>
 		    method_var_end(id,getExecutorOfTask'(0)) % represents NONE
 
