@@ -50,12 +50,12 @@ sort Method = struct
   __freezeTask'(result:Bool) | 
   getTask(taskid:Nat) | 
   getTask'(taskObj:TaskObject) | 
-  cbTaskError(taskid:Nat,taskObj:TaskObject) |	 
-  cbTaskError' |  
+%   cbTaskError(taskid:Nat,taskObj:TaskObject) |	 
+%   cbTaskError' |  
   cbDispatch(taskid:Nat,taskObj:TaskObject,executedPath:List(eType)) | 
   cbDispatch'(reply:Reply,etype:eType) | 
-  exec_TaskError(taskid:Nat,taskObj:TaskObject) | 
-  exec_TaskError'(reply:Reply) | 
+%   exec_TaskError(taskid:Nat,taskObj:TaskObject) | 
+%   exec_TaskError'(reply:Reply) | 
   setStatus1(jobState:TaskObject,fullStatus:FullStatus) | 
   setStatus1'(reply:Reply) | 
 
@@ -90,8 +90,8 @@ sort Method = struct
   killJob' | 
   resetJobAPI(jobID:Nat) |	%OK
   resetJobAPI' |	%OK
-  exec_deserializeTask'(reply:Reply,taskObj1:TaskObject) | 
-  exec_deserializeTask(taskObj:TaskObject) | 
+%   exec_deserializeTask'(reply:Reply,taskObj1:TaskObject) | 
+%   exec_deserializeTask(taskObj:TaskObject) | 
   taskProcessed(eId:Nat,taskId:Nat,taskObj1:TaskObject) | 
   taskProcessed'(reply:Reply) | 
   __taskReceived(taskId:Nat,eId:Nat) | 
@@ -109,8 +109,8 @@ sort Method = struct
   exec_executorDisconnected' | 
   freezeTask(eid:Nat,taskid:Nat,taskObj:TaskObject) | 
   freezeTask'(reply:Reply) | 
-  cbTaskFreeze(taskid:Nat,taskObj:TaskObject,eType:eType) | 
-  cbTaskFreeze'(reply:Reply) | 
+%   cbTaskFreeze(taskid:Nat,taskObj:TaskObject,eType:eType) | 
+%   cbTaskFreeze'(reply:Reply) | 
   exec_taskFreeze(taskid:Nat,taskObj:TaskObject,etype:eType) | 
   exec_taskFreeze'(reply:Reply) |	%OK
   conn_connected(trid:Nat,eTypes:List(eType),maxTasks:Nat) | 
