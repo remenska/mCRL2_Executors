@@ -25,15 +25,15 @@ sort Method = struct
   removeTaskDispatcher(taskid:Nat) | 
   removeTaskDispatcher' | 	% should return reply:Reply
 
-  setOptParameter(opPath:List(eType),jobState:TaskObject) | 
-  setOptParameter'(reply:Reply) | 
+%   setOptParameter(opPath:List(eType),jobState:TaskObject) | 
+%   setOptParameter'(reply:Reply) | 
 %   setParameter(opPath:List(eType),jobState:TaskObject) |	
 %   setParameter'(reply:Reply) | 
 
-  getOptParameter(jobState:TaskObject) | 
-  getOptParameter'(reply:Reply,opPath:List(eType)) | 
-  setStatus(jobState:TaskObject,fullStatus:FullStatus) | 
-  setStatus'(reply:Reply) | 
+%   getOptParameter(jobState:TaskObject) | 
+%   getOptParameter'(reply:Reply,opPath:List(eType)) | 
+%   setStatus(jobState:TaskObject,fullStatus:FullStatus) | 
+%   setStatus'(reply:Reply) | 
   __fillExecutors(etype:eType,defrozeIfNeeded:Bool) |	%OK
   __fillExecutors' | 
   __unfreezeTasks(etype:eType) |	 
@@ -64,15 +64,15 @@ sort Method = struct
 
   exec_dispatch(jid:Nat,jobState:TaskObject,pathExecuted:List(eType)) | 
   exec_dispatch'(reply:Reply,nextExecutor:eType) | 
-  getStatus(jobState:TaskObject,jid:Nat) | 
+%   getStatus(jobState:TaskObject,jid:Nat) | 
 
-  getStatus'(reply:Reply,status:FullStatus) | 
-  getStatus1(jobState:TaskObject,jid:Nat) | 
-  getStatus1'(reply:Reply,status:FullStatus) | 
-  resetJob(jobState:TaskObject) | %maybe just jobID
-  resetJob'(reply:Reply) | 
-  resetJob1(jobState:TaskObject) | %maybe just jobID
-  resetJob1'(reply:Reply) | 
+%   getStatus'(reply:Reply,status:FullStatus) | 
+%   getStatus1(jobState:TaskObject,jid:Nat) | 
+%   getStatus1'(reply:Reply,status:FullStatus) | 
+%   resetJob(jobState:TaskObject) | %maybe just jobID
+%   resetJob'(reply:Reply) | 
+%   resetJob1(jobState:TaskObject) | %maybe just jobID
+%   resetJob1'(reply:Reply) | 
   msg1(msg:Message,jids:List(Nat)) |
   forgetTask(taskid:Nat) |	%OK
   forgetTask' | 
@@ -111,8 +111,8 @@ sort Method = struct
   freezeTask'(reply:Reply) | 
 %   cbTaskFreeze(taskid:Nat,taskObj:TaskObject,eType:eType) | 
 %   cbTaskFreeze'(reply:Reply) | 
-  exec_taskFreeze(taskid:Nat,taskObj:TaskObject,etype:eType) | 
-  exec_taskFreeze'(reply:Reply) |	%OK
+%   exec_taskFreeze(taskid:Nat,taskObj:TaskObject,etype:eType) | 
+%   exec_taskFreeze'(reply:Reply) |	%OK
   conn_connected(trid:Nat,eTypes:List(eType),maxTasks:Nat) | 
   conn_connected'(reply:Reply) | 
   addExecutor(trid:Nat,eTypes:List(eType),maxTasks:Nat) | 
@@ -232,8 +232,8 @@ sort Method = struct
 
   __execTypes_getExecutorsConnected |
   __execTypes_getExecutorsConnected'(etypes:List(eType)) |
-  getJobAttributes(jid:Nat) | 
-  getJobAttributes'(reply:Reply,currentStatus:FullStatus) |
+%   getJobAttributes(jid:Nat) | 
+%   getJobAttributes'(reply:Reply,currentStatus:FullStatus) |
   __tasks_update(taskid:Nat,taskObj:TaskObject) |
   __tasks_update' |
   __tasks_pop(taskid:Nat) |
@@ -665,50 +665,50 @@ eqn
     taskid(el_tiq)==taskid -> __taskInQueue_del(el_tiq|>tiq,taskid) = __taskInQueue_del(tiq,taskid);
     !(taskid(el_tiq)==taskid) -> __taskInQueue_del(el_tiq|>tiq,taskid) = el_tiq|>__taskInQueue_del(tiq,taskid);
 
-%-----------------
-map setStatus:List(TaskObject) # Nat # FullStatus -> List(TaskObject);
-    getJobAttributes:List(TaskObject) # Nat -> FullStatus;
-    selectJobs:List(TaskObject) # Status # List(MinorStatus) -> List(Nat);
-    setOptParameter:List(TaskObject) # Nat # List(eType) -> List(TaskObject);
-    getOptParameter:List(TaskObject) # Nat -> List(eType);
-    insertJobs:List(TaskObject) # List(Nat) -> List(TaskObject);
-
-var list:List(TaskObject);
-    newStatus:FullStatus;
-    jid:Nat;
-    job:TaskObject;
-    major:Status;
-    minors:List(MinorStatus);
-    minor:MinorStatus;
-    jids:List(Nat);
-    opChain:List(eType);
-
-eqn
-   setStatus([],jid,newStatus) = [];
-   (taskID(job)==jid) -> setStatus(job|>list,jid,newStatus) = taskObj(jid,optimizationChain(job),eType(job),newStatus,initState(job),cache(job))|>setStatus(list,jid,newStatus);
-  !(taskID(job)!=jid) -> setStatus(job|>list,jid,newStatus) = job|>setStatus(list,jid,newStatus);
-
-   getJobAttributes([],jid) = statusBundle(Failed,FailedMinor);
-   (taskID(job)==jid) -> getJobAttributes(job|>list,jid) = status(job);
-   !(taskID(job)==jid) -> getJobAttributes(job|>list,jid) = getJobAttributes(list,jid);
-
-   selectJobs([],major,minors) = [];
-   (status(status(job))==major && minorStatus(status(job)) in minors) -> selectJobs(job|>list,major,minors) = taskID(job)|>selectJobs(list,major,minors);
-   (status(status(job))==major && minors==[]) -> selectJobs(job|>list,major,minors) = taskID(job)|>selectJobs(list,major,minors);
-   (status(status(job))!=major) ->  selectJobs(job|>list,major,minors) =  selectJobs(list,major,minors);
-   
-   setOptParameter([],jid,opChain) = [];
-   (taskID(job)==jid) -> setOptParameter(job|>list,jid,opChain) = taskObj(jid,opChain,eType(job),status(job),initState(job),cache(job))|>setOptParameter(list,jid,opChain);
-   !(taskID(job)==jid) -> setOptParameter(job|>list,jid,opChain) = job|>setOptParameter(list,jid,opChain);
-
-  getOptParameter([],jid) = [];
-  (taskID(job)==jid) -> getOptParameter(job|>list,jid) = optimizationChain(job);
-  !(taskID(job)==jid) -> getOptParameter(job|>list,jid) = getOptParameter(list,jid);
-  
-  insertJobs(list,[]) = list;
-  insertJobs(list,jid|>jids) = taskObj(jid,[],None,statusBundle(Received,JobAccepted),statusBundle(Received,JobAccepted),[])|>insertJobs(list,jids);
-  
-%-----------------
+% %-----------------
+% map setStatus:List(TaskObject) # Nat # FullStatus -> List(TaskObject);
+%     getJobAttributes:List(TaskObject) # Nat -> FullStatus;
+%     selectJobs:List(TaskObject) # Status # List(MinorStatus) -> List(Nat);
+%     setOptParameter:List(TaskObject) # Nat # List(eType) -> List(TaskObject);
+%     getOptParameter:List(TaskObject) # Nat -> List(eType);
+%     insertJobs:List(TaskObject) # List(Nat) -> List(TaskObject);
+% 
+% var list:List(TaskObject);
+%     newStatus:FullStatus;
+%     jid:Nat;
+%     job:TaskObject;
+%     major:Status;
+%     minors:List(MinorStatus);
+%     minor:MinorStatus;
+%     jids:List(Nat);
+%     opChain:List(eType);
+% 
+% eqn
+%    setStatus([],jid,newStatus) = [];
+%    (taskID(job)==jid) -> setStatus(job|>list,jid,newStatus) = taskObj(jid,optimizationChain(job),eType(job),newStatus,initState(job),cache(job))|>setStatus(list,jid,newStatus);
+%   !(taskID(job)!=jid) -> setStatus(job|>list,jid,newStatus) = job|>setStatus(list,jid,newStatus);
+% 
+%    getJobAttributes([],jid) = statusBundle(Failed,FailedMinor);
+%    (taskID(job)==jid) -> getJobAttributes(job|>list,jid) = status(job);
+%    !(taskID(job)==jid) -> getJobAttributes(job|>list,jid) = getJobAttributes(list,jid);
+% 
+%    selectJobs([],major,minors) = [];
+%    (status(status(job))==major && minorStatus(status(job)) in minors) -> selectJobs(job|>list,major,minors) = taskID(job)|>selectJobs(list,major,minors);
+%    (status(status(job))==major && minors==[]) -> selectJobs(job|>list,major,minors) = taskID(job)|>selectJobs(list,major,minors);
+%    (status(status(job))!=major) ->  selectJobs(job|>list,major,minors) =  selectJobs(list,major,minors);
+%    
+%    setOptParameter([],jid,opChain) = [];
+%    (taskID(job)==jid) -> setOptParameter(job|>list,jid,opChain) = taskObj(jid,opChain,eType(job),status(job),initState(job),cache(job))|>setOptParameter(list,jid,opChain);
+%    !(taskID(job)==jid) -> setOptParameter(job|>list,jid,opChain) = job|>setOptParameter(list,jid,opChain);
+% 
+%   getOptParameter([],jid) = [];
+%   (taskID(job)==jid) -> getOptParameter(job|>list,jid) = optimizationChain(job);
+%   !(taskID(job)==jid) -> getOptParameter(job|>list,jid) = getOptParameter(list,jid);
+%   
+%   insertJobs(list,[]) = list;
+%   insertJobs(list,jid|>jids) = taskObj(jid,[],None,statusBundle(Received,JobAccepted),statusBundle(Received,JobAccepted),[])|>insertJobs(list,jids);
+%   
+% %-----------------
 
 
 map indexOf: List(eType) # eType -> Int;
@@ -2134,16 +2134,19 @@ proc loop___doPeriodicStuff(id:Nat,etypes:List(eType)) =
 ;
 
 
-proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) || 
+proc methodsP(id:Nat) = 
+    		ExecutorState_mem(id,[],[],[],[]) ||
+		ExecutorQueues_mem(id,[],[]) ||
+		ExecutorDispatcher_mem(id,[],[],[],[]) ||
+
+		ExecutorDispatcher_removeTask(id) || 
 		ExecutorState_getExecutorOfTask(id) ||
 		ExecutorState_removeTask(id) ||
 		ExecutorState_addTask(id) ||
 		ExecutorState_freeSlots(id) ||
 		ExecutorState_getIdleExecutor(id) ||
 		ExecutorState_addExecutor(id) ||
-		ExecutorState_mem(id,[],[],[],[]) ||
 
-		ExecutorQueues_mem(id,[],[]) ||
 		ExecutorQueues_deleteTask(id) ||
 		ExecutorQueues_popTask(id) ||
 		ExecutorQueues_pushTask(id) ||
@@ -2166,7 +2169,6 @@ proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) ||
 		ExecutorDispatcher___doPeriodicStuff(id) ||
 		ExecutorDispatcher_getExecutorsConnected(id) ||
 		ExecutorDispatcher_getTaskIds(id) ||
-		ExecutorDispatcher_mem(id,[],[],[],[]) ||
 
 % 		MindCallbacks_cbTaskError(id) ||
 		MindCallbacks_cbDispatch(id) ||
