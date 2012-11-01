@@ -1190,7 +1190,7 @@ proc loop___unfreezeTasks(id:Nat,iP:Nat,etype:eType) =
 	(eTask==NullObj) -> method_call_begin(id,__taskFreezer_pop(iP)).method_call_end(id,__taskFreezer_pop').
 			    loop___unfreezeTasks(id,iP,etype)
 	  <>
-	  (!(etype==eType(eTask)) -> loop___unfreezeTasks(id,succ(iP),etype)
+	  ((etype!=None && !(etype==eType(eTask))) -> loop___unfreezeTasks(id,succ(iP),etype)
 	    <>
 	      (
 	      method_call_begin(id,__taskFreezer_pop(iP)).method_call_end(id,__taskFreezer_pop').
