@@ -1807,8 +1807,8 @@ proc ExecutorDispatcher___addTaskIfNew(id:Nat) =
 
 %-----------DONE server---
 proc JobManagerHandler_submitJob(id:Nat) =
-  method_begin(id,submitJob([111,222,333,444])).
-  method_call_begin(id,__sendNewJobsToMind([111,222,333,444])).
+  method_begin(id,submitJob([111,222])).
+  method_call_begin(id,__sendNewJobsToMind([111,222])).
   method_call_end(id,__sendNewJobsToMind').
   method_end(id,submitJob')
 ;
@@ -2093,8 +2093,8 @@ proc methodsP(id:Nat) =
 
 		MindCluster___processTask(id) ||
 
-% 		JobManagerHandler_submitJob(id) ||
-% 		JobManagerHandler___sendNewJobsToMind(id) ||
+		JobManagerHandler_submitJob(id) ||
+		JobManagerHandler___sendNewJobsToMind(id) ||
 		JobManagerHandler_killJob(id) ||
 		JobManager_resetJob(id) ||
 
