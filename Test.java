@@ -10,6 +10,7 @@
 // import com.sdmetrics.*;
 import org.eclipse.emf.ecore.xmi.*;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMLResourceFactoryImpl;
 // import java.net.URI;
 // import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.common.util.URI;
@@ -29,38 +30,25 @@ class Test {
   public static void main(String args[]) throws Exception{
     System.out.println("Success!!!");
  
-//     MetaModel mmodel = new MetaModel();
-//     Model model = new Model(mmodel);
-//     XMITransformations transf = new XMITransformations(mmodel);
-//     XMIReader reader = new XMIReader(transf,model);
-//     org.xml.sax.helpers.DefaultHandler handler = transf.getSAXParserHandler(); 
-//    XMLParser parser =  new XMLParser();
-//     parser.parse("/home/daniela/sw/IBM/git/UML-MARTE/exportTest/Default.sbs.xmi", handler);
-//     System.out.println("Num:" + reader.getNumberOfElements());
-    
+    System.out.println("AMAAAN");
 EPackage.Registry.INSTANCE.put(UMLPackage.eNS_URI, UMLPackage.eINSTANCE);
 Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(UMLResource.FILE_EXTENSION, UMLResource.Factory.INSTANCE);
   ResourceSet resourceSet = new ResourceSetImpl();
   resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-// resourceSet.getPackageRegistry().put("http://www.eclipse.org/uml2/2.0.0/UML", UMLPackage.eINSTANCE);
-  resourceSet.getPackageRegistry().put("http://schema.omg.org/spec/UML/2.1", UMLPackage.eINSTANCE);
-  resourceSet.getPackageRegistry().put("http://www.eclipse.org/uml2/2.0.0/UML", UMLPackage.eINSTANCE);
+resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xml", new XMLResourceFactoryImpl());
+
+//   resourceSet.getPackageRegistry().put("http://schema.omg.org/spec/UML/2.1", UMLPackage.eINSTANCE);
 
   Resource resource = null;
 //       File f = new File("/home/daniela/Documents/mCRL2_new_models/September2012/mCRL2_Executors/ExportHere.xmi"); 
-      File f = new File("/home/daniela/sw/IBM/git/exportNew/Default.sbs.xmi.copy.xmi"); 
+      File f = new File("ExportHereAgain.uml"); 
 
 
     URI uri = URI.createFileURI(f.getAbsolutePath());
         resource = resourceSet.getResource(uri, true);
 
-//     Resource resource
-//     = new XMIResourceImpl(URI.createFileURI("/home/daniela/Documents/mCRL2_new_models/September2012/mCRL2_Executors/ExportHere.xmi"));
-//         = new XMIResourceImpl(URI.createFileURI("/home/daniela/sw/IBM/git/UML-MARTE/exportTest/TestProject.rpy.xmi"));
     resource.load(null);
-      System.out.println( resource.getContents().get(0) );
-// ResourceSet resSet = new ResourceSetImpl();
-// Resource resource = resSet.getResource(URI
-//         .createURI("website/My.website"), true);
+    System.out.println("AMAAAN"+ resource.getContents().get(0) );
+
   }
 }

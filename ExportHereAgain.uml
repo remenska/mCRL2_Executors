@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Standard="http://schema.omg.org/spec/UML/2.1/StandardProfileL2" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:uml="http://schema.omg.org/spec/UML/2.1" xsi:schemaLocation="http://schema.omg.org/spec/UML/2.1/StandardProfileL2 http://schema.omg.org/spec/UML/2.1/StandardProfileL2.xmi#_yzU58YinEdqtvbnfB2L_5w http://schema.omg.org/spec/UML/2.1 http://www.eclipse.org/uml2/2.0.0/UML">
+ <uml:Model xmi:id="_paMVXCTyEeKEo4ISPQ3anA" name="TestProject">
+    <packagedElement xmi:type="uml:Component" xmi:id="_paMVXSTyEeKEo4ISPQ3anA" name="DefaultComponent">
+      <nestedClassifier xmi:type="uml:Artifact" xmi:id="_paMVXiTyEeKEo4ISPQ3anA" name="DefaultDefaultComponentArtifact"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_paMVXyTyEeKEo4ISPQ3anA" name="Default">
+      <packagedElement xmi:type="uml:Class" xmi:id="_paMVYCTyEeKEo4ISPQ3anA" name="classA">
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_paMVYSTyEeKEo4ISPQ3anA" name="innerMethod1" visibility="public" class="_paMVYCTyEeKEo4ISPQ3anA">
+          <ownedParameter xmi:type="uml:Parameter" xmi:id="_paMVYiTyEeKEo4ISPQ3anA" name="intArgument" type="_paMVUyTyEeKEo4ISPQ3anA"/>
+          <ownedParameter xmi:type="uml:Parameter" xmi:id="_paMVYyTyEeKEo4ISPQ3anA" name="Result" type="_paMVUiTyEeKEo4ISPQ3anA" direction="return"/>
+        </ownedOperation>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_paMVZCTyEeKEo4ISPQ3anA" name="classB">
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_paMVZSTyEeKEo4ISPQ3anA" name="method1" visibility="public" class="_paMVZCTyEeKEo4ISPQ3anA">
+          <ownedParameter xmi:type="uml:Parameter" xmi:id="_paMVZiTyEeKEo4ISPQ3anA" name="Result" type="_paMVUyTyEeKEo4ISPQ3anA" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_paMVZyTyEeKEo4ISPQ3anA" name="method2" visibility="public" class="_paMVZCTyEeKEo4ISPQ3anA">
+          <ownedParameter xmi:type="uml:Parameter" xmi:id="_paMVaCTyEeKEo4ISPQ3anA" name="Result" type="_paMVUiTyEeKEo4ISPQ3anA" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_paMVaSTyEeKEo4ISPQ3anA" name="innerMethod2" visibility="public" class="_paMVZCTyEeKEo4ISPQ3anA">
+          <ownedParameter xmi:type="uml:Parameter" xmi:id="_paMVaiTyEeKEo4ISPQ3anA" name="Result" type="_paMVUiTyEeKEo4ISPQ3anA" direction="return"/>
+        </ownedOperation>
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_paMVayTyEeKEo4ISPQ3anA" name="method3" visibility="public" class="_paMVZCTyEeKEo4ISPQ3anA">
+          <ownedParameter xmi:type="uml:Parameter" xmi:id="_paMVbCTyEeKEo4ISPQ3anA" name="Result" type="_paMVUyTyEeKEo4ISPQ3anA" direction="return"/>
+        </ownedOperation>
+        <ownedReception xmi:type="uml:Reception" xmi:id="_paMVbSTyEeKEo4ISPQ3anA" name="DISETCall" signal="_paMVsiTyEeKEo4ISPQ3anA"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Interaction" xmi:id="_paMVbiTyEeKEo4ISPQ3anA" name="DanielaSD1">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_paMVbyTyEeKEo4ISPQ3anA" name="classARole" type="_paMVYCTyEeKEo4ISPQ3anA"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_paMVcCTyEeKEo4ISPQ3anA" name="classBRole" type="_paMVZCTyEeKEo4ISPQ3anA"/>
+        <lifeline xmi:type="uml:Lifeline" xmi:id="_paMVcSTyEeKEo4ISPQ3anA" name="objectA" represents="_paMVbyTyEeKEo4ISPQ3anA" interaction="_paMVbiTyEeKEo4ISPQ3anA" coveredBy="_paMVcyTyEeKEo4ISPQ3anA _paMVdCTyEeKEo4ISPQ3anA _paMVdiTyEeKEo4ISPQ3anA _paMVfSTyEeKEo4ISPQ3anA _paMVgiTyEeKEo4ISPQ3anA _paMVjSTyEeKEo4ISPQ3anA _paMVliTyEeKEo4ISPQ3anA _paMVnSTyEeKEo4ISPQ3anA _paMVniTyEeKEo4ISPQ3anA"/>
+        <lifeline xmi:type="uml:Lifeline" xmi:id="_paMVciTyEeKEo4ISPQ3anA" name="role_0" represents="_paMVcCTyEeKEo4ISPQ3anA" interaction="_paMVbiTyEeKEo4ISPQ3anA" coveredBy="_paMVeSTyEeKEo4ISPQ3anA _paMVfCTyEeKEo4ISPQ3anA _paMVhSTyEeKEo4ISPQ3anA _paMVhyTyEeKEo4ISPQ3anA _paMViSTyEeKEo4ISPQ3anA _paMViyTyEeKEo4ISPQ3anA _paMVmSTyEeKEo4ISPQ3anA _paMVnCTyEeKEo4ISPQ3anA _paMVoSTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVcyTyEeKEo4ISPQ3anA" covered="_paMVcSTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" event="_paMVtSTyEeKEo4ISPQ3anA" message="_paMVpSTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVdCTyEeKEo4ISPQ3anA" covered="_paMVcSTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" event="_paMVtCTyEeKEo4ISPQ3anA" message="_paMVpSTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:BehaviorExecutionSpecification" xmi:id="_paMVdSTyEeKEo4ISPQ3anA" name="executionoccurrence_0" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" start="_paMVdCTyEeKEo4ISPQ3anA" finish="_paMVjiTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVdiTyEeKEo4ISPQ3anA" covered="_paMVcSTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" event="_paMVtyTyEeKEo4ISPQ3anA" message="_paMVpyTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:BehaviorExecutionSpecification" xmi:id="_paMVdyTyEeKEo4ISPQ3anA" name="executionoccurrence_0" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" start="_paMVdiTyEeKEo4ISPQ3anA" finish="_paMVeCTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:ExecutionOccurrenceSpecification" xmi:id="_paMVeCTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" execution="_paMVdyTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVeSTyEeKEo4ISPQ3anA" covered="_paMVciTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" event="_paMVtiTyEeKEo4ISPQ3anA" message="_paMVpyTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:BehaviorExecutionSpecification" xmi:id="_paMVeiTyEeKEo4ISPQ3anA" name="executionoccurrence_0" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" start="_paMVeSTyEeKEo4ISPQ3anA" finish="_paMVeyTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:ExecutionOccurrenceSpecification" xmi:id="_paMVeyTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" execution="_paMVeiTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVfCTyEeKEo4ISPQ3anA" covered="_paMVciTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" event="_paMVtyTyEeKEo4ISPQ3anA" message="_paMVqCTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVfSTyEeKEo4ISPQ3anA" covered="_paMVcSTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" event="_paMVtiTyEeKEo4ISPQ3anA" message="_paMVqCTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:CombinedFragment" xmi:id="_paMVfiTyEeKEo4ISPQ3anA" name="interactionOperator_0" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" interactionOperator="alt">
+          <operand xmi:type="uml:InteractionOperand" xmi:id="_paMVfyTyEeKEo4ISPQ3anA" name="interactionOperand_0" visibility="public">
+            <guard xmi:type="uml:InteractionConstraint" xmi:id="_paMVgCTyEeKEo4ISPQ3anA">
+              <specification xmi:type="uml:LiteralString" xmi:id="_paMVgSTyEeKEo4ISPQ3anA" value="retVal==0"/>
+            </guard>
+            <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVgiTyEeKEo4ISPQ3anA" covered="_paMVcSTyEeKEo4ISPQ3anA" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" event="_paMVuSTyEeKEo4ISPQ3anA" message="_paMVqSTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:BehaviorExecutionSpecification" xmi:id="_paMVgyTyEeKEo4ISPQ3anA" name="executionoccurrence_0" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" start="_paMVgiTyEeKEo4ISPQ3anA" finish="_paMVhCTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:ExecutionOccurrenceSpecification" xmi:id="_paMVhCTyEeKEo4ISPQ3anA" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" execution="_paMVgyTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVhSTyEeKEo4ISPQ3anA" covered="_paMVciTyEeKEo4ISPQ3anA" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" event="_paMVuCTyEeKEo4ISPQ3anA" message="_paMVqSTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:BehaviorExecutionSpecification" xmi:id="_paMVhiTyEeKEo4ISPQ3anA" name="executionoccurrence_0" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" start="_paMVhSTyEeKEo4ISPQ3anA" finish="_paMViCTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVhyTyEeKEo4ISPQ3anA" covered="_paMVciTyEeKEo4ISPQ3anA" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" event="_paMVuyTyEeKEo4ISPQ3anA" message="_paMVqiTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:ExecutionOccurrenceSpecification" xmi:id="_paMViCTyEeKEo4ISPQ3anA" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" execution="_paMVhiTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMViSTyEeKEo4ISPQ3anA" covered="_paMVciTyEeKEo4ISPQ3anA" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" event="_paMVuiTyEeKEo4ISPQ3anA" message="_paMVqiTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:BehaviorExecutionSpecification" xmi:id="_paMViiTyEeKEo4ISPQ3anA" name="executionoccurrence_0" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" start="_paMViSTyEeKEo4ISPQ3anA" finish="_paMVjCTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMViyTyEeKEo4ISPQ3anA" covered="_paMVciTyEeKEo4ISPQ3anA" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" event="_paMVuSTyEeKEo4ISPQ3anA" message="_paMVqyTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:ExecutionOccurrenceSpecification" xmi:id="_paMVjCTyEeKEo4ISPQ3anA" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" execution="_paMViiTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVjSTyEeKEo4ISPQ3anA" covered="_paMVcSTyEeKEo4ISPQ3anA" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" event="_paMVuCTyEeKEo4ISPQ3anA" message="_paMVqyTyEeKEo4ISPQ3anA"/>
+            <fragment xmi:type="uml:ExecutionOccurrenceSpecification" xmi:id="_paMVjiTyEeKEo4ISPQ3anA" enclosingOperand="_paMVfyTyEeKEo4ISPQ3anA" execution="_paMVdSTyEeKEo4ISPQ3anA"/>
+          </operand>
+          <operand xmi:type="uml:InteractionOperand" xmi:id="_paMVjyTyEeKEo4ISPQ3anA" name="interactionOperand_1" visibility="public">
+            <guard xmi:type="uml:InteractionConstraint" xmi:id="_paMVkCTyEeKEo4ISPQ3anA">
+              <specification xmi:type="uml:LiteralString" xmi:id="_paMVkSTyEeKEo4ISPQ3anA" value="else"/>
+            </guard>
+            <fragment xmi:type="uml:CombinedFragment" xmi:id="_paMVkiTyEeKEo4ISPQ3anA" name="interactionOperator_1" enclosingOperand="_paMVjyTyEeKEo4ISPQ3anA" interactionOperator="loop">
+              <operand xmi:type="uml:InteractionOperand" xmi:id="_paMVkyTyEeKEo4ISPQ3anA" name="interactionOperand_0" visibility="public">
+                <guard xmi:type="uml:InteractionConstraint" xmi:id="_paMVlCTyEeKEo4ISPQ3anA">
+                  <specification xmi:type="uml:LiteralString" xmi:id="_paMVlSTyEeKEo4ISPQ3anA" value="retVal>0"/>
+                </guard>
+                <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVliTyEeKEo4ISPQ3anA" covered="_paMVcSTyEeKEo4ISPQ3anA" enclosingOperand="_paMVkyTyEeKEo4ISPQ3anA" event="_paMVvSTyEeKEo4ISPQ3anA" message="_paMVrCTyEeKEo4ISPQ3anA"/>
+                <fragment xmi:type="uml:BehaviorExecutionSpecification" xmi:id="_paMVlyTyEeKEo4ISPQ3anA" name="executionoccurrence_0" enclosingOperand="_paMVkyTyEeKEo4ISPQ3anA" start="_paMVliTyEeKEo4ISPQ3anA" finish="_paMVmCTyEeKEo4ISPQ3anA"/>
+                <fragment xmi:type="uml:ExecutionOccurrenceSpecification" xmi:id="_paMVmCTyEeKEo4ISPQ3anA" enclosingOperand="_paMVkyTyEeKEo4ISPQ3anA" execution="_paMVlyTyEeKEo4ISPQ3anA"/>
+                <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVmSTyEeKEo4ISPQ3anA" covered="_paMVciTyEeKEo4ISPQ3anA" enclosingOperand="_paMVkyTyEeKEo4ISPQ3anA" event="_paMVvCTyEeKEo4ISPQ3anA" message="_paMVrCTyEeKEo4ISPQ3anA"/>
+                <fragment xmi:type="uml:BehaviorExecutionSpecification" xmi:id="_paMVmiTyEeKEo4ISPQ3anA" name="executionoccurrence_0" enclosingOperand="_paMVkyTyEeKEo4ISPQ3anA" start="_paMVmSTyEeKEo4ISPQ3anA" finish="_paMVmyTyEeKEo4ISPQ3anA"/>
+                <fragment xmi:type="uml:ExecutionOccurrenceSpecification" xmi:id="_paMVmyTyEeKEo4ISPQ3anA" enclosingOperand="_paMVkyTyEeKEo4ISPQ3anA" execution="_paMVmiTyEeKEo4ISPQ3anA"/>
+                <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVnCTyEeKEo4ISPQ3anA" covered="_paMVciTyEeKEo4ISPQ3anA" enclosingOperand="_paMVkyTyEeKEo4ISPQ3anA" event="_paMVvSTyEeKEo4ISPQ3anA" message="_paMVrSTyEeKEo4ISPQ3anA"/>
+                <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVnSTyEeKEo4ISPQ3anA" covered="_paMVcSTyEeKEo4ISPQ3anA" enclosingOperand="_paMVkyTyEeKEo4ISPQ3anA" event="_paMVvCTyEeKEo4ISPQ3anA" message="_paMVrSTyEeKEo4ISPQ3anA"/>
+              </operand>
+            </fragment>
+          </operand>
+        </fragment>
+        <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVniTyEeKEo4ISPQ3anA" covered="_paMVcSTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" event="_paMVsyTyEeKEo4ISPQ3anA" message="_paMVriTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:BehaviorExecutionSpecification" xmi:id="_paMVnyTyEeKEo4ISPQ3anA" name="executionoccurrence_0" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" start="_paMVniTyEeKEo4ISPQ3anA" finish="_paMVoCTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:ExecutionOccurrenceSpecification" xmi:id="_paMVoCTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" execution="_paMVnyTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_paMVoSTyEeKEo4ISPQ3anA" covered="_paMVciTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" event="_paMVsyTyEeKEo4ISPQ3anA" message="_paMVriTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:BehaviorExecutionSpecification" xmi:id="_paMVoiTyEeKEo4ISPQ3anA" name="executionoccurrence_0" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" start="_paMVoSTyEeKEo4ISPQ3anA" finish="_paMVoyTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:ExecutionOccurrenceSpecification" xmi:id="_paMVoyTyEeKEo4ISPQ3anA" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" execution="_paMVoiTyEeKEo4ISPQ3anA"/>
+        <fragment xmi:type="uml:InteractionUse" xmi:id="_paMVpCTyEeKEo4ISPQ3anA" name="AnotherScenario" enclosingInteraction="_paMVbiTyEeKEo4ISPQ3anA" refersTo="_paMVryTyEeKEo4ISPQ3anA"/>
+        <message xmi:type="uml:Message" xmi:id="_paMVpSTyEeKEo4ISPQ3anA" name="innerMethod1" receiveEvent="_paMVdCTyEeKEo4ISPQ3anA" sendEvent="_paMVcyTyEeKEo4ISPQ3anA" interaction="_paMVbiTyEeKEo4ISPQ3anA">
+          <argument xmi:type="uml:LiteralString" xmi:id="_paMVpiTyEeKEo4ISPQ3anA" value="5"/>
+        </message>
+        <message xmi:type="uml:Message" xmi:id="_paMVpyTyEeKEo4ISPQ3anA" name="method1" receiveEvent="_paMVeSTyEeKEo4ISPQ3anA" sendEvent="_paMVdiTyEeKEo4ISPQ3anA" interaction="_paMVbiTyEeKEo4ISPQ3anA"/>
+        <message xmi:type="uml:Message" xmi:id="_paMVqCTyEeKEo4ISPQ3anA" name="method1" messageSort="reply" receiveEvent="_paMVfSTyEeKEo4ISPQ3anA" sendEvent="_paMVfCTyEeKEo4ISPQ3anA" interaction="_paMVbiTyEeKEo4ISPQ3anA"/>
+        <message xmi:type="uml:Message" xmi:id="_paMVqSTyEeKEo4ISPQ3anA" name="method2" receiveEvent="_paMVhSTyEeKEo4ISPQ3anA" sendEvent="_paMVgiTyEeKEo4ISPQ3anA" interaction="_paMVbiTyEeKEo4ISPQ3anA"/>
+        <message xmi:type="uml:Message" xmi:id="_paMVqiTyEeKEo4ISPQ3anA" name="innerMethod2" receiveEvent="_paMViSTyEeKEo4ISPQ3anA" sendEvent="_paMVhyTyEeKEo4ISPQ3anA" interaction="_paMVbiTyEeKEo4ISPQ3anA"/>
+        <message xmi:type="uml:Message" xmi:id="_paMVqyTyEeKEo4ISPQ3anA" name="method2" messageSort="reply" receiveEvent="_paMVjSTyEeKEo4ISPQ3anA" sendEvent="_paMViyTyEeKEo4ISPQ3anA" interaction="_paMVbiTyEeKEo4ISPQ3anA"/>
+        <message xmi:type="uml:Message" xmi:id="_paMVrCTyEeKEo4ISPQ3anA" name="method3" receiveEvent="_paMVmSTyEeKEo4ISPQ3anA" sendEvent="_paMVliTyEeKEo4ISPQ3anA" interaction="_paMVbiTyEeKEo4ISPQ3anA"/>
+        <message xmi:type="uml:Message" xmi:id="_paMVrSTyEeKEo4ISPQ3anA" name="method3" messageSort="reply" receiveEvent="_paMVnSTyEeKEo4ISPQ3anA" sendEvent="_paMVnCTyEeKEo4ISPQ3anA" interaction="_paMVbiTyEeKEo4ISPQ3anA"/>
+        <message xmi:type="uml:Message" xmi:id="_paMVriTyEeKEo4ISPQ3anA" name="DISETCall" receiveEvent="_paMVoSTyEeKEo4ISPQ3anA" sendEvent="_paMVniTyEeKEo4ISPQ3anA" interaction="_paMVbiTyEeKEo4ISPQ3anA"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Interaction" xmi:id="_paMVryTyEeKEo4ISPQ3anA" name="AnotherScenario">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_paMVsCTyEeKEo4ISPQ3anA" name="classARole" type="_paMVYCTyEeKEo4ISPQ3anA"/>
+        <lifeline xmi:type="uml:Lifeline" xmi:id="_paMVsSTyEeKEo4ISPQ3anA" name="objectA" represents="_paMVsCTyEeKEo4ISPQ3anA" interaction="_paMVryTyEeKEo4ISPQ3anA"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Signal" xmi:id="_paMVsiTyEeKEo4ISPQ3anA" name="DISETCall"/>
+      <packagedElement xmi:type="uml:SignalEvent" xmi:id="_paMVsyTyEeKEo4ISPQ3anA" name="" signal="_paMVsiTyEeKEo4ISPQ3anA"/>
+      <packagedElement xmi:type="uml:CallEvent" xmi:id="_paMVtCTyEeKEo4ISPQ3anA" name="classA.innerMethod1Calling" operation="_paMVYSTyEeKEo4ISPQ3anA"/>
+      <packagedElement xmi:type="uml:SendOperationEvent" xmi:id="_paMVtSTyEeKEo4ISPQ3anA" name="classA.innerMethod1Sending" operation="_paMVYSTyEeKEo4ISPQ3anA"/>
+      <packagedElement xmi:type="uml:CallEvent" xmi:id="_paMVtiTyEeKEo4ISPQ3anA" name="classB.method1Calling" operation="_paMVZSTyEeKEo4ISPQ3anA"/>
+      <packagedElement xmi:type="uml:SendOperationEvent" xmi:id="_paMVtyTyEeKEo4ISPQ3anA" name="classB.method1Sending" operation="_paMVZSTyEeKEo4ISPQ3anA"/>
+      <packagedElement xmi:type="uml:CallEvent" xmi:id="_paMVuCTyEeKEo4ISPQ3anA" name="classB.method2Calling" operation="_paMVZyTyEeKEo4ISPQ3anA"/>
+      <packagedElement xmi:type="uml:SendOperationEvent" xmi:id="_paMVuSTyEeKEo4ISPQ3anA" name="classB.method2Sending" operation="_paMVZyTyEeKEo4ISPQ3anA"/>
+      <packagedElement xmi:type="uml:CallEvent" xmi:id="_paMVuiTyEeKEo4ISPQ3anA" name="classB.innerMethod2Calling" operation="_paMVaSTyEeKEo4ISPQ3anA"/>
+      <packagedElement xmi:type="uml:SendOperationEvent" xmi:id="_paMVuyTyEeKEo4ISPQ3anA" name="classB.innerMethod2Sending" operation="_paMVaSTyEeKEo4ISPQ3anA"/>
+      <packagedElement xmi:type="uml:CallEvent" xmi:id="_paMVvCTyEeKEo4ISPQ3anA" name="classB.method3Calling" operation="_paMVayTyEeKEo4ISPQ3anA"/>
+      <packagedElement xmi:type="uml:SendOperationEvent" xmi:id="_paMVvSTyEeKEo4ISPQ3anA" name="classB.method3Sending" operation="_paMVayTyEeKEo4ISPQ3anA"/>
+    </packagedElement>
+    <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_paMVviTyEeKEo4ISPQ3anA" applyingPackage="_paMVXCTyEeKEo4ISPQ3anA">
+      <xmi:Extension extender="http://www.eclipse.org/emf/2002/Ecore">
+        <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_paMVvyTyEeKEo4ISPQ3anA" source="http://www.eclipse.org/uml2/2.0.0/UML">
+          <references xmi:type="ecore:EPackage" href="http://schema.omg.org/spec/UML/2.1/StandardProfileL2.xmi#_yzU58YinEdqtvbnfB2L_5w"/>
+        </eAnnotations>
+      </xmi:Extension>
+      <appliedProfile xmi:type="uml:Profile" href="http://schema.omg.org/spec/UML/2.1/StandardProfileL2.xmi#_0"/>
+    </profileApplication>
+  </uml:Model>
+  <Standard:Executable xmi:id="_pbJWsCTyEeKEo4ISPQ3anA" base_Artifact="_paMVXiTyEeKEo4ISPQ3anA"/>
+</xmi:XMI>
