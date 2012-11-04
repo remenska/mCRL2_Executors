@@ -22,7 +22,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 // imoprt org.eclipse.emf.ecore.resource.*;
 import org.eclipse.emf.ecore.resource.*;
 import org.eclipse.emf.ecore.*;
-// import org.eclipse.uml2.uml.UMLPackage;
+import org.eclipse.uml2.uml.UMLPackage;
 import java.io.*;
 import org.eclipse.uml2.uml.UMLPackage;
 import org.eclipse.uml2.uml.resource.UMLResource;
@@ -42,7 +42,8 @@ import org.eclipse.emf.common.util.*;
 import org.eclipse.emf.ecore.impl.EAttributeImpl;
 import org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl;
 import org.eclipse.uml2.uml.internal.impl.ModelImpl;
-
+import  org.eclipse.uml2.uml.*;
+import org.eclipse.emf.ecore.impl.*;
 class Test {
   public static void main(String args[]) throws Exception{
     System.out.println("Success!!!");
@@ -79,15 +80,72 @@ resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xml", n
 		System.out.println("JUPII"+model.size());
 		
 Iterator itr = model.iterator(); 
-while(itr.hasNext()){
-  EObject el = (EObject)itr.next();
-  System.out.println(el);
-  System.out.println("-------------------------");
-
-// System.out.println(m);		
-// 		return model;
-//     Model m = (Model) EcoreUtil.getObjectByType(resource.getContents(), UMLPackage.Literals.MODEL);
-//     System.out.println(m);
-  }
+// org.eclipse.uml2.uml.internal.impl.ClassImpl
+// while(itr.hasNext()){
+//   EObject el = (EObject)itr.next();
+//   if(el instanceof org.eclipse.uml2.uml.internal.impl.ClassImpl) {
+//   System.out.println((( org.eclipse.uml2.uml.internal.impl.ClassImpl)el).getName());
+//   
+//   EList<Operation> operations = ((org.eclipse.uml2.uml.internal.impl.ClassImpl)el).getOwnedOperations(); 
+//   Iterator itr1 = operations.iterator();
+//       while (itr1.hasNext()) {
+//          Operation op = (Operation) itr1.next();
+//          System.out.println("Name operation:"+op.getName() + " ");
+//           Parameter returnParam = op.getReturnResult();
+//           if (returnParam!=null) System.out.println("Return:" + returnParam.getName()+":"+returnParam.getType().getName());
+//           org.eclipse.emf.common.util.EList<Parameter> parameters = op.getOwnedParameters();
+// 	  Iterator it_parameters = parameters.iterator();
+// 	      while(it_parameters.hasNext()){
+// 	      Parameter param = (Parameter) it_parameters.next();
+// 	      System.out.println("Name parameter:"+param.getName() + ":" + param.getType().getName());
+// 	      }
+//       }
+//   }
+// 
+//   }
+  
+      java.util.Collection<Model> m =  EcoreUtil.getObjectsByType(resource.getContents(), UMLPackage.Literals.MODEL);
+      Iterator model_iterator = m.iterator();
+      while(model_iterator.hasNext()){
+	Model model1 = (Model)model_iterator.next();
+	  if (model1.getName().equals("TestProject")){
+	    java.util.Collection<org.eclipse.uml2.uml.internal.impl.PackageImpl> packages =  EcoreUtil.getObjectsByType(model1.eContents(), UMLPackage.Literals.PACKAGE);
+	    System.out.println("e aj:"+packages);
+	    //iterate through packages
+	    Iterator package_itr = packages.iterator();
+	    while(package_itr.hasNext()){
+		  org.eclipse.uml2.uml.Package package1 = (org.eclipse.uml2.uml.Package)package_itr.next();
+		  // getting the classes and their info
+		 java.util.Collection<org.eclipse.uml2.uml.internal.impl.ClassImpl> classes = EcoreUtil.getObjectsByType(package1.eContents(), UMLPackage.Literals.CLASS);
+		 Iterator classes_iterator = classes.iterator();
+		 while(classes_iterator.hasNext()){
+		  org.eclipse.uml2.uml.internal.impl.ClassImpl class1 = (org.eclipse.uml2.uml.internal.impl.ClassImpl)classes_iterator.next();
+		  System.out.println("class name:"+class1.getName());
+		  EList<Operation> operations = ((org.eclipse.uml2.uml.internal.impl.ClassImpl)class1).getOwnedOperations(); 
+		  Iterator operations_iter = operations.iterator();
+		  while (operations_iter.hasNext()) {
+		    Operation operation1 = (Operation) operations_iter.next();
+		     System.out.println("Name operation:"+operation1.getName() + " ");
+		     Parameter returnParam = operation1.getReturnResult();
+		     if (returnParam!=null) System.out.println("Return:" + returnParam.getName()+":"+returnParam.getType().getName());
+		     org.eclipse.emf.common.util.EList<Parameter> parameters = operation1.getOwnedParameters();
+		     Iterator it_parameters = parameters.iterator();
+		      while(it_parameters.hasNext()){
+			Parameter param = (Parameter) it_parameters.next();
+			System.out.println("Name parameter:"+param.getName() + ":" + param.getType().getName());
+		      }
+		  }
+		 }
+		 
+		  //END_getting the classes and their info
+	 
+	    }
+	    
+	  }
+      }
+      
+    
+//        java.util.Collection<org.eclipse.uml2.uml.internal.impl.ClassImpl> classes =  EcoreUtil.getObjectsByType(resource.getContents(), UMLPackage.Literals.CLASS);
+//     System.out.println("E aj:"+classes);
 }
 }
