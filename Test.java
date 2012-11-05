@@ -66,20 +66,7 @@ resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xml", n
         resource = resourceSet.getResource(uri, true);
 
     resource.load(null);
-//     System.out.println("AMAAAN"+ ((XMIResourceImpl)resource).getContents().get(0) );
-    
-    
-    Collection<EObject> model = new ArrayList<EObject>();
-    
-    for(TreeIterator<EObject> it = resource.getAllContents();it.hasNext();)
-    {
-	    model.add(it.next());
-    }
-    
-    
-		System.out.println("JUPII"+model.size());
-		
-Iterator itr = model.iterator(); 
+
       java.util.Collection<Model> m =  EcoreUtil.getObjectsByType(resource.getContents(), UMLPackage.Literals.MODEL);
       Iterator model_iterator = m.iterator();
       while(model_iterator.hasNext()){
