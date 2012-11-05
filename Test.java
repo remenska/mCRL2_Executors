@@ -134,7 +134,28 @@ class Test {
 				    System.out.println("CombinedFragment");
 				   InteractionOperatorKind operator = ((org.eclipse.uml2.uml.internal.impl.CombinedFragmentImpl)fragment).getInteractionOperator(); 
 				   System.out.println("operator:"+ operator.getLiteral());
+				   org.eclipse.emf.common.util.EList<InteractionOperand> operands = ((org.eclipse.uml2.uml.internal.impl.CombinedFragmentImpl)fragment).getOperands();
+// 				   InteractionConstraint guard = operandsgetGuard()
+				   Iterator operands_iterator = operands.iterator();
+				   while(operands_iterator.hasNext()){
+				    InteractionOperand operand = (org.eclipse.uml2.uml.InteractionOperand)operands_iterator.next();
+				    System.out.println("operand guard:"+ operand.getGuard().getSpecification().stringValue()); 
+				    
+				    org.eclipse.emf.common.util.EList<InteractionFragment> innerFragments = operand.getFragments();
+				    
+				    
+				   }
+				   
+				   
+				   
+				   
 				}
+				 else if(fragment.getClass().equals(org.eclipse.uml2.uml.internal.impl.InteractionUseImpl.class)) {
+				    System.out.println("InteractionUse");
+				   Interaction refers_to = ((org.eclipse.uml2.uml.internal.impl.InteractionUseImpl)fragment).getRefersTo(); 
+				   System.out.println("refers to:"+ refers_to.getName());
+				}
+				
 				
 				System.out.println("==============");
 			       
@@ -151,7 +172,7 @@ class Test {
 		      }//END_getting the interactions and their info
 		      
 
-		      //COMBINED FRAGMENTS?InteractionUse?
+// 		      InteractionUse?
 		    }
 		    
 		 
