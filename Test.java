@@ -17,24 +17,26 @@ import org.eclipse.emf.ecore.impl.*;
 class Test {
   public static void main(String args[]) throws Exception{
   
-  EPackage.Registry.INSTANCE.put(UMLPackage.eNS_URI, UMLPackage.eINSTANCE);
-  Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(UMLResource.FILE_EXTENSION, UMLResource.Factory.INSTANCE);
-  ResourceSet resourceSet = new ResourceSetImpl();
-  resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-  resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xml", new XMLResourceFactoryImpl());
-  resourceSet.getPackageRegistry().put("http://schema.omg.org/spec/UML/2.1", UMLPackage.eINSTANCE);
+      EPackage.Registry.INSTANCE.put(UMLPackage.eNS_URI, UMLPackage.eINSTANCE);
+      Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(UMLResource.FILE_EXTENSION, UMLResource.Factory.INSTANCE);
+      ResourceSet resourceSet = new ResourceSetImpl();
+      resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+      resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xml", new XMLResourceFactoryImpl());
+      resourceSet.getPackageRegistry().put("http://schema.omg.org/spec/UML/2.1", UMLPackage.eINSTANCE);
 
-  Resource resource = null;
-      File f = new File("ExportedProject.uml"); 
+      Resource resource = null;
+	File f = new File("ExportedProject.uml"); 
 
 
-    URI uri = URI.createFileURI(f.getAbsolutePath());
-        resource = resourceSet.getResource(uri, true);
+      URI uri = URI.createFileURI(f.getAbsolutePath());
+      resource = resourceSet.getResource(uri, true);
 
-    resource.load(null);
+      resource.load(null);
 
       java.util.Collection<Model> m =  EcoreUtil.getObjectsByType(resource.getContents(), UMLPackage.Literals.MODEL);
+      
       Iterator model_iterator = m.iterator();
+      
       while(model_iterator.hasNext()){
 	Model model1 = (Model)model_iterator.next();
 	  if (model1.getName().equals("TestProject")){
