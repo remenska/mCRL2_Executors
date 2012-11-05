@@ -16,16 +16,12 @@ import  org.eclipse.uml2.uml.*;
 import org.eclipse.emf.ecore.impl.*;
 class Test {
   public static void main(String args[]) throws Exception{
-    System.out.println("Success!!!");
- 
-    System.out.println("AMAAAN");
-EPackage.Registry.INSTANCE.put(UMLPackage.eNS_URI, UMLPackage.eINSTANCE);
-Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(UMLResource.FILE_EXTENSION, UMLResource.Factory.INSTANCE);
+  
+  EPackage.Registry.INSTANCE.put(UMLPackage.eNS_URI, UMLPackage.eINSTANCE);
+  Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(UMLResource.FILE_EXTENSION, UMLResource.Factory.INSTANCE);
   ResourceSet resourceSet = new ResourceSetImpl();
   resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xml", new XMLResourceFactoryImpl());
-
-		
+  resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xml", new XMLResourceFactoryImpl());
   resourceSet.getPackageRegistry().put("http://schema.omg.org/spec/UML/2.1", UMLPackage.eINSTANCE);
 
   Resource resource = null;
@@ -114,7 +110,5 @@ resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xml", n
       }
       
     
-//        java.util.Collection<org.eclipse.uml2.uml.internal.impl.ClassImpl> classes =  EcoreUtil.getObjectsByType(resource.getContents(), UMLPackage.Literals.CLASS);
-//     System.out.println("E aj:"+classes);
 }
 }
