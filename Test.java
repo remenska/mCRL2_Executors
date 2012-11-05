@@ -119,14 +119,30 @@ Iterator itr = model.iterator();
 		      
 		       //BEGIN_getting the interactions and their info
 		      else if(class1.getClass().equals(org.eclipse.uml2.uml.internal.impl.InteractionImpl.class)){
-			System.out.println("interaction name:"+class1.getName());
-			org.eclipse.emf.common.util.EList<Property> owned_attributes = class1.getOwnedAttributes();
-			Iterator owned_attributes_iterator = owned_attributes.iterator();
-			  while(owned_attributes_iterator.hasNext()){
-			    org.eclipse.uml2.uml.Property attrib1 = (org.eclipse.uml2.uml.Property)owned_attributes_iterator.next();
-			    System.out.println("name:"+attrib1.getName()+" type:"+attrib1.getType().getName());
-			  }
+			  System.out.println("interaction name:"+class1.getName());
+			  //BEGIN_getting the owned_attributes and their info
+			  org.eclipse.emf.common.util.EList<Property> owned_attributes = class1.getOwnedAttributes();
+			  Iterator owned_attributes_iterator = owned_attributes.iterator();
+			    while(owned_attributes_iterator.hasNext()){
+			      org.eclipse.uml2.uml.Property attrib1 = (org.eclipse.uml2.uml.Property)owned_attributes_iterator.next();
+			      System.out.println("name:"+attrib1.getName()+" type:"+attrib1.getType().getName());
+			      
+			    }
+			    //END_getting the owned_attributes and their info
+			    
+			    //BEGIN_getting the lifelines and their info
+			      org.eclipse.emf.common.util.EList<Lifeline> lifelines = ((org.eclipse.uml2.uml.internal.impl.InteractionImpl)class1).getLifelines();
+			      Iterator lifelines_iterator = lifelines.iterator();
+			    while(lifelines_iterator.hasNext()){
+			      org.eclipse.uml2.uml.Lifeline lifeline = (org.eclipse.uml2.uml.Lifeline)lifelines_iterator.next();
+			      System.out.println("name:"+lifeline.getName()+" type:"+lifeline.getRepresents().getName());
+			      
+			    }
+			    //END_getting the lifelines and their info
+			    
 		      }//END_getting the interactions and their info
+		      
+
 		    }
 		    
 		 
