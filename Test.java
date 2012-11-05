@@ -77,7 +77,7 @@ class Test {
 		      else if(class1.getClass().equals(org.eclipse.uml2.uml.internal.impl.InteractionImpl.class)){
 		      System.out.println("INTERACTION==============");
 			  System.out.println("interaction name:"+class1.getName());
-			  //BEGIN_getting the owned_attributes and their info
+			  //BEGIN_getting the interaction owned_attributes and their info
 			  System.out.println("ATTRIBUTE==============");
 			  org.eclipse.emf.common.util.EList<Property> owned_attributes = class1.getOwnedAttributes();
 			  Iterator owned_attributes_iterator = owned_attributes.iterator();
@@ -86,9 +86,9 @@ class Test {
 			      System.out.println("name:"+attrib1.getName()+" type:"+attrib1.getType().getName());
 			      
 			    }
-			    //END_getting the owned_attributes and their info
+			    //END_getting the interaction owned_attributes and their info
 			    
-			    //BEGIN_getting the lifelines and their info
+			    //BEGIN_getting the interaction lifelines and their info
 			      org.eclipse.emf.common.util.EList<Lifeline> lifelines = ((org.eclipse.uml2.uml.internal.impl.InteractionImpl)class1).getLifelines();
 			      Iterator lifelines_iterator = lifelines.iterator();
 			    while(lifelines_iterator.hasNext()){
@@ -97,11 +97,57 @@ class Test {
 			      System.out.println("name:"+lifeline.getName()+" type:"+lifeline.getRepresents().getName());
 			      System.out.println("covered by:"+lifeline.getCoveredBys());
 			    }
-			    //END_getting the lifelines and their info
+			    //END_getting the interaction lifelines and their info
 			    System.out.println("==============");
+			    
+			    //BEGIN_getting the interaction fragments and their info
+			    org.eclipse.emf.common.util.EList<InteractionFragment> fragments = ((org.eclipse.uml2.uml.internal.impl.InteractionImpl)class1).getFragments(); 
+			    Iterator fragments_iterator = fragments.iterator();
+			    while(fragments_iterator.hasNext()){
+			      org.eclipse.uml2.uml.InteractionFragment fragment = (org.eclipse.uml2.uml.InteractionFragment)fragments_iterator.next();
+			      System.out.println("INTERACTION FRAGMENT========");
+// 			      System.out.println("name:"+fragment.getName());
+			       org.eclipse.emf.common.util.EList<Lifeline> covereds =  fragment.getCovereds();
+			       Iterator covereds_iterator = covereds.iterator();
+			       while(covereds_iterator.hasNext()){
+				  org.eclipse.uml2.uml.Lifeline lifeline1 = (org.eclipse.uml2.uml.Lifeline)covereds_iterator.next();
+// 				  System.out.println("FRAGMENT COVERS LIFELINE==============");
+				  System.out.println("Fragment covers lifeline: name:"+lifeline1.getName()+" type:"+lifeline1.getRepresents().getName());
+// 				  System.out.println("covered by:"+lifeline1.getCoveredBys());
+			       }
+			       if(fragment.getClass().equals(org.eclipse.uml2.uml.internal.impl.BehaviorExecutionSpecificationImpl.class)){
+				System.out.println("BehaviorExecutionSpecification");
+				System.out.println("start:"+((org.eclipse.uml2.uml.internal.impl.BehaviorExecutionSpecificationImpl)fragment).getStart());
+				System.out.println("finish:"+((org.eclipse.uml2.uml.internal.impl.BehaviorExecutionSpecificationImpl)fragment).getFinish());
+			       } else if(fragment.getClass().equals(org.eclipse.uml2.uml.internal.impl.MessageOccurrenceSpecificationImpl.class)){
+				  System.out.println("MessageOccurrenceSpecificationImpl");
+				  System.out.println("message:"+((org.eclipse.uml2.uml.internal.impl.MessageOccurrenceSpecificationImpl)fragment).getMessage().getName());
+				  System.out.println("message sort:"+ ((org.eclipse.uml2.uml.internal.impl.MessageOccurrenceSpecificationImpl)fragment).getMessage().getMessageSort());
+// 				  System.out.println("event:"+((org.eclipse.uml2.uml.internal.impl.MessageOccurrenceSpecificationImpl)fragment).getEvent());
+// 				  System.out.println("event:"+((org.eclipse.uml2.uml.OccurrenceSpecification)fragment).getEvent().toString());
+				} else if(fragment.getClass().equals(org.eclipse.uml2.uml.internal.impl.ExecutionOccurrenceSpecificationImpl.class)) {
+				  System.out.println("ExecutionOccurrenceSpecificationImpl");
+				  System.out.println("execution:"+((org.eclipse.uml2.uml.internal.impl.ExecutionOccurrenceSpecificationImpl)fragment).getExecution());
+				  System.out.println("enclosing interaction:"+((org.eclipse.uml2.uml.internal.impl.ExecutionOccurrenceSpecificationImpl)fragment).getEnclosingInteraction().getName());
+// 				  getEnclosingInteraction()
+				}
+				
+				System.out.println("==============");
+			       
+			    }
+			    //END_getting the interaction fragments and their info
+			   
+			   org.eclipse.emf.common.util.EList<Message>	interactionMessages = ((org.eclipse.uml2.uml.internal.impl.InteractionImpl)class1).getMessages(); 
+			   Iterator interactionMessages_iterator = interactionMessages.iterator();
+			   //BEGIN_getting the iteraction messages and their info
+			   while(interactionMessages_iterator.hasNext()){
+			    org.eclipse.uml2.uml.Message message = (org.eclipse.uml2.uml.Message) interactionMessages_iterator.next();
+			    System.out.println("interaction message:"+ message.getName()+" sendEvent="+message.getSendEvent()+" receiveEvent="+message.getReceiveEvent()+" sort:"+message.getMessageSort());
+			   }
 		      }//END_getting the interactions and their info
 		      
 
+		      //COMBINED FRAGMENTS?
 		    }
 		    
 		 
