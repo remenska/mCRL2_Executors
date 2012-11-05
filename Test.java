@@ -59,7 +59,7 @@ resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xml", n
   resourceSet.getPackageRegistry().put("http://schema.omg.org/spec/UML/2.1", UMLPackage.eINSTANCE);
 
   Resource resource = null;
-      File f = new File("ExportHereAgain.uml"); 
+      File f = new File("ExportedProject.uml"); 
 
 
     URI uri = URI.createFileURI(f.getAbsolutePath());
@@ -140,7 +140,7 @@ Iterator itr = model.iterator();
 			      org.eclipse.uml2.uml.Lifeline lifeline = (org.eclipse.uml2.uml.Lifeline)lifelines_iterator.next();
 			      System.out.println("LIFELINE==============");
 			      System.out.println("name:"+lifeline.getName()+" type:"+lifeline.getRepresents().getName());
-			      
+			      System.out.println("covered by:"+lifeline.getCoveredBys());
 			    }
 			    //END_getting the lifelines and their info
 			    System.out.println("==============");
