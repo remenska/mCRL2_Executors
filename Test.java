@@ -130,6 +130,10 @@ class Test {
 				  System.out.println("execution:"+((org.eclipse.uml2.uml.internal.impl.ExecutionOccurrenceSpecificationImpl)fragment).getExecution());
 				  System.out.println("enclosing interaction:"+((org.eclipse.uml2.uml.internal.impl.ExecutionOccurrenceSpecificationImpl)fragment).getEnclosingInteraction().getName());
 // 				  getEnclosingInteraction()
+				} else if(fragment.getClass().equals(org.eclipse.uml2.uml.internal.impl.CombinedFragmentImpl.class)) {
+				    System.out.println("CombinedFragment");
+				   InteractionOperatorKind operator = ((org.eclipse.uml2.uml.internal.impl.CombinedFragmentImpl)fragment).getInteractionOperator(); 
+				   System.out.println("operator:"+ operator.getLiteral());
 				}
 				
 				System.out.println("==============");
@@ -147,7 +151,7 @@ class Test {
 		      }//END_getting the interactions and their info
 		      
 
-		      //COMBINED FRAGMENTS?
+		      //COMBINED FRAGMENTS?InteractionUse?
 		    }
 		    
 		 
