@@ -99,6 +99,7 @@ Iterator itr = model.iterator();
 		      org.eclipse.uml2.uml.internal.impl.ClassImpl class1 = (org.eclipse.uml2.uml.internal.impl.ClassImpl)classes_iterator.next();
 		       //BEGIN_getting the classes and their info
 		      if(class1.getClass().equals(org.eclipse.uml2.uml.internal.impl.ClassImpl.class)){
+		      System.out.println("CLASS==============");
 		      System.out.println("class name:"+class1.getName());
 		      EList<Operation> operations = ((org.eclipse.uml2.uml.internal.impl.ClassImpl)class1).getOwnedOperations(); 
 		      Iterator operations_iter = operations.iterator();
@@ -114,13 +115,15 @@ Iterator itr = model.iterator();
 			    System.out.println("Name parameter:"+param.getName() + ":" + param.getType().getName());
 			  }
 		      }
-		      
+		      System.out.println("==============");
 		      } //END_getting the classes and their info
 		      
 		       //BEGIN_getting the interactions and their info
 		      else if(class1.getClass().equals(org.eclipse.uml2.uml.internal.impl.InteractionImpl.class)){
+		      System.out.println("INTERACTION==============");
 			  System.out.println("interaction name:"+class1.getName());
 			  //BEGIN_getting the owned_attributes and their info
+			  System.out.println("ATTRIBUTE==============");
 			  org.eclipse.emf.common.util.EList<Property> owned_attributes = class1.getOwnedAttributes();
 			  Iterator owned_attributes_iterator = owned_attributes.iterator();
 			    while(owned_attributes_iterator.hasNext()){
@@ -135,11 +138,12 @@ Iterator itr = model.iterator();
 			      Iterator lifelines_iterator = lifelines.iterator();
 			    while(lifelines_iterator.hasNext()){
 			      org.eclipse.uml2.uml.Lifeline lifeline = (org.eclipse.uml2.uml.Lifeline)lifelines_iterator.next();
+			      System.out.println("LIFELINE==============");
 			      System.out.println("name:"+lifeline.getName()+" type:"+lifeline.getRepresents().getName());
 			      
 			    }
 			    //END_getting the lifelines and their info
-			    
+			    System.out.println("==============");
 		      }//END_getting the interactions and their info
 		      
 
