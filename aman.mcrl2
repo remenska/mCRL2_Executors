@@ -1,80 +1,2941 @@
-% comment
-sort Data = struct OK | ERROR;
-act action1,action2,action3;
-act action4,action5:Data;
-act getData_var,getData_call,getData:Method;
-
-sort Method = struct getData(data:Data,pos:Nat) |
-		  otherMethod 
+%comment 
+sort Method = struct
+	getExecutorOfTask(taskId:Nat) | 
+      getExecutorOfTask'(eId:Nat) | 
+      deleteTask(taskId:Nat) |  
+      deleteTask' |  
+      removeTask(taskId:Nat,eid:Nat) |  
+      removeTask'(result:Bool) |   
+  __sendTaskToExecutor(eId:Nat,eTypes:List(eType),checkIdle:Bool) |    
+  __sendTaskToExecutor' |     
+    freeSlots(eId:Nat) |     
+  freeSlots'(fs:Nat) |     
+  popTask(eTypes:List(eType)) | 
+  popTask'(taskId:Nat,eType:eType) | 
+  addTask(eId:Nat,taskId:Nat) |    
+  addTask' |    
+  __msgTaskToExecutor(taskId:Nat,eId:Nat,eType:eType) |     
+  __msgTaskToExecutor'(result:Reply) |     
+  pushTask(eType:eType,taskId:Nat,ahead:Bool) |     
+  pushTask' |     
+  cbSendTask(taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType) |     
+  cbSendTask'(result:Reply) |     
+  __sendTask(taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType) |    
+  __sendTask'(result:Reply) |    
+ exec_prepareToSend(taskId:Nat,taskObj:TaskObject,eId:Nat) |  
+  exec_prepareToSend'(result:Reply) |   
+  exec_serializeTask(taskObj:TaskObject) |   
+  exec_serializeTask'(result:Reply,taskObj:TaskObject) | 
+  recheckValidity(taskObj:TaskObject) | % 
+  recheckValidity'(result:Reply) |  
+  serialize(taskObj:TaskObject) | 
+  serialize'(result:Reply) | 
+  msg(msg:Message,eId:Nat, taskObj:TaskObject) |
+%   getAttributes(attributes:TypeAttr) |
+%   getAttributes'(result:Reply) | 
+  removeTaskDispatcher(taskid:Nat) | 
+  removeTaskDispatcher' | 	% should return reply:Reply
+  __moduleProcess(etype:eType,taskId:Nat,taskObj:TaskObject) |
+  __moduleProcess'(result:Reply,message:Message) | % OK
+  __getInstance(etype:eType) | % OK
+  __getInstance'(modInstance:Nat) | 
+  _ex_processTask(modInstance:Nat,taskId:Nat,taskObj:TaskObject) |
+  _ex_processTask'(reply:Reply,fastTrackType:eType) |  
+  __storeInstance(etype:eType,modInstance:Nat) | 
+  __storeInstance' | 
+  __deserialize(taskId:Nat,taskObj:TaskObject) | 
+  __deserialize'(reply:Reply,taskObj:TaskObject) | 
+  processTask(taskId:Nat,taskObj:TaskObject) | 
+  processTask'(reply:Reply,taskObj:TaskObject) | 
+  __serialize(taskId:Nat,taskObj:TaskObject) | 
+  __serialize'(reply:Reply,taskObj:TaskObject) | 
+  deserialize(taskObj:TaskObject) | 
+  deserialize'(reply:Reply,taskObj:TaskObject) | 
+  optimizeJob(jid:Nat,jobState:TaskObject) |	%OK
+  optimizeJob'(reply:Reply,jobState:TaskObject) |	%OK
+  getManifest(jobState:TaskObject) |	%OK
+  getManifest'(reply:Reply) |	%OK
+  getInputData(jobState:TaskObject) |		%OK
+  getInputData'(inData:Bool) |		%OK
+  __setOptimizerChain(jobState:TaskObject,opPath:List(eType)) | 
+  __setOptimizerChain'(reply:Reply,jobState:TaskObject) |  
+  setOptParameter(opPath:List(eType),jobState:TaskObject) | 
+  setOptParameter'(reply:Reply) | 
+%   setParameter(opPath:List(eType),jobState:TaskObject) |	
+%   setParameter'(reply:Reply) | 
+  setNextOptimizer(jobState:TaskObject) | 
+  setNextOptimizer'(reply:Reply) | 
+  getOptParameter(jobState:TaskObject) | 
+  getOptParameter'(reply:Reply,opPath:List(eType)) | 
+  setStatus(jobState:TaskObject,fullStatus:FullStatus) | 
+  setStatus'(reply:Reply) | 
+  __fillExecutors(etype:eType,defrozeIfNeeded:Bool) |	%OK
+  __fillExecutors' | 
+  __unfreezeTasks(etype:eType) |	 
+  __unfreezeTasks' |	 
+  getIdleExecutor(etype:eType) | 
+  getIdleExecutor'(eId:Nat) | 
+  __dispatchTask(taskId:Nat,defrozeIfNeeded:Bool) | 
+  __dispatchTask'(reply:Reply) | 
+  __removeFromFreezer(taskid:Nat) | 
+  __removeFromFreezer'(result:Bool) | 
+  __getNextExecutor(taskid:Nat) | 
+  __getNextExecutor'(reply:Reply,etype:eType) | 
+  __freezeTask(taskid:Nat,eType:eType) | 
+  __freezeTask'(result:Bool) | 
+  getTask(taskid:Nat) | 
+  getTask'(taskObj:TaskObject) | 
+  cbTaskError(taskid:Nat,taskObj:TaskObject) |	 
+  cbTaskError' |  
+  cbDispatch(taskid:Nat,taskObj:TaskObject,executedPath:List(eType)) | 
+  cbDispatch'(reply:Reply,etype:eType) | 
+  exec_TaskError(taskid:Nat,taskObj:TaskObject) | 
+  exec_TaskError'(reply:Reply) | 
+  setStatus1(jobState:TaskObject,fullStatus:FullStatus) | 
+  setStatus1'(reply:Reply) | 
+  commitChanges(cachedJobState:TaskObject) |
+  commitChanges'(reply:Reply) |
+  commitCache(cachedJobState:TaskObject,initState:FullStatus, changes:List(FullStatus)) | 
+  commitCache'(reply:Reply,newState:FullStatus) | 
+  cleanState(jobState:TaskObject,skipInitState:Bool) | 
+  cleanState' | 
+  setManifest(jobState:TaskObject) | 
+  setManifest'(reply:Reply) | 
+  rescheduleJob(jobState:TaskObject) | 
+  rescheduleJob'(reply:Reply) | 
+  db_rescheduleJob(jid:Nat) | 
+  db_rescheduleJob'(reply:Reply) | 
+  db_setJobAttributes(jid:Nat,statusBundle:FullStatus) | % is the object needed?
+  db_setJobAttributes'(reply:Reply) | 
+  db_getJobAttributes(jid:Nat) | 
+  db_getJobAttributes'(reply:Reply,currentStatus:FullStatus) | 
+  exec_dispatch(jid:Nat,jobState:TaskObject,pathExecuted:List(eType)) | 
+  exec_dispatch'(reply:Reply,nextExecutor:eType) | 
+  getStatus(jobState:TaskObject,jid:Nat) | 
+  getStatus'(reply:Reply,status:FullStatus) | 
+  getStatus1(jobState:TaskObject,jid:Nat) | 
+  getStatus1'(reply:Reply,status:FullStatus) | 
+  resetJob(jobState:TaskObject) | %maybe just jobID
+  resetJob'(reply:Reply) | 
+  resetJob1(jobState:TaskObject) | %maybe just jobID
+  resetJob1'(reply:Reply) | 
+  msg1(msg:Message,jids:List(Nat)) |
+  forgetTask(taskid:Nat) |	%OK
+  forgetTask' | 
+  executeTask(jid:Nat,cachedJobState:TaskObject) | 
+  executeTask'(reply:Reply) | 
+  addTaskDispatcher(taskid:Nat,taskObj:TaskObject) | 
+  addTaskDispatcher'(reply:Reply) | 
+  __addTaskIfNew(taskid:Nat,taskObj:TaskObject) | 
+  __addTaskIfNew'(result:Bool) | 
+  submitJob(jobIDs:List(Nat)) | 
+  submitJob' | 
+  __sendNewJobsToMind(jobIDs:List(Nat)) | 
+  __sendNewJobsToMind' | 
+  killJob(jobID:Nat) |	%OK
+  killJob' | 
+  resetJobAPI(jobID:Nat) |	%OK
+  resetJobAPI' |	%OK
+  exec_deserializeTask'(reply:Reply,taskObj1:TaskObject) | 
+  exec_deserializeTask(taskObj:TaskObject) | 
+  taskProcessed(eId:Nat,taskId:Nat,taskObj1:TaskObject) | 
+  taskProcessed'(reply:Reply) | 
+  __taskReceived(taskId:Nat,eId:Nat) | 
+  __taskReceived'(reply:Reply,eType:eType) | 
+  cbTaskProcessed(taskId:Nat,taskObj:TaskObject,eType:eType) | 
+  cbTaskProcessed'(reply:Reply) | 
+  exec_taskProcessed(jid:Nat,jobState:TaskObject,eType:eType) | 
+  exec_taskProcessed'(reply:Reply) | 
+  removeExecutor(eid:Nat) | 
+  removeExecutor' | 
+  removeExecutorStates(eid:Nat) | 
+  removeExecutorStates'(tasksInExec:List(Nat)) | 
+  cbDisconectExecutor(eid:Nat) | 
+  cbDisconectExecutor' | 
+  exec_executorDisconnected(trid:Nat) | 
+  exec_executorDisconnected' | 
+  freezeTask(eid:Nat,taskid:Nat,taskObj:TaskObject) | 
+  freezeTask'(reply:Reply) | 
+  cbTaskFreeze(taskid:Nat,taskObj:TaskObject,eType:eType) | 
+  cbTaskFreeze'(reply:Reply) | 
+  exec_taskFreeze(taskid:Nat,taskObj:TaskObject,etype:eType) | 
+  exec_taskFreeze'(reply:Reply) |	%OK
+  conn_connected(trid:Nat,eTypes:List(eType),maxTasks:Nat) | 
+  conn_connected'(reply:Reply) | 
+  addExecutor(trid:Nat,eTypes:List(eType),maxTasks:Nat) | 
+  addExecutor' | 
+  exec_executorConnected(trid:Nat,eTypes:List(eType)) | 
+  exec_executorConnected'(reply:Reply) | 
+  addExecutorState(eid:Nat,eTypes:List(eType),maxTasks:Nat) | 
+  addExecutorState' | 
+  getExecutorsConnected | 
+  getExecutorsConnected'(eTypes:List(eType)) | 
+  db_selectJobs(status:Status,minor:List(MinorStatus)) | 
+  db_selectJobs'(jidList:List(Nat)) | 
+  getTaskIds | 
+  getTaskIds'(knownJids:List(Nat)) | 
+  __loadJobs(eTypes:List(eType)) | 
+  __loadJobs'(reply:Reply) | 
+  conn_drop(trid:Nat) | 
+  conn_drop' | 
+  __doPeriodicStuff |
+  __doPeriodicStuff' |
+  fastTrackDispatch(jid:Nat,jobState:TaskObject) | 
+  fastTrackDispatch'(reply:Reply,eType:eType) |  
+  loadModules(instance:Nat,modules:List(eType)) |
+  loadModules'(instance:Nat) |
+  createExecutorReactor |
+  createExecutorReactor'(instance:Nat) |
+  go(instance:Nat) |
+  go'(instance:Nat) |
+  ex_getMind(instance:Nat,module:eType) |
+  ex_getMind'(instance:Nat,mind:Mind) |
+  _ex_initialize(instance:Nat,module:eType) |
+  _ex_initialize'(instance:Nat) |
+  addModule(instance:Nat,mind:Mind,module:eType) |
+  addModule' |
+  connect(instance:Nat, mind:Mind) |
+  connect' |
+  initialize(instance:Nat,module:eType) |
+  initialize' |
+  setMind(instance:Nat,module:eType,mind:Mind) |
+  setMind' |
+  __taskInQueue_get(taskid:Nat) |
+  __taskInQueue_get'(etype:eType) |
+  __taskInQueue_del(taskid:Nat) | 
+  __taskInQueue_del' |
+  __queues_index(etype:eType,taskid:Nat) |
+  __queues_index'(pos:Int) |
+  __queues_delAtPos(etype:eType,pos:Nat) |
+  __queues_delAtPos' |
+  __queues_pop(etype:eType,pos:Nat) |
+  __queues_pop'(taskid:Int) |
+  __taskInQueue_keys |
+  __taskInQueue_keys'(taskids:List(Nat)) |
+  __queues_keys |
+  __queues_keys'(etypes:List(eType)) |
+  __queues_addetype(etype:eType) |
+  __queues_addetype' |
+  __queues_insert(etype:eType,taskid:Nat) |
+  __queues_insert' |
+  __queues_append(etype:eType,taskid:Nat) |
+  __queues_append' |
+  __taskInQueue_set(taskid:Nat,etype:eType) |
+  __taskInQueue_set' |
+  __taskInExec_get(taskid:Nat) |
+  __taskInExec_get'(eid:Int) |
+  __execTasks_removetaskid(eid:Nat,taskid:Nat) |
+  __execTasks_removetaskid' |
+  __taskInExec_pop(taskid:Nat) |
+  __taskInExec_pop' |
+  __maxTasks_get(eid:Nat) |
+  __maxTasks_get'(maxtasks:Nat) |
+  __execTasks_taskids(eid:Nat) |
+  __execTasks_taskids'(taskids:List(Nat)) |
+  __taskInExec_set(taskid:Nat,eid:Nat) |
+  __taskInExec_set' |
+  __execTasks_addtaskid(eid:Nat,taskid:Nat) |
+  __execTasks_addtaskid' |
+  __typeToId_eids(etype:eType) |
+  __typeToId_eids'(eids:List(Nat)) |
+  __typeToId_keys |
+  __typeToId_keys'(etypes:List(eType)) |
+  __typeToId_remove(etype:eType,eid:Nat) |
+  __typeToId_remove' |
+  __execTasks_pop(eid:Nat) |
+  __execTasks_pop' |
+  __maxTasks_pop(eid:Nat) |
+  __maxTasks_pop' |
+  __maxTasks_add(eid:Nat,maxTasks:Nat) |
+  __maxTasks_add' |
+  __execTasks_keys |
+  __execTasks_keys'(eids:List(Nat)) |
+  __execTasks_addeid(eid:Nat) |
+  __execTasks_addeid' |
+  __typeToId_addeType(etype:eType) |
+  __typeToId_addeType' |
+  __typeToId_addeid(etype:eType,eid:Nat) |
+  __typeToId_addeid' |
+  __instances_keys |
+  __instances_keys'(etypes:List(eType)) |
+  __instances_addModule(etype:eType) |
+  __instances_addModule' |
+  __instances_append(etype:eType,inst:Nat) |
+  __instances_append' |
+  __instances_pop(etype:eType) |
+  __instances_pop'(inst:Int) |
+  __modules_getClass(etype:eType) |
+  __modules_getClass'(inst:Int) |
+  __modules_set(module:eType,instance:Nat) |
+  __modules_set' |
+  __tasks_get(taskid:Nat) | 
+  __tasks_get'(taskObj:TaskObject) |
+  __taskFreezer_check(taskid:Nat) |
+  __taskFreezer_check'(isIn:Bool) |
+  __taskFreezer_append(taskid:Nat) |
+  __taskFreezer_append' |
+  __taskFreezer_index(taskid:Nat) |
+  __taskFreezer_index'(ipos:Int) |
+  __taskFreezer_pop(ipos:Nat) |
+  __taskFreezer_pop' |
+  __tasks_keys |
+  __tasks_keys'(taskids:List(Nat)) |
+  __execTypes_get_eTypes |
+  __execTypes_get_eTypes'(etypes:List(eType)) |
+  __tasks_add(taskObj:TaskObject) |
+  __tasks_add' |
+  __idMap_keys |
+  __idMap_keys'(eids:List(Nat)) |
+  __idMap_set(eid:Nat,etypes:List(eType)) |
+  __idMap_set' |
+  __execTypes_add(etype:eType) |
+  __execTypes_add' |
+  __execTypes_inc(etype:eType) |
+  __execTypes_inc' |
+  __idMap_pop(eid:Nat) |
+  __idMap_pop'(etypes:List(eType)) |
+  __execTypes_dec(etype:eType) |
+  __execTypes_dec' |
+  __idMap_get(eid:Nat) |
+  __idMap_get'(etypes:List(eType)) |
+  __taskFreezer_len |
+  __taskFreezer_len'(len:Nat) |
+  __taskFreezer_get(iP:Nat) | 
+  __taskFreezer_get'(taskid:Int) |
+  __executorModules_setClass(etype:eType,instance:Nat) |
+  __executorModules_setClass' |
+  __executorModules_keys |
+  __executorModules_keys'(etypes:List(eType)) |
+  __minds_keys |
+  __minds_keys'(minds:List(Mind)) |
+  __minds_set(mind:Mind,mindClusterId:Nat) |
+  __minds_set' |
+  __modules_keys |
+  __modules_keys'(modules:List(eType)) |
+  __execTypes_getExecutorsConnected |
+  __execTypes_getExecutorsConnected'(etypes:List(eType)) |
+  checkPlatformSupported(jobState:TaskObject) |
+  checkPlatformSupported'(reply:Reply) |
+  checkInputSandbox(jobState:TaskObject) |
+  checkInputSandbox'(reply:Reply) |
+  __resolveInputData(jobState:TaskObject) |
+  __resolveInputData'(reply:Reply) |
+  __getSitesRequired(jobState:TaskObject) |
+  __getSitesRequired'(reply:Reply) |
+  db_setStatus(jid:Nat,fullStatus:FullStatus) |
+  db_setStatus' |
+  getJobAttributes(jid:Nat) | 
+  getJobAttributes'(reply:Reply,currentStatus:FullStatus) |
+  db_setOptParameter(jid:Nat,opPath:List(eType)) |
+  db_setOptParameter'(reply:Reply) |
+  db_getOptParameter(jid:Nat) |
+  db_getOptParameter'(opPath:List(eType))
 ;
 
-% cacheReplicas-to-ids mapping: 
-% given a list of CacheReplicas, and a CacheReplica value as a selector, get the positions of the list matching the value
-% example selectCRIDs([one,two,two,three],two)->[1,2] 
-%---------------------------------------------
-map selectByID:List(Data)#Nat->Data;
-% map selectByID':List(Data)#Pos#Nat->Data;
+sort Reply = struct OK | ERROR ;
 
-var 
-	list:List(Data);
-	pos:Nat;
-% 	n:Nat;
-% 	a:CacheReplicas;
-% 	l:List(CacheReplicas);
+sort Message = struct ProcessTask | 
+		      TaskDone |
+		      TaskError | 
+		      TaskFreeze |
+		      ExecutorError |
+		      OptimizeJobs;
+
+sort Mind = struct OptimizationMind | OtherMind;
+
+sort MinorStatus = struct NewMinor | JobPath | JobSanity | InputData | JobScheduling | PilotAgentSubmission | FailedMinor | JobRescheduled | MarkedForTermination |
+    MaxReschedulings | None;
+
+sort eType = MinorStatus;
+% struct JobPath | JobSanity | InputData | JobScheduling | None ;
+
+sort Status = struct New | Checking | Waiting | Failed | Received | Killed;
+
+sort FullStatus = struct statusBundle(status:Status,minorStatus:MinorStatus);
+ 
+% sort Status = struct Status1 | Status2;
+% sort MinorStatus = struct MinorStatus1 | MinorStatus2;
+
+sort TypeAttr = struct Attr1 | Attr2;
+sort TaskObject = struct taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType,status:FullStatus) | NullObj;
+% ==================DATA 
+
+
+
+sort __execTypes1 = struct __execTypes1(etype:eType,counter:Int);
+% sort None = struct none;
+
+%-----------------
+sort __execTypes = List(__execTypes1);
+
+map __execTypes_get:__execTypes # eType -> Int;
+    __execTypes_init:List(eType) -> __execTypes;
+    __execTypes_inc:__execTypes # eType -> __execTypes;
+    __execTypes_dec:__execTypes # eType -> __execTypes;
+    __execTypes_add:__execTypes # eType -> __execTypes;
+    __execTypes_get_eTypes:__execTypes -> List(eType);
+    __execTypes_remove:__execTypes # eType -> __execTypes;
+    __execTypes_getExecutorsConnected: __execTypes -> List(eType);
+
+var a,list_exectypes:__execTypes;
+    et:eType;
+    n:Nat;
+    list_et,let:List(eType);
+    ext:__execTypes1;
+
+eqn 
+    __execTypes_get([],et) = -1; 
+    etype(ext)==et -> __execTypes_get(ext|>list_exectypes,et) = counter(ext);
+    !(etype(ext)==et) -> __execTypes_get(ext|>list_exectypes,et) = __execTypes_get(list_exectypes,et);
+
+    __execTypes_init([]) = [];
+    __execTypes_init(et|>let) = __execTypes1(et,0)|>__execTypes_init(let);
+
+    __execTypes_inc([],et) = [];
+    etype(ext)==et -> __execTypes_inc(ext|>list_exectypes,et) = __execTypes1(etype(ext),succ(counter(ext)))|>__execTypes_inc(list_exectypes,et);
+    !(etype(ext)==et) -> __execTypes_inc(ext|>list_exectypes,et) = ext|>__execTypes_inc(list_exectypes,et);
+
+    __execTypes_dec([],et) = [];
+    etype(ext)==et -> __execTypes_dec(ext|>list_exectypes,et) = __execTypes1(etype(ext),pred(counter(ext)))|>__execTypes_dec(list_exectypes,et);
+    !(etype(ext)==et) -> __execTypes_dec(ext|>list_exectypes,et) = ext|>__execTypes_dec(list_exectypes,et);
+
+    __execTypes_add(a,et) = a<|__execTypes1(et,0);
+
+    __execTypes_get_eTypes([]) = [];
+    __execTypes_get_eTypes(ext|>list_exectypes) = etype(ext)|> __execTypes_get_eTypes(list_exectypes);
+
+    __execTypes_getExecutorsConnected([]) = [];
+    (etype(ext)!=JobPath && counter(ext)>0) -> __execTypes_getExecutorsConnected(ext|>list_exectypes) = etype(ext)|>__execTypes_getExecutorsConnected(list_exectypes);
+    (etype(ext)==JobPath) -> __execTypes_getExecutorsConnected(ext|>list_exectypes) = __execTypes_getExecutorsConnected(list_exectypes);
+    (counter(ext)<1) -> __execTypes_getExecutorsConnected(ext|>list_exectypes) = __execTypes_getExecutorsConnected(list_exectypes);
+    
+
+    __execTypes_remove([],et) = [];
+    etype(ext)==et -> __execTypes_remove(ext|>list_exectypes,et) = __execTypes_remove(list_exectypes,et);
+    !(etype(ext)==et) -> __execTypes_remove(ext|>list_exectypes,et) = ext|>__execTypes_remove(list_exectypes,et);
+
+%-----------------
+
+sort __tasks1 = struct __tasks1(taskid:Nat,taskobj:TaskObject);
+sort __tasks = List(__tasks1);
+
+
+map __tasks_get:__tasks # Nat -> TaskObject;
+    __tasks_add:__tasks # TaskObject -> __tasks;
+    __tasks_keys:__tasks -> List(Nat);
+    __tasks_update:__tasks # Nat # TaskObject -> __tasks;
+    __tasks_pop: __tasks # Nat -> __tasks;
+
+var a,list_tasks:__tasks;
+    n,taskid,tid:Nat;
+    el_task:__tasks1;
+    tob:TaskObject;
+eqn 
+    __tasks_get([],tid) = NullObj;
+    taskid(el_task)==tid -> __tasks_get(el_task|>list_tasks,tid) = taskobj(el_task);
+    !(taskid(el_task)==tid) -> __tasks_get(el_task|>list_tasks,tid) = __tasks_get(list_tasks,tid);
+
+    __tasks_add(a,tob) = a<|__tasks1(taskID(tob),tob);
+    
+    __tasks_keys([]) = [];
+    __tasks_keys(el_task|>list_tasks) = taskid(el_task) |> __tasks_keys(list_tasks);
+
+    __tasks_update([],tid,tob) = [];
+    taskid(el_task)==tid -> __tasks_update(el_task|>list_tasks,tid,tob) = __tasks1(tid,tob)|>__tasks_update(list_tasks,tid,tob);
+    !(taskid(el_task)==tid) -> __tasks_update(el_task|>list_tasks,tid,tob) = el_task|>__tasks_update(list_tasks,tid,tob);
+
+    __tasks_pop([],tid) = [];
+    taskid(el_task)==tid -> __tasks_pop(el_task|>list_tasks,tid) = __tasks_pop(list_tasks,tid);
+    !(taskid(el_task)==tid) -> __tasks_pop(el_task|>list_tasks,tid) = el_task|>__tasks_pop(list_tasks,tid);
+
+%-----------------
+sort __taskFreezer = List(Nat);
+map __taskFreezer_append:__taskFreezer # Nat -> __taskFreezer;
+    __taskFreezer_index:__taskFreezer # Nat -> Int;
+    __taskFreezer_index':__taskFreezer # Nat # Nat -> Int;
+    __taskFreezer_pop:__taskFreezer # Nat -> __taskFreezer;
+    __taskFreezer_pop':__taskFreezer # Nat # Nat -> __taskFreezer;
+    __taskFreezer_get:__taskFreezer # Nat -> Int;
+    __taskFreezer_get':__taskFreezer # Nat # Nat -> Int;
+var tf:__taskFreezer;
+    tid:Nat;
+    el,n:Nat;
+
 eqn
-	selectByID(list,pos) = list.pos;
-% 	selectCRIDs'([],s,n) = [];
-% 	a == s -> selectCRIDs'(a|>l,s,n) = n|>selectCRIDs'(l,s,n+1);
-% 	a != s -> selectCRIDs'(a|>l,s,n) = selectCRIDs'(l,s,n+1);
+    __taskFreezer_append(tf,tid) = tf<|tid;
+
+    __taskFreezer_index(tf,tid) = __taskFreezer_index'(tf,tid,0);
+    __taskFreezer_index'([],tid,n) = -1;
+    tf.n==tid -> __taskFreezer_index'(tf,tid, n) = n;
+    tf.n!=tid -> __taskFreezer_index'(tf,tid,n) = __taskFreezer_index'(tf,tid,n+1);
+
+    __taskFreezer_pop(tf,tid) = __taskFreezer_pop'(tf,tid,0);   
+    __taskFreezer_pop'([],tid,n) = [];
+    n==tid -> __taskFreezer_pop'(el|>tf,tid,n) = __taskFreezer_pop'(tf,tid,n+1);
+    !(n==tid) -> __taskFreezer_pop'(el|>tf,tid,n)  = el |>__taskFreezer_pop'(tf,tid,n+1);
+
+    __taskFreezer_get(tf,tid) = __taskFreezer_get'(tf,tid,0);   
+    __taskFreezer_get'([],tid,n) = -1;
+    n==tid -> __taskFreezer_get'(el|>tf,tid,n) = Nat2Int(el);
+    !(n==tid) -> __taskFreezer_get'(el|>tf,tid,n)  = __taskFreezer_get'(tf,tid,n+1);
 
 
-proc method1 = action1.sum result:Data.method4(result).
-((result==OK) ->
-method2 
-<>
-method3
-)
+%-----------------
+%-----------------
+
+sort __idMap1 = struct __idMap1(eid:Nat,etypes:List(eType));
+
+sort __idMap = List(__idMap1);
+
+map
+    __idMap_keys:__idMap -> List(Nat);
+    __idMap_set: __idMap # Nat # List(eType) -> __idMap;
+    __idMap_pop: __idMap # Nat -> List(eType);
+    __idMap_remove: __idMap # Nat -> __idMap;
+    __idMap_get: __idMap # Nat -> List(eType);
+
+
+var
+    idmap:__idMap;
+    el_idmap:__idMap1;
+    etypes:List(eType);
+    eid,n:Nat;
+
+eqn
+    __idMap_keys([]) = [];
+    __idMap_keys(el_idmap|>idmap) = eid(el_idmap)|>__idMap_keys(idmap);
+    
+    __idMap_set(idmap,eid,etypes) = __idMap1(eid,etypes)|>idmap;
+
+    __idMap_pop([],eid) = [];
+    (eid(el_idmap)==eid) -> __idMap_pop(el_idmap|>idmap,eid) = etypes(el_idmap);
+    !(eid(el_idmap)==eid) -> __idMap_pop(el_idmap|>idmap,eid) = __idMap_pop(idmap,eid);
+
+    __idMap_remove([],eid) = [];
+    (eid(el_idmap)==eid) -> __idMap_remove(el_idmap|>idmap,eid) = __idMap_remove(idmap,eid);
+    !(eid(el_idmap)==eid) -> __idMap_remove(el_idmap|>idmap,eid) = el_idmap|>__idMap_remove(idmap,eid);
+
+    __idMap_get([],eid) = [];
+    eid(el_idmap)==eid -> __idMap_get(el_idmap|>idmap,eid) = etypes(el_idmap);
+    !(eid(el_idmap)==eid) -> __idMap_get(el_idmap|>idmap,eid) = __idMap_get(idmap,eid);
+
+%-----------------
+
+sort __typeToId1 = struct __typeToId1(etype:eType,eids:List(Nat));
+sort __typeToId = List(__typeToId1);
+
+map __typeToId_addeType:__typeToId # eType -> __typeToId;
+    __typeToId_addeid: __typeToId # eType # Nat -> __typeToId;
+    __typeToId_remove:__typeToId # eType # Nat -> __typeToId;
+    __typeToId_removeHelper:List(Nat) # Nat -> List(Nat);
+    __typeToId_keys: __typeToId -> List(eType);
+    __typeToId_eids: __typeToId # eType -> List(Nat);
+
+var
+    ttid:__typeToId;
+    ttid_el:__typeToId1;
+    etype:eType;
+    listTypes:List(eType);
+    n,eid,el:Nat;
+    list:List(Nat);
+
+eqn
+    __typeToId_addeType(ttid,etype) = __typeToId1(etype,[])|>ttid;
+
+    __typeToId_addeid([],etype,eid) = [];
+    etype==etype(ttid_el) -> __typeToId_addeid(ttid_el|>ttid,etype,eid) = __typeToId1(etype,eid|>eids(ttid_el))|> __typeToId_addeid(ttid,etype,eid);
+    !(etype==etype(ttid_el)) -> __typeToId_addeid(ttid_el|>ttid,etype,eid) = ttid_el|>__typeToId_addeid(ttid,etype,eid);
+
+    __typeToId_removeHelper([],eid) = [];
+    el==eid -> __typeToId_removeHelper(el|>list,eid) = __typeToId_removeHelper(list,eid);
+    !(el==eid) -> __typeToId_removeHelper(el|>list,eid) = el|>__typeToId_removeHelper(list,eid);
+
+    __typeToId_remove([],etype,eid) = [];
+    etype==etype(ttid_el) -> __typeToId_remove(ttid_el|>ttid,etype,eid) = __typeToId1(etype,__typeToId_removeHelper(eids(ttid_el),eid))|>__typeToId_remove(ttid,etype,eid);
+    !(etype==etype(ttid_el)) -> __typeToId_remove(ttid_el|>ttid,etype,eid) = ttid_el|>__typeToId_remove(ttid,etype,eid);
+
+    __typeToId_keys([]) = [];
+    __typeToId_keys(ttid_el|>ttid) = etype(ttid_el)|>__typeToId_keys(ttid);
+
+    __typeToId_eids([],etype) = [];
+    etype==etype(ttid_el) -> __typeToId_eids(ttid_el|>ttid,etype) = eids(ttid_el);
+    !(etype==etype(ttid_el)) -> __typeToId_eids(ttid_el|>ttid,etype) = __typeToId_eids(ttid,etype);
+
+%-----------------
+
+sort __maxTasks1 = struct __maxTasks1(eid:Nat,maxTasks:Nat);
+sort __maxTasks = List(__maxTasks1);
+
+map __maxTasks_add:__maxTasks # Nat # Nat -> __maxTasks;
+    __maxTasks_pop:__maxTasks # Nat -> __maxTasks;
+    __maxTasks_get:__maxTasks # Nat -> Nat;
+
+var
+  maxTasks:__maxTasks;
+  el:__maxTasks1;
+  n:Nat;
+  eid:Nat;
+eqn
+    __maxTasks_add(maxTasks,eid,n) = __maxTasks1(eid,n)|>maxTasks;
+
+    __maxTasks_pop([],eid) = [];
+    (eid(el)==eid) -> __maxTasks_pop(el|>maxTasks,eid) = __maxTasks_pop(maxTasks,eid);
+    !(eid(el)==eid) -> __maxTasks_pop(el|>maxTasks,eid) = el|>__maxTasks_pop(maxTasks,eid);
+
+    __maxTasks_get([],eid) = 0;
+    eid(el)==eid -> __maxTasks_get(el|>maxTasks,eid) = maxTasks(el);
+    !(eid(el)==eid) -> __maxTasks_get(el|>maxTasks,eid) = __maxTasks_get(maxTasks,eid);
+    
+%-----------------
+
+sort __execTasks1 = struct __execTasks1(eid:Nat,taskids:List(Nat));
+sort __execTasks = List(__execTasks1);
+
+map __execTasks_addeid:__execTasks # Nat -> __execTasks;
+    __execTasks_keys:__execTasks -> List(Nat);
+    __execTasks_taskids:__execTasks # Nat -> List(Nat);
+    __execTasks_pop: __execTasks # Nat -> __execTasks;
+    __execTasks_addtaskid:__execTasks # Nat # Nat -> __execTasks;
+    __execTasks_removetaskid: __execTasks # Nat # Nat -> __execTasks;
+    __execTasks_removeHelper:List(Nat) # Nat -> List(Nat);
+
+var
+  execTasks:__execTasks;
+  et:__execTasks1;
+  n,eid,taskid,el:Nat;
+  list:List(Nat);
+eqn
+    __execTasks_addeid(execTasks,eid) = __execTasks1(eid,[])|>execTasks;
+
+    __execTasks_keys([]) = [];
+    __execTasks_keys(et|>execTasks) = eid(et)|>__execTasks_keys(execTasks);
+
+    __execTasks_taskids([],eid) = [];
+    eid(et)==eid ->  __execTasks_taskids(et|>execTasks,eid) = taskids(et);
+    !(eid(et)==eid) -> __execTasks_taskids(et|>execTasks,eid) = __execTasks_taskids(execTasks,eid);
+
+    __execTasks_pop([],eid) = [];
+    eid(et)==eid -> __execTasks_pop(et|>execTasks,eid) = __execTasks_pop(execTasks,eid);
+    !(eid(et)==eid) -> __execTasks_pop(et|>execTasks,eid) = et|>__execTasks_pop(execTasks,eid);
+
+    __execTasks_addtaskid([],eid,taskid) = [];
+    eid(et)==eid -> __execTasks_addtaskid(et|>execTasks,eid,taskid) = __execTasks1(eid(et),taskids(et)<|taskid)|>__execTasks_addtaskid(execTasks,eid,taskid);
+    !(eid(et)==eid) -> __execTasks_addtaskid(et|>execTasks,eid,taskid) = et|>__execTasks_addtaskid(execTasks,eid,taskid);
+  
+    __execTasks_removeHelper([],taskid) = [];
+    el==taskid -> __execTasks_removeHelper(el|>list,taskid) = __execTasks_removeHelper(list,taskid);
+    !(el==taskid) -> __execTasks_removeHelper(el|>list,taskid) = el|>__execTasks_removeHelper(list,taskid);
+
+    __execTasks_removetaskid([],eid,taskid) = [];
+    eid(et)==eid -> __execTasks_removetaskid(et|>execTasks,eid,taskid) = __execTasks1(eid(et),__execTasks_removeHelper(taskids(et),taskid))|>__execTasks_removetaskid(execTasks,eid,taskid);
+    !(eid(et)==eid) -> __execTasks_removetaskid(et|>execTasks,eid,taskid) = __execTasks_removetaskid(execTasks,eid,taskid);
+
+%-----------------
+
+sort __taskInExec1 = struct __taskInExec1(taskid:Nat,eid:Nat);
+sort __taskInExec = List(__taskInExec1);
+
+map __taskInExec_get:__taskInExec # Nat -> Int;
+    __taskInExec_set:__taskInExec # Nat # Nat -> __taskInExec; 
+    __taskInExec_pop:__taskInExec # Nat -> __taskInExec;
+    __taskInExec_keys:__taskInExec -> List(Nat);
+    
+var
+  tie,list:__taskInExec;
+  el:__taskInExec1;
+  n,eid,taskid1:Nat;
+  
+eqn __taskInExec_get([],taskid1) = -1; 
+    taskid(el)==taskid1 -> __taskInExec_get(el|>list,taskid1) = Nat2Int(eid(el));
+    !(taskid(el)==taskid1) -> __taskInExec_get(el|>list,taskid1) = __taskInExec_get(list,taskid1);
+    
+    __taskInExec_set(tie,taskid1,eid) = __taskInExec_pop(tie,taskid1)<|__taskInExec1(taskid1,eid);
+    
+    __taskInExec_pop([],taskid1) = [];
+    taskid(el)==taskid1 -> __taskInExec_pop(el|>list,taskid1) = __taskInExec_pop(list,taskid1);
+    !(taskid(el)==taskid1) -> __taskInExec_pop(el|>list,taskid1) = el|>__taskInExec_pop(list,taskid1);
+    
+    __taskInExec_keys([]) = [];
+    __taskInExec_keys(el|>list) = taskid(el)|>__taskInExec_keys(list);
+    
+%-----------------
+
+sort __queues1 = struct __queues1(etype:eType,taskids:List(Nat));
+sort __queues = List(__queues1);
+
+map 
+    __queues_keys:__queues -> List(eType);
+    __queues_taskids:__queues # eType -> List(Nat);
+    __queues_insert:__queues # eType # Nat -> __queues;
+    __queues_append:__queues # eType # Nat -> __queues;
+    __queues_addetype:__queues # eType -> __queues;
+    __queues_index:__queues # eType # Nat -> Int; 
+    __queues_pop:__queues # eType # Nat -> Int; 
+    __queues_delAtPos:__queues # eType # Nat -> __queues;
+    __queues_helperPos:List(Nat) # Nat -> Int;
+    __queues_helperPos':List(Nat) # Nat # Nat -> Int;
+    __queues_delAtPosHelper:List(Nat) # Nat -> List(Nat);
+    __queues_delAtPosHelper':List(Nat) # Nat # Nat -> List(Nat);    
+var
+    list:__queues;
+    el:__queues1;
+    taskid,n,pos:Nat;
+    etype:eType;
+    lst:List(Nat);
+    lst_el,lst_val:Nat;
+eqn
+    __queues_keys([]) = [];
+    __queues_keys(el|>list) = etype(el)|>__queues_keys(list);
+    
+    __queues_taskids([],etype) = [];
+    etype(el)==etype -> __queues_taskids(el|>list,etype) = taskids(el);
+    !(etype(el)==etype) -> __queues_taskids(el|>list,etype) = __queues_taskids(list,etype);
+    
+    __queues_insert([],etype,taskid) = [];
+    etype(el)==etype -> __queues_insert(el|>list,etype,taskid) = __queues1(etype,taskid|>taskids(el))|>__queues_insert(list,etype,taskid);
+    !(etype(el)==etype) -> __queues_insert(el|>list,etype,taskid) = el|>__queues_insert(list,etype,taskid);
+    
+    __queues_append([],etype,taskid) = [];
+    etype(el)==etype -> __queues_append(el|>list,etype,taskid) = __queues1(etype,taskids(el)<|taskid)|>__queues_append(list,etype,taskid);
+    !(etype(el)==etype) -> __queues_append(el|>list,etype,taskid) = el|>__queues_append(list,etype,taskid);    
+    
+    __queues_addetype(list,etype) = list<|__queues1(etype,[]) ;
+    
+    __queues_helperPos(lst,lst_val) = __queues_helperPos'(lst,lst_val,0);
+    __queues_helperPos'([],lst_val,n) = -1;
+    lst_el==lst_val -> __queues_helperPos'(lst_el|>lst,lst_val,n) = n;
+    !(lst_el==lst_val) -> __queues_helperPos'(lst_el|>lst,lst_val,n) = __queues_helperPos'(lst,lst_val,n+1);
+    
+    
+    __queues_index([],etype,taskid) = -1;
+    etype(el)==etype -> __queues_index(el|>list,etype,taskid) = __queues_helperPos(taskids(el),taskid);
+    !(etype(el)==etype) -> __queues_index(el|>list,etype,taskid) = __queues_index(list,etype,taskid);
+    
+    __queues_pop([],etype,pos) = -1;
+    etype(el)==etype -> __queues_pop(el|>list,etype,pos) = Nat2Int(head(taskids(el)));
+    !(etype(el)==etype) -> __queues_pop(el|>list,etype,pos) = __queues_pop(list,etype,pos);
+    
+    __queues_delAtPosHelper(lst,pos) = __queues_delAtPosHelper'(lst,pos,0);
+    __queues_delAtPosHelper'([],pos,n) = [];
+    n==pos -> __queues_delAtPosHelper'(lst_el|>lst,pos,n) = __queues_delAtPosHelper'(lst,pos,n+1);
+    !(n==pos) ->__queues_delAtPosHelper'(lst_el|>lst,pos,n) = lst_el|>__queues_delAtPosHelper'(lst,pos,n+1);
+    
+    __queues_delAtPos([],etype,pos) = [];
+    etype(el)==etype -> __queues_delAtPos(el|>list,etype,pos) = __queues1(etype(el),__queues_delAtPosHelper(taskids(el),pos))|> __queues_delAtPos(list,etype,pos);
+    !(etype(el)==etype) -> __queues_delAtPos(el|>list,etype,pos) = el|>__queues_delAtPos(list,etype,pos);
+        
+%-----------------
+
+sort __taskInQueue1 = struct __taskInQueue1(taskid:Nat,etype:eType);
+sort __taskInQueue = List(__taskInQueue1);
+
+map
+    __taskInQueue_keys:__taskInQueue -> List(Nat);
+    __taskInQueue_get:__taskInQueue # Nat -> eType;
+    __taskInQueue_set:__taskInQueue # Nat # eType -> __taskInQueue;
+    __taskInQueue_del:__taskInQueue # Nat -> __taskInQueue;
+var
+    tiq:__taskInQueue;
+    el_tiq:__taskInQueue1;
+    etype:eType;
+    taskid,n:Nat;
+ 
+eqn
+    __taskInQueue_keys([]) = [];
+    __taskInQueue_keys(el_tiq|>tiq) = taskid(el_tiq)|>__taskInQueue_keys(tiq);
+
+    __taskInQueue_get([],taskid) = None;
+    taskid(el_tiq)==taskid -> __taskInQueue_get(el_tiq|>tiq,taskid) = etype(el_tiq);
+    !(taskid(el_tiq)==taskid) -> __taskInQueue_get(el_tiq|>tiq,taskid) = __taskInQueue_get(tiq,taskid);
+    
+    __taskInQueue_set(tiq,taskid,etype) = __taskInQueue1(taskid,etype)|> __taskInQueue_del(tiq,taskid);
+    
+    __taskInQueue_del([],taskid) = [];
+    taskid(el_tiq)==taskid -> __taskInQueue_del(el_tiq|>tiq,taskid) = __taskInQueue_del(tiq,taskid);
+    !(taskid(el_tiq)==taskid) -> __taskInQueue_del(el_tiq|>tiq,taskid) = el_tiq|>__taskInQueue_del(tiq,taskid);
+%-----------------
+sort __executorModules1 = struct __executorModules1(etype:eType,classObj:Nat);
+sort __executorModules = List(__executorModules1);
+
+map
+    __executorModules_keys:__executorModules -> List(eType);
+    __executorModules_getClass:__executorModules # eType -> Int;
+    __executorModules_setClass:__executorModules # eType # Nat -> __executorModules;
+var
+    em:__executorModules;
+    el_em:__executorModules1;
+    n,ex_class:Nat;
+    etype:eType;
+    
+eqn
+    __executorModules_keys([]) = [];
+    __executorModules_keys(el_em|>em) = etype(el_em)|>__executorModules_keys(em);
+    
+    __executorModules_getClass([],etype) = -1;
+    etype(el_em)==etype -> __executorModules_getClass(el_em|>em,etype) = Nat2Int(classObj(el_em));
+    !(etype(el_em)==etype) -> __executorModules_getClass(el_em|>em,etype) = __executorModules_getClass(em,etype);
+    
+    __executorModules_setClass(em,etype,ex_class) = __executorModules1(etype,ex_class)|>em;
+    
+%-----------------
+sort __minds1 = struct __minds1(mind:Mind,mindClusterId:Nat);
+sort __minds = List(__minds1);
+
+map
+    __minds_keys:__minds -> List(Mind);
+    __minds_get:__minds # Mind -> Int;
+    __minds_set:__minds # Mind # Nat -> __minds;
+
+var
+    minds:__minds;
+    el_minds:__minds1;
+    mind:Mind;
+    mcid:Nat;
+    
+eqn
+    __minds_keys([]) = [];
+    __minds_keys(el_minds|>minds) = mind(el_minds)|>__minds_keys(minds);
+    
+    __minds_get([],mind) = -1; 
+    mind(el_minds)==mind -> __minds_get(el_minds|>minds,mind) = Nat2Int(mindClusterId(el_minds));
+    !(mind(el_minds)==mind) -> __minds_get(el_minds|>minds,mind) = __minds_get(minds,mind);
+    
+    __minds_set(minds,mind,mcid) = __minds1(mind,mcid)|>minds;
+    
+%-----------------
+
+sort __modules1 = struct __modules1(etype:eType,exeClass:Nat);
+sort __modules = List(__modules1);
+
+map
+    __modules_keys:__modules -> List(eType);
+    __modules_getClass:__modules # eType -> Int;
+    __modules_set:__modules # eType # Nat -> __modules;
+    
+var
+    modules:__modules;
+    module:__modules1;
+    etype:eType;
+    exeClass:Nat;
+eqn
+    __modules_keys([]) = [];
+    __modules_keys(module|>modules) = etype(module)|>__modules_keys(modules);
+    
+    __modules_getClass([],etype) = -1;
+    etype(module)==etype -> __modules_getClass(module|>modules,etype) = Nat2Int(exeClass(module));
+    !(etype(module)==etype) -> __modules_getClass(module|>modules,etype) = __modules_getClass(modules,etype);
+    
+    __modules_set(modules,etype,exeClass) = __modules1(etype,exeClass)|>modules;
+%-----------------
+
+sort __instances1 = struct __instances1(etype:eType,ids:List(Nat));
+sort __instances = List(__instances1);
+
+map
+    __instances_keys:__instances -> List(eType);
+    __instances_append:__instances # eType # Nat -> __instances;
+    __instances_addModule:__instances # eType -> __instances;
+    __instances_pop:__instances # eType -> Int;
+    __instances_delAfterPop:__instances # eType -> __instances;
+    
+var
+    instances:__instances;
+    instance:__instances1;
+    etype:eType;
+    id:Nat;
+
+eqn
+    __instances_keys([]) = [];
+    __instances_keys(instance|>instances) = etype(instance)|>__instances_keys(instances);
+    
+    __instances_append([],etype,id) = [];
+    etype(instance)==etype -> __instances_append(instance|>instances,etype,id) = __instances1(etype,ids(instance)<|id)|>__instances_append(instances,etype,id);
+    !(etype(instance)==etype) -> __instances_append(instance|>instances,etype,id) = instance|>__instances_append(instances,etype,id);
+    
+    __instances_addModule(instances,etype) = __instances1(etype,[])|>instances;
+    
+    __instances_pop([],etype) = -1;
+    etype(instance)==etype -> __instances_pop(instance|>instances,etype) = Nat2Int(ids(instance).0); % in implementation it's always pop(0); same as head(ids(instance))
+    !(etype(instance)==etype) -> __instances_pop(instance|>instances,etype) = __instances_pop(instances,etype);    
+    
+    __instances_delAfterPop([],etype) = [];
+    etype(instance)==etype -> __instances_delAfterPop(instance|>instances,etype) = __instances1(etype(instance),tail(ids(instance)))|>__instances_delAfterPop(instances,etype);
+    !(etype(instance)==etype) -> __instances_delAfterPop(instance|>instances,etype) = instance|>__instances_delAfterPop(instances,etype);
+
+%-----------------
+map setStatus:List(TaskObject) # Nat # FullStatus -> List(TaskObject);
+    getJobAttributes:List(TaskObject) # Nat -> FullStatus;
+    selectJobs:List(TaskObject) # Status # List(MinorStatus) -> List(Nat);
+    setOptParameter:List(TaskObject) # Nat # List(eType) -> List(TaskObject);
+    getOptParameter:List(TaskObject) # Nat -> List(eType);
+
+var list:List(TaskObject);
+    newStatus:FullStatus;
+    jid:Nat;
+    job:TaskObject;
+    major:Status;
+    minors:List(MinorStatus);
+    minor:MinorStatus;
+    opChain:List(eType);
+
+eqn
+   setStatus([],jid,newStatus) = [];
+   (taskID(job)==jid) -> setStatus(job|>list,jid,newStatus) = taskObj(jid,optimizationChain(job),eType(job),newStatus)|>setStatus(list,jid,newStatus);
+  !(taskID(job)!=jid) -> setStatus(job|>list,jid,newStatus) = job|>setStatus(list,jid,newStatus);
+
+   getJobAttributes([],jid) = statusBundle(Failed,FailedMinor);
+   (taskID(job)==jid) -> getJobAttributes(job|>list,jid) = status(job);
+   !(taskID(job)==jid) -> getJobAttributes(job|>list,jid) = getJobAttributes(list,jid);
+
+   selectJobs([],major,minors) = [];
+   (status(status(job))==major && minorStatus(status(job)) in minors) -> selectJobs(job|>list,major,minors) = taskID(job)|>selectJobs(list,major,minors);
+   (status(status(job))==major && minors==[]) -> selectJobs(job|>list,major,minors) = taskID(job)|>selectJobs(list,major,minors);
+   (status(status(job))!=major) ->  selectJobs(job|>list,major,minors) =  selectJobs(list,major,minors);
+   
+   setOptParameter([],jid,opChain) = [];
+   (taskID(job)==jid) -> setOptParameter(job|>list,jid,opChain) = taskObj(jid,opChain,eType(job),status(job))|>setOptParameter(list,jid,opChain);
+   !(taskID(job)==jid) -> setOptParameter(job|>list,jid,opChain) = job|>setOptParameter(list,jid,opChain);
+
+  getOptParameter([],jid) = [];
+  (taskID(job)==jid) -> getOptParameter(job|>list,jid) = optimizationChain(job);
+  !(taskID(job)==jid) -> getOptParameter(job|>list,jid) = getOptParameter(list,jid);
+%-----------------
+
+
+map indexOf: List(eType) # eType -> Int;
+    indexOf': List(eType) # eType # Nat -> Int;
+
+var list:List(eType);
+    etype:eType;
+    n:Nat;
+
+eqn
+    indexOf(list,etype) = indexOf'(list,etype,0);
+    indexOf'([],etype,n) = -1;
+    list.n==etype -> indexOf'(list,etype, n) = n;
+    list.n!=etype -> indexOf'(list,etype,n) = indexOf'(list,etype,n+1);
+
+%-----------------
+% memory processes
+proc ExecutorQueues_mem(id:Nat,queues:__queues,taskInQueue:__taskInQueue) =
+  sum taskid:Nat.method_var_begin(id,__taskInQueue_get(taskid)).
+  method_var_end(id,__taskInQueue_get'(__taskInQueue_get(taskInQueue,taskid)))
+    .ExecutorQueues_mem(id,queues,taskInQueue)
+   +
+  sum taskid:Nat.method_var_begin(id,__taskInQueue_del(taskid)).method_var_end(id,__taskInQueue_del')
+    .ExecutorQueues_mem(id,queues,__taskInQueue_del(taskInQueue,taskid))
+   +
+  sum etype:eType,taskid:Nat.method_var_begin(id,__queues_index(etype,taskid)).method_var_end(id,__queues_index'(__queues_index(queues,etype,taskid)))
+      .ExecutorQueues_mem(id,queues,taskInQueue)
+   +
+  sum etype:eType,pos:Nat.method_var_begin(id,__queues_delAtPos(etype,pos)).method_var_end(id,__queues_delAtPos')
+      .ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
+   +
+  sum etype:eType,pos:Nat.method_var_begin(id,__queues_pop(etype,pos)).method_var_end(id,__queues_pop'(__queues_pop(queues,etype,0)))
+      .ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
+   +    
+  method_var_begin(id, __taskInQueue_keys).method_var_end(id,__taskInQueue_keys'(__taskInQueue_keys(taskInQueue)))   
+   +
+  method_var_begin(id,__queues_keys).method_var_end(id,__queues_keys'(__queues_keys(queues)))
+      .ExecutorQueues_mem(id,queues,taskInQueue)
+   +
+  sum etype:eType.method_var_begin(id,__queues_addetype(etype)).method_var_begin(id,__queues_addetype')
+      .ExecutorQueues_mem(id,__queues_addetype(queues,etype),taskInQueue)
+   +
+  sum etype:eType,taskid:Nat.method_var_begin(id,__queues_insert(etype,taskid)).method_var_end(id,__queues_insert')
+      .ExecutorQueues_mem(id,__queues_insert(queues,etype,taskid),taskInQueue)
+   +
+  sum etype:eType,taskid:Nat.method_var_begin(id,__queues_append(etype,taskid)).method_var_end(id,__queues_append')
+      .ExecutorQueues_mem(id,__queues_append(queues,etype,taskid),taskInQueue)
+   +
+  sum taskid:Nat,etype:eType.method_var_begin(id,__taskInQueue_set(taskid,etype)).method_var_end(id,__taskInQueue_set')
+      .ExecutorQueues_mem(id,queues,__taskInQueue_set(taskInQueue,taskid,etype))
 ;
 
-proc SharedStorage(d:List(Data)) = 
-sum pos:Nat. getData_var(getData(selectByID(d,pos),pos));
-% 
-% sum selector:CacheReplicas. RPAgent_var(getCacheReplicas(selectCRIDs(d,selector),selector)).
-% 					CacheReplicasproc(d) + 
+%-----------
+proc ExecutorState_mem(id:Nat,typeToId:__typeToId,maxTasks:__maxTasks,execTasks:__execTasks,taskInExec:__taskInExec) =
+  sum taskid:Nat.method_var_begin(id,__taskInExec_get(taskid)).method_var_end(id,__taskInExec_get'(__taskInExec_get(taskInExec,taskid)))
+    .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
+    +
+  sum eId:Nat,taskid:Nat.method_var_begin(id,__execTasks_removetaskid(eId,taskid)).method_var_end(id,__execTasks_removetaskid')
+    .ExecutorState_mem(id,typeToId,maxTasks,__execTasks_removetaskid(execTasks,eId,taskid),taskInExec)
+    +
+  sum taskid:Nat.method_var_begin(id,__taskInExec_pop(taskid)).method_var_end(id,__taskInExec_pop')
+    .ExecutorState_mem(id,typeToId,maxTasks,execTasks,__taskInExec_pop(taskInExec,taskid))
+    +
+  sum eid:Nat.method_var_begin(id,__maxTasks_get(eid)).method_var_end(id,__maxTasks_get'(__maxTasks_get(maxTasks,eid)))
+    .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
+    +
+  sum eid:Nat.method_var_begin(id,__execTasks_taskids(eid)).method_var_end(id,__execTasks_taskids'(__execTasks_taskids(execTasks,eid)))
+    .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
+    +
+  sum taskid:Nat,eid:Nat.method_var_begin(id,__taskInExec_set(taskid,eid)).method_var_end(id,__taskInExec_set')
+    .ExecutorState_mem(id,typeToId,maxTasks,execTasks,__taskInExec_set(taskInExec,taskid,eid))
+    +
+  sum eid:Nat,taskid:Nat.method_var_begin(id,__execTasks_addtaskid(eid,taskid)).method_var_end(id,__execTasks_addtaskid')
+    .ExecutorState_mem(id,typeToId,maxTasks,__execTasks_addtaskid(execTasks,eid,taskid),taskInExec)
+    +
+  sum etype:eType.method_var_begin(id,__typeToId_eids(etype)).method_var_end(id,__typeToId_eids'(__typeToId_eids(typeToId,etype)))
+    .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
+    +
+  method_var_begin(id,__typeToId_keys).method_var_end(id,__typeToId_keys'(__typeToId_keys(typeToId)))
+    .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
+    +
+  sum etype:eType,eid:Nat.method_var_begin(id,__typeToId_remove(etype,eid)).method_var_end(id,__typeToId_remove')
+    .ExecutorState_mem(id,__typeToId_remove(typeToId,etype,eid),maxTasks,execTasks,taskInExec)
+    +
+  sum eid:Nat.method_var_begin(id,__execTasks_pop(eid)).method_var_end(id,__execTasks_pop')
+    .ExecutorState_mem(id,typeToId,maxTasks,__execTasks_pop(execTasks,eid),taskInExec)
+    +
+  sum eid:Nat.method_var_begin(id,__maxTasks_pop(eid)).method_var_end(id,__maxTasks_pop')
+    .ExecutorState_mem(id,typeToId,__maxTasks_pop(maxTasks,eid),execTasks,taskInExec)
+    +
+  sum eid:Nat,maxtasks:Nat.method_var_begin(id,__maxTasks_add(eid,maxtasks)).method_var_end(id,__maxTasks_add')
+    .ExecutorState_mem(id,typeToId,__maxTasks_add(maxTasks,eid,maxtasks),execTasks,taskInExec)
+    +
+  method_var_begin(id,__execTasks_keys).method_var_end(id,__execTasks_keys'(__execTasks_keys(execTasks)))
+    .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
+    +
+  sum eid:Nat.method_var_begin(id,__execTasks_addeid(eid)).method_var_end(id,__execTasks_addeid')
+    .ExecutorState_mem(id,typeToId,maxTasks,__execTasks_addeid(execTasks,eid),taskInExec)
+    +
+  sum etype:eType.method_var_begin(id,__typeToId_addeType(etype)).method_var_end(id,__typeToId_addeType')
+    .ExecutorState_mem(id,__typeToId_addeType(typeToId,etype),maxTasks,execTasks,taskInExec)
+    +
+  sum etype:eType,eid:Nat.method_var_begin(id,__typeToId_addeid(etype,eid)).method_var_end(id,__typeToId_addeid')
+    .ExecutorState_mem(id,__typeToId_addeid(typeToId,etype,eid),maxTasks,execTasks,taskInExec)
+;
+
+
+%-----------
+proc MindCluster_mem(id:Nat,modules:__modules,instances:__instances) = 
+  method_var_begin(id,__instances_keys).method_var_end(id,__instances_keys'(__instances_keys(instances)))
+    .MindCluster_mem(id,modules,instances)
+    +
+  sum etype:eType.method_var_begin(id,__instances_addModule(etype)).method_var_end(id,__instances_addModule')
+    .MindCluster_mem(id,modules,__instances_addModule(instances,etype))
+    +
+  sum etype:eType,modinstance:Nat.method_var_begin(id,__instances_append(etype,modinstance)).method_var_end(id,__instances_append')
+    .MindCluster_mem(id,modules,__instances_append(instances,etype,modinstance))
+    +
+  sum etype:eType.method_var_begin(id,__instances_pop(etype)).method_var_end(id,__instances_pop'(__instances_pop(instances,etype)))
+    .MindCluster_mem(id,modules,__instances_delAfterPop(instances,etype))
+    +
+  sum etype:eType.method_var_begin(id,__modules_getClass(etype)).method_var_end(id,__modules_getClass'(__modules_getClass(modules,etype)))
+    .MindCluster_mem(id,modules,instances)
+    +
+  sum module:eType,instance:Nat.method_var_begin(id,__modules_set(module,instance)).method_var_end(id,__modules_set')
+    .MindCluster_mem(id,__modules_set(modules,module,instance),instances)
+    +
+  method_var_begin(id,__modules_keys).method_var_end(id,__modules_keys'(__modules_keys(modules)))
+    .MindCluster_mem(id,modules,instances)
+;
+
+%-----------
+proc ExecutorDispatcher_mem(id:Nat,execTypes:__execTypes,tasks:__tasks,freezer:__taskFreezer,idMap:__idMap) = 
+  sum taskid:Nat.method_var_begin(id,__tasks_get(taskid)).method_var_end(id,__tasks_get'(__tasks_get(tasks,taskid)))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+    +
+  sum taskid:Nat.method_var_begin(id,__taskFreezer_check(taskid)).
+    (taskid in freezer) -> method_var_end(id,__taskFreezer_check'(true)) <> method_var_end(id,__taskFreezer_check'(false))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+    +
+  sum taskid:Nat.method_var_begin(id,__taskFreezer_append(taskid)).method_var_end(id,__taskFreezer_append')
+    .ExecutorDispatcher_mem(id,execTypes,tasks,__taskFreezer_append(freezer,taskid),idMap)
+    +
+  sum taskid:Nat.method_var_begin(id,__taskFreezer_index(taskid)).method_var_end(id,__taskFreezer_index'(__taskFreezer_index(freezer,taskid)))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+    +
+  sum pos:Nat.method_var_begin(id,__taskFreezer_pop(pos)).method_var_end(id,__taskFreezer_pop')
+    .ExecutorDispatcher_mem(id,execTypes,tasks,__taskFreezer_pop(freezer,pos),idMap)
+    +
+  method_var_begin(id,__tasks_keys).method_var_end(id,__tasks_keys'(__tasks_keys(tasks)))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+    +
+  method_var_begin(id,__execTypes_get_eTypes).method_var_end(id,__execTypes_get_eTypes'(__execTypes_get_eTypes(execTypes)))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+    +
+  method_var_begin(id,__execTypes_getExecutorsConnected).
+	method_var_end(id,__execTypes_getExecutorsConnected'(__execTypes_getExecutorsConnected(execTypes)))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+    +
+  sum taskObj:TaskObject.method_var_begin(id,__tasks_add(taskObj)).method_var_end(id,__tasks_add')
+    .ExecutorDispatcher_mem(id,execTypes,__tasks_add(tasks,taskObj),freezer,idMap)
+    +
+  sum eid:Nat,etypes:List(eType).method_var_begin(id,__idMap_set(eid,etypes)).method_var_end(id,__idMap_set')
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,__idMap_set(idMap,eid,etypes))
+    +
+  sum etype:eType.method_var_begin(id,__execTypes_add(etype)).method_var_end(id,__execTypes_add')
+    .ExecutorDispatcher_mem(id,__execTypes_add(execTypes,etype),tasks,freezer,idMap)
+    +
+  sum etype:eType.method_var_begin(id,__execTypes_inc(etype)).method_var_end(id,__execTypes_inc')
+    .ExecutorDispatcher_mem(id,__execTypes_inc(execTypes,etype),tasks,freezer,idMap)
+    +
+  sum eid:Nat.method_var_begin(id,__idMap_pop(eid)).method_var_end(id,__idMap_pop'(__idMap_pop(idMap,eid)))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,__idMap_remove(idMap,eid))
+    +
+  sum etype:eType.method_var_begin(id,__execTypes_dec(etype)).method_var_end(id,__execTypes_dec')
+    .ExecutorDispatcher_mem(id,__execTypes_dec(execTypes,etype),tasks,freezer,idMap)
+    +
+  sum eid:Nat.method_var_begin(id,__idMap_get(eid)).method_var_end(id,__idMap_get'(__idMap_get(idMap,eid)))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+    +
+  method_var_begin(id,__taskFreezer_len).method_var_end(id,__taskFreezer_len'(#freezer))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+    +
+  sum iP:Nat.method_var_begin(id,__tasks_get(iP)).method_var_end(id,__tasks_get'(__tasks_get(tasks,iP)))
+    .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
+;
+
+%-----------
+proc ExecutorReactor_mem(id:Nat,executorModules:__executorModules,minds:__minds) = 
+  sum etype:eType,instance:Nat.method_var_begin(id,__executorModules_setClass(etype,instance)).method_var_end(id,__executorModules_setClass')
+    .ExecutorReactor_mem(id,__executorModules_setClass(executorModules,etype,instance),minds)
+    +
+  method_var_begin(id,__executorModules_keys).method_var_end(id,__executorModules_keys'(__executorModules_keys(executorModules)))
+    .ExecutorReactor_mem(id,executorModules,minds)
+    +
+  method_var_begin(id,__minds_keys).method_var_end(id,__minds_keys'(__minds_keys(minds)))
+    .ExecutorReactor_mem(id,executorModules,minds)
+    +
+  sum mind:Mind,mindClusterId:Nat.method_var_begin(id,__minds_set(mind,mindClusterId)).method_var_end(id,__minds_set')
+    .ExecutorReactor_mem(id,executorModules,__minds_set(minds,mind,mindClusterId))
+;
+
+%-----------
+proc JobDB_mem(id:Nat,jobs:List(TaskObject)) = 
+  sum jid:Nat,fullStatus:FullStatus.method_var_begin(id,db_setStatus(jid,fullStatus)).method_var_end(id,db_setStatus')
+  .JobDB_mem(id,setStatus(jobs,jid,fullStatus)) % OK
+  +
+  sum jid:Nat.method_var_begin(id,db_getJobAttributes(jid)).  (
+		      method_var_end(id,db_getJobAttributes'(OK,getJobAttributes(jobs,jid))) +
+		      method_var_end(id,db_getJobAttributes'(ERROR,getJobAttributes(jobs,jid)))
+		      )% OK
+  .JobDB_mem(id,jobs)
+  +
+    sum jid:Nat.method_var_begin(id,db_rescheduleJob(jid)) % OK
+   % max reschedulings modeled as a nondeterministic choice (see __dispatchTask SD)
+   .(method_var_end(id,db_rescheduleJob'(OK)) + method_var_end(id,db_rescheduleJob'(ERROR))).
+  (
+    JobDB_mem(id,setStatus(jobs,jid,statusBundle(Received,JobRescheduled)))
+    +
+    JobDB_mem(id,setStatus(jobs,jid,statusBundle(Failed,MaxReschedulings)))
+  ).JobDB_mem(id,jobs)  % OK
+  + 
+  sum jid:Nat,fullStatus:FullStatus.method_var_begin(id,db_setJobAttributes(jid,fullStatus)).
+   (method_var_end(id,db_setJobAttributes'(OK)) + method_var_end(id, db_setJobAttributes'(ERROR)))
+  .JobDB_mem(id,setStatus(jobs,jid,fullStatus))  % OK
+  +
+  sum status:Status,minorStatus:List(MinorStatus).method_var_begin(id,db_selectJobs(status,minorStatus)).
+  method_var_end(id,db_selectJobs'(selectJobs(jobs,status,minorStatus)))
+  .JobDB_mem(id,jobs)  % OK
+  +
+  sum jid:Nat,opPath:List(eType).method_var_begin(id,db_setOptParameter(jid,opPath)).method_var_end(id,db_setOptParameter'(OK))
+  .JobDB_mem(id,setOptParameter(jobs,jid,opPath))
+  +
+  sum jid:Nat.method_var_begin(id,db_getOptParameter(jid)).method_var_end(id,db_getOptParameter'(getOptParameter(jobs,jid)))
+  .JobDB_mem(id,jobs)
+;
 
 
 
-proc method2 = action2;
-proc method3 = action3;
+% end-memory processes
 
-proc method4(arg:Data) =
-%  action4(arg);
-	sum arg:Data.getData_call(getData(arg,1));
-% 
-% 	 sum ids:List(Nat).RPAgent_call(getCacheReplicas(ids,New)).
+% ======= END-DATA=============
+
+act method_call_begin,method_var_begin:Nat#Method;
+act method_call_end,method_var_end:Nat#Method;
+
+act method_begin:Nat#Method;
+act method_end:Nat#Method;
+
+act DISET_call_send, DISET_call_receive:Nat#Method;
+act DISET_call:Nat#Method;
+
+act internal;
+%--------DATA TRANSFORMATIONS
+% -----------------
+map minorStatus2eType:MinorStatus->eType;
+%----------------------------
+var minor:MinorStatus;
+eqn
+	minorStatus2eType(minor) = if(minor==JobPath,JobPath,
+		  if(minor==JobSanity,JobSanity,
+		    if(minor==JobScheduling,JobScheduling,
+		      if(minor==InputData,InputData,None
+			))));
+
+%-----------DONE server---
+proc ExecutorDispatcher_removeTask(id:Nat) =
+(
+    sum taskId:Nat.method_var_begin(id,removeTaskDispatcher(taskId)).
+    method_call_begin(id,getExecutorOfTask(taskId)). 
+  sum eId:Nat.method_call_end(id,getExecutorOfTask'(eId)).
+    ( method_call_begin(id,deleteTask(taskId)).
+      method_call_end(id,deleteTask').
+      method_call_begin(id,removeTask(taskId,0)). % eid=0 fixed! to represent eId=None
+      sum result:Bool.method_call_end(id,removeTask'(result)).
+      ((eId>0) -> method_call_begin(id,__sendTaskToExecutor(eId,[],true)).method_call_end(id,__sendTaskToExecutor') % fixed [] for eTypes=false;checkIdle=true is ok
+      .method_var_end(id,removeTaskDispatcher')
+      <> internal
+      )
+    ).method_var_end(id,removeTaskDispatcher')
+
+)
+% . ExecutorDispatcher_removeTask(id)
+;
+
+%-----------DONE-server------------
+proc ExecutorState_getExecutorOfTask(id:Nat) = 
+
+(
+	sum taskId:Nat.method_var_begin(id,getExecutorOfTask(taskId)).
+	  method_call_begin(id,__taskInExec_get(taskId)).
+	  sum eid:Int.method_call_end(id,__taskInExec_get'(eid)).
+	  (eid!=-1) -> method_var_end(id,getExecutorOfTask'(Int2Nat(eid)))
+	    <>
+		    method_var_end(id,getExecutorOfTask'(0)) % represents NONE
+
+)
+% . ExecutorState_getExecutorOfTask(id)
+;
+
+%-----------DONE server-----------
+proc ExecutorQueues_deleteTask(id:Nat) = 
+(
+    sum taskId:Nat. method_var_begin(id,deleteTask(taskId)).
+    method_call_begin(id,__taskInQueue_get(taskId)).
+    sum etype:eType.method_call_end(id,__taskInQueue_get'(etype)).
+    
+      method_call_begin(id,__taskInQueue_del(taskId)).
+      method_call_end(id,__taskInQueue_del').
+      
+      method_call_begin(id,__queues_index(etype,taskId)).
+      sum iPos:Int.method_call_end(id,__queues_index'(iPos)).
+      (iPos!=-1) -> 
+	  method_call_begin(id,__queues_delAtPos(etype,Int2Nat(iPos))).
+	  method_call_end(id,__queues_delAtPos')
+	  <> internal
+    .method_var_end(id,deleteTask')
+
+)
+.ExecutorQueues_deleteTask(id)
+;
+%-----------DONE server-------
+proc ExecutorState_removeTask(id:Nat) = 
+(
+    sum taskId:Nat,eId:Nat.method_var_begin(id,removeTask(taskId,eId)).
+    (eId==0) -> method_call_begin(id,__taskInExec_get(taskId)).
+		sum eId:Int.method_call_end(id,__taskInExec_get'(eId))
+		<> internal
+	      .method_call_begin(id,__execTasks_removetaskid(Int2Nat(eId),taskId)).
+	      method_call_end(id,__execTasks_removetaskid').
+	      method_call_begin(id,__taskInExec_pop(taskId)).
+	      method_call_end(id,__taskInExec_pop').
+	      (eId==-1) -> method_var_end(id,removeTask'(false)) <> method_var_end(id,removeTask'(true))
+)
+% .ExecutorState_removeTask(id)
+;
+
+%-----------DONE server-----
+proc ExecutorDispatcher___sendTaskToExecutor(id:Nat) = 
+(
+      sum eId:Nat,eTypes:List(eType),checkIdle:Bool.method_var_begin(id,__sendTaskToExecutor(eId,eTypes,checkIdle)). 
+	method_call_begin(id,freeSlots(eId)). 
+	sum noSlots:Nat.method_call_end(id,freeSlots'(noSlots)).
+	(checkIdle && noSlots==0) ->
+	method_var_end(id,__sendTaskToExecutor') <> 
+	  (
+	    (eTypes==[]) -> 
+	    (
+	      method_call_begin(id,__idMap_get(eId)).
+	      sum eTypes:List(eType).method_call_end(id,__idMap_get'(eTypes))
+	    ) <> internal.
+	  (eTypes==[]) -> method_var_end(id,__sendTaskToExecutor') <>
+	     (
+		method_call_begin(id,popTask(eTypes)).
+		sum taskId:Nat,eType:eType.method_call_end(id,popTask'(taskId,eType)).
+		(taskId==0) ->
+		    method_var_end(id,__sendTaskToExecutor') <>
+		  (
+		    method_call_begin(id,addTask(eId,taskId)).
+		    method_call_end(id,addTask').
+		    method_call_begin(id,__msgTaskToExecutor(taskId,eId,eType)). 
+		    sum reply:Reply.method_call_end(id,__msgTaskToExecutor'(reply)).
+		    (reply!=OK) ->
+		    method_call_begin(id,pushTask(eType,taskId,true)). % ahead=true in call!
+		    method_call_end(id,pushTask').
+		    method_call_begin(id,removeTask(taskId,0)).  % eid=0 fixed for eid==None!
+		    sum result:Bool.method_call_end(id,removeTask'(result)).
+		    method_var_end(id,__sendTaskToExecutor')
+		    <> 
+		      (
+			method_var_end(id,__sendTaskToExecutor')
+		      )
+		  )
+	      )
+	  )
+
+)
+% .ExecutorDispatcher___sendTaskToExecutor(id)
+;
+
+%-----------server----------
+ExecutorState_freeSlots(id:Nat) = 
+(
+    sum eId:Nat.method_var_begin(id,freeSlots(eId)).
+      method_call_begin(id,__maxTasks_get(eId)).
+      sum maxtasks:Nat.method_call_end(id,__maxTasks_get'(maxtasks)).
+      method_call_begin(id,__execTasks_taskids(eId)).
+      sum taskids:List(Nat).method_call_end(id,__execTasks_taskids'(taskids)).
+      (maxtasks==0) -> method_var_end(id,freeSlots'(0))
+	    <>
+		  method_var_end(id,freeSlots'(Int2Nat(maxtasks-#taskids)))
+)
+% .ExecutorState_freeSlots(id)
+;
+
+%-----------DONE server---------
+ExecutorQueues_popTask(id:Nat) = 
+(
+    sum eTypes:List(eType).method_var_begin(id,popTask(eTypes)). 
+    loop_popTask(id,eTypes)
+)
+% .ExecutorQueues_popTask(id)
+;
+
+proc loop_popTask(id:Nat,eTypes:List(eType)) = 
+  (eTypes!=[]) ->
+    method_call_begin(id,__queues_pop(head(eTypes),0)).
+    sum taskid:Int.method_call_end(id,__queues_pop'(taskid)).
+    (taskid!=-1) ->
+      method_call_begin(id,__taskInQueue_del(Int2Nat(taskid))).
+      method_call_end(id,__taskInQueue_del').
+      method_var_end(id,popTask'(Int2Nat(taskid),head(eTypes)))
+      <>
+      loop_popTask(id,tail(eTypes))
+    <>
+%     internal
+    method_var_end(id,popTask'(0,None))
+;
+
+%-----------DONE-server-----------
+ExecutorState_addTask(id:Nat) = 
+(
+sum eId:Nat,taskId:Nat.method_var_begin(id,addTask(eId,taskId)).
+  method_call_begin(id,__taskInExec_set(taskId,eId)).
+  method_call_end(id,__taskInExec_set').
+  method_call_begin(id,__execTasks_addtaskid(eId,taskId)).
+  method_call_end(id,__execTasks_addtaskid').
+  method_var_end(id,addTask')
+)
+% .ExecutorState_addTask(id)
+;
+
+%-----------server----------
+proc ExecutorDispatcher___msgTaskToExecutor(id:Nat) =
+(
+    sum taskId:Nat,eId:Nat,eType:eType.method_var_begin(id,__msgTaskToExecutor(taskId,eId,eType)). 
+    method_call_begin(id,__tasks_get(taskId)).
+    sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
+    (taskObj==NullObj) -> method_var_end(id,__msgTaskToExecutor'(ERROR))
+     <>
+      method_call_begin(id,cbSendTask(taskId,taskObj,eId,eType)).
+      sum reply:Reply.method_call_end(id,cbSendTask'(reply)).
+      (reply==OK) -> 
+      method_var_end(id,__msgTaskToExecutor'(OK)) 
+      <>
+      method_var_end(id,__msgTaskToExecutor'(ERROR))
+)
+% .ExecutorDispatcher___msgTaskToExecutor(id)
+;
+
+%-----------server----------
+proc ExecutorQueues_pushTask(id:Nat) = 
+(
+    sum eType:eType,taskId:Nat,ahead:Bool.method_var_begin(id,pushTask(eType,taskId,ahead)). 
+      method_call_begin(id,__taskInQueue_keys).
+      sum taskids:List(Nat).method_call_end(id,__taskInQueue_keys'(taskids)).
+      (taskId in taskids) -> method_var_end(id,pushTask')
+      <>
+      (
+	method_call_begin(id,__queues_keys).
+	sum etypes:List(eType).method_call_end(id,__queues_keys'(etypes)).
+	!(eType in etypes) ->
+	    method_call_begin(id,__queues_addetype(eType)).
+	    method_call_end(id,__queues_addetype')
+	    <>
+	    internal
+	.(ahead) -> method_call_begin(id,__queues_insert(eType,taskId)).method_call_end(id,__queues_insert')
+	    <>
+		  method_call_begin(id,__queues_append(eType,taskId)).method_call_end(id,__queues_append')
+      ).
+	method_call_begin(id,__taskInQueue_set(taskId,eType)).method_call_end(id,__taskInQueue_set').
+	method_var_end(id,pushTask')
+
+)
+% .ExecutorQueues_pushTask(id)
+;
+
+%-----------server----------
+proc MindCallbacks_cbSendTask(id:Nat) = 
+(
+  sum taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType. method_var_begin(id,cbSendTask(taskId,taskObj,eId,eType)). 
+  method_call_begin(id,__sendTask(taskId,taskObj,eId,eType)).
+  sum reply:Reply.method_call_end(id,__sendTask'(reply)).
+  method_var_end(id,cbSendTask'(reply))
+
+)
+% .MindCallbacks_cbSendTask(id)
+;
+
+%-----------DONE server--------------
+proc OptimizationMindHandler___sendTask(id:Nat) = 
+(
+  sum taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType.method_var_begin(id,__sendTask(taskId,taskObj,eId,eType)).
+  method_call_begin(id,exec_prepareToSend(taskId,taskObj,eId)).
+  sum reply:Reply.method_call_end(id,exec_prepareToSend'(reply)).
+  (reply!=OK) -> 
+  method_var_end(id,__sendTask'(reply)) 
+  <>
+  (
+    method_call_begin(id,exec_serializeTask(taskObj)).
+    sum reply1:Reply,taskObj1:TaskObject.method_call_end(id,exec_serializeTask'(reply1,taskObj1)).
+    (reply1!=OK) ->
+      method_var_end(id,__sendTask'(reply1))
+      <>
+      DISET_call_send(id,msg(ProcessTask,eId, taskObj1)). 
+      method_var_end(id,__sendTask'(reply1))
+
+  )
+)
+% .OptimizationMindHandler___sendTask(id)
+;
+
+%-----------DONE server----------
+proc OptimizationMindHandler_exec_prepareToSend(id:Nat) =
+(
+  sum jid:Nat,jobState:TaskObject,eId:Nat.method_var_begin(id,exec_prepareToSend(jid, jobState, eId)). 
+  method_call_begin(id,recheckValidity(jobState)).
+  sum reply:Reply.method_call_end(id,recheckValidity'(reply)).
+  method_var_end(id,exec_prepareToSend'(reply))
+
+)
+% .OptimizationMindHandler_exec_prepareToSend(id)
+;
+
+%-----------DONE server-------------
+proc OptimizationMindHandler_exec_serializeTask(id:Nat) = 
+(
+   sum jobState:TaskObject.method_var_begin(id,exec_serializeTask(jobState)). 
+    method_call_begin(id,serialize(jobState)).
+    sum reply:Reply.method_call_end(id,serialize'(reply)).
+    method_var_end(id,exec_serializeTask'(OK,jobState))  
+
+)
+% .OptimizationMindHandler_exec_serializeTask(id)
+;
+
+%-----------DONE server----
+proc CachedJobState_recheckValidity(id:Nat) =
+(
+  sum taskObj:TaskObject.method_var_begin(id,recheckValidity(taskObj)).
+  % if graceTime <= 0 or now - self.__lastValidState > graceTime <-- Condition made into nondeterministic choice
+  (
+   method_call_begin(id,getJobAttributes(taskID(taskObj))).
+   sum reply:Reply,fullStatus:FullStatus.method_call_end(id,getJobAttributes'(reply,fullStatus)).
+    method_var_end(id,recheckValidity'(reply))
+    + 
+    internal
+   ).
+  method_var_end(id,recheckValidity'(OK))
+)
+% . CachedJobState_recheckValidity(id)
+;
+
+%-----------server--------
+proc JobState_getAttributes(id:Nat) = 
+(
+  sum jid:Nat.method_var_begin(id,getJobAttributes(jid)).
+    method_call_begin(id,db_getJobAttributes(jid)).
+    sum reply:Reply,fullStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply,fullStatus)).
+  method_var_end(id,getJobAttributes'(reply,fullStatus))
+  
+
+)
+% .JobState_getAttributes(id)
+;
+
+%-----------server AND client both??-----
+proc CachedJobState_serialize(id:Nat) =
+(
+  sum jobState:TaskObject.method_var_begin(id,serialize(jobState)).	
+  method_var_end(id,serialize'(OK))
+)
+% . CachedJobState_serialize(id)
+;
+% ------------ CLIENT STUFF? -------------
+%-----------DONE client---------
+proc MindCluster___processTask(id:Nat) = 
+(
+  sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(ProcessTask,eId, taskObj)). 
+  method_call_begin(id,__moduleProcess(eType(taskObj),taskID(taskObj),taskObj)). 
+  sum reply:Reply,message:Message.method_call_end(id,__moduleProcess'(reply,message)).
+  (reply!=OK) ->
+    DISET_call_send(id,msg(ExecutorError,eId,taskObj))
+    <>
+    DISET_call_send(id,msg(message,eId,taskObj))
+)
+% . MindCluster___processTask(id)
+;
+
+%---------DONE client---------
+proc MindCluster___moduleProcess(id:Nat) = 
+  sum etype:eType,taskId:Nat,taskObj:TaskObject.method_var_begin(id,__moduleProcess(etype,taskId,taskObj)). 
+    method_call_begin(id,__getInstance(etype)).
+    sum modInstance:Nat.method_call_end(id,__getInstance'(modInstance)).
+    method_call_begin(id,_ex_processTask(modInstance,taskId,taskObj)).
+    sum reply:Reply,fastTrackType:eType.method_call_end(id,_ex_processTask'(reply,fastTrackType)).
+    method_call_begin(id,__storeInstance(etype,modInstance)).
+    method_call_end(id,__storeInstance').
+    ((reply!=OK) ->
+      method_var_end(id,__moduleProcess'(OK,TaskError))
+    <>
+      (
+% 	  method_call_begin(id,__modules_keys).
+% 	  sum modules:List(eType).method_call_end(id,__modules_keys'(modules)).
+% 	  (fastTrackType!=None && (fastTrackType in modules)) -> 
+	    % return self.__moduleProcess( fastTrackType, taskId, taskStub, fastTrackLevel + 1 ) 
+	    %<-- HOW TO RECURSIVELY CALL? Like this below?? test it on a hypotethical example
+	    % or just ignore the if section below, it's a new implementation anyways
+% 	    method_call_begin(id,__moduleProcess(fastTrackType,taskId,taskObj)).
+% 	    sum reply:Reply,message:Message.method_call_end(id,__moduleProcess'(reply,message)).
+% 	    method_var_end(id,__moduleProcess'(reply,message))
+% 	    <> (
+	      method_var_end(id,__moduleProcess'(OK,TaskFreeze))
+	      +
+	      method_var_end(id,__moduleProcess'(OK,TaskDone))
+% 	      )
+      )
+    )
+;
+
+%---------client--------- 
+proc MindCluster___storeInstance(id:Nat) =
+  sum etype:eType,modInstance:Nat.method_var_begin(id,__storeInstance(etype,modInstance)).
+    method_call_begin(id,__instances_keys).sum etypes:List(eType).method_call_end(id,__instances_keys'(etypes)).
+    !(etype in etypes) -> method_call_begin(id,__instances_addModule(etype)).method_call_end(id,__instances_addModule') <> internal
+    .method_call_begin(id,__instances_append(etype,modInstance)).method_call_end(id,__instances_append').
+  method_var_end(id,__storeInstance')
+;
+
+%---------DONE client--------- 
+proc ModInstance_fastTrackDispatch(id:Nat,nameInstance:eType) =
+  sum jid:Nat,jobState:TaskObject.method_var_begin(id,fastTrackDispatch(jid,jobState)).
+    method_call_begin(id,getStatus(jobState,jid)).
+    sum reply:Reply,fullStatus:FullStatus.method_call_end(id, getStatus'(reply,fullStatus)).
+    (reply!=OK) -> method_var_end(id,fastTrackDispatch'(reply,None))
+    <>
+    (
+      (status(fullStatus)!=Checking) -> method_var_end(id,fastTrackDispatch'(OK,None))
+      <>
+      method_call_begin(id,getOptParameter(jobState)).
+      sum reply1:Reply,opPath:List(eType).method_call_end(id,getOptParameter'(reply1,opPath)).
+      !(minorStatus(fullStatus) in opPath) -> method_var_end(id,fastTrackDispatch'(OK,None))
+      <>
+	method_var_end(id,fastTrackDispatch'(OK,minorStatus2eType(minorStatus(fullStatus))))   
+    )
+;
+
+%---------DONE client--------- 
+proc ModInstance__ex_processTask(id:Nat,nameInstance:eType) = 
+  sum modInstance:Nat,taskId:Nat,taskObj:TaskObject.method_var_begin(id,_ex_processTask(modInstance,taskId,taskObj)).
+    method_call_begin(id,__deserialize(taskId,taskObj)).  
+    sum reply:Reply,taskObj1:TaskObject.method_call_end(id,__deserialize'(reply,taskObj1)).
+    (reply!=OK) ->
+     method_var_end(id,_ex_processTask'(reply,None))
+    <>
+    (
+      method_call_begin(id,processTask(taskId,taskObj1)). 
+      sum reply1:Reply,taskObj2:TaskObject.method_call_end(id,processTask'(reply1,taskObj2)).
+      (reply1!=OK) ->
+      method_var_end(id,_ex_processTask'(reply1,None))
+      <>
+      (
+	method_call_begin(id,__serialize(taskId,taskObj2)).			
+	sum reply2:Reply,taskStub:TaskObject.method_call_end(id,__serialize'(reply2,taskStub)).
+	(reply2!=OK) -> method_var_end(id,_ex_processTask'(reply2,None)) <>
+	  (
+	    method_call_begin(id,fastTrackDispatch(taskId,taskStub)). 
+	    sum reply3:Reply,fastTrackType:eType.method_call_end(id,fastTrackDispatch'(reply3,fastTrackType)).
+	    method_var_end(id,_ex_processTask'(OK,fastTrackType))
+	  )
+      )
+    )
+;
+
+%---------DONE client--------- 
+proc ModInstance_processTask(id:Nat,nameInstance:eType) = 
+ sum jid:Nat,jobState:TaskObject.method_var_begin(id,processTask(jid,jobState)).
+  method_call_begin(id,optimizeJob(jid,jobState)).
+  sum reply:Reply,jobState1:TaskObject.method_call_end(id,optimizeJob'(reply,jobState1)).
+  (reply!=OK) ->
+    method_var_end(id,processTask'(reply,jobState1))
+    <>
+    (
+      method_call_begin(id,getManifest(jobState)).
+      sum reply1:Reply.method_call_end(id,getManifest'(reply1)).
+      (reply1!=OK) ->
+	method_var_end(id,processTask'(reply1,jobState1)) % missing the buggy code here
+      <>
+	method_var_end(id,processTask'(OK,jobState1))
+    )
+;
+
+%-----------server AND client both??-----
+proc CachedJobState_getManifest(id:Nat) = 
+  sum jobState:TaskObject.method_var_begin(id,getManifest(jobState)).
+  (
+   method_var_end(id,getManifest'(OK))
+   +
+   method_var_end(id,getManifest'(ERROR))
+  )
+;
+
+%---------DONE client---------  
+proc ModInstance_optimizeJob(id:Nat,nameInstance:eType) = 
+  sum jid:Nat,jobState:TaskObject.method_var_begin(id,optimizeJob(jid,jobState)).
+  (nameInstance==JobPath)-> 
+      (
+	  method_call_begin(id,getManifest(jobState)).
+	  sum reply:Reply.method_call_end(id,getManifest'(reply)).
+	  (reply!=OK) ->
+	    method_var_end(id,optimizeJob'(reply,jobState))
+	    <>
+	    (
+	      method_call_begin(id,getInputData(jobState)).
+	      sum inputData:Bool.method_call_end(id,getInputData'(inputData)).
+	      (
+		(inputData -> 
+		method_call_begin(id,__setOptimizerChain(jobState,[JobPath,JobSanity,InputData,JobScheduling]))
+		<>
+		method_call_begin(id,__setOptimizerChain(jobState,[JobPath,JobSanity,JobScheduling]))
+		).
+		sum reply1:Reply,jobState1:TaskObject.method_call_end(id,__setOptimizerChain'(reply1,jobState1)).
+		(reply1!=OK) ->
+		  method_var_end(id,optimizeJob'(reply1,jobState1))
+		  <>
+		  (
+		    method_call_begin(id,setNextOptimizer(jobState)).
+		    sum reply2:Reply.method_call_end(id,setNextOptimizer'(reply2)).
+		    method_var_end(id,optimizeJob'(reply2,jobState))
+		  )
+	      )
+	    )
+      ) 
+    <>
+   (nameInstance==JobSanity) ->
+    (
+	method_call_begin(id,getManifest(jobState)).
+	sum reply:Reply.method_call_end(id,getManifest'(reply)).
+	(reply!=OK) ->
+	  method_var_end(id,optimizeJob'(reply,jobState))
+	<>
+	(
+	  method_call_begin(id,getInputData(jobState)).
+	  sum inputData:Bool.method_call_end(id,getInputData'(inputData)).
+	  !inputData -> method_var_end(id,optimizeJob'(reply,jobState))
+	  <>
+	    method_call_begin(id,checkPlatformSupported(jobState)).
+	    sum platformCheck:Reply.method_call_end(id,checkPlatformSupported'(platformCheck)).
+	    (platformCheck!=OK) -> method_var_end(id,optimizeJob'(platformCheck,jobState))
+	      <>
+	      method_call_begin(id,checkInputSandbox(jobState)).
+	      sum inputsandbox:Reply.method_call_end(id,checkInputSandbox'(inputsandbox)).
+	      (inputsandbox!=OK) -> method_var_end(id,optimizeJob'(inputsandbox,jobState))
+	      <>
+		    method_call_begin(id,setNextOptimizer(jobState)).
+		    sum reply2:Reply.method_call_end(id,setNextOptimizer'(reply2)).
+		    method_var_end(id,optimizeJob'(reply2,jobState))
+	)
+    ) <>
+   (nameInstance==InputData) ->
+    (
+	method_call_begin(id,__resolveInputData(jobState)).
+	sum reply:Reply.method_call_end(id,__resolveInputData'(reply)).
+	(reply!=OK) -> method_var_end(id,optimizeJob'(reply,jobState))
+	<>
+	  method_call_begin(id,setNextOptimizer(jobState)).
+	  sum reply2:Reply.method_call_end(id,setNextOptimizer'(reply2)).
+	  method_var_end(id,optimizeJob'(reply2,jobState))
+    ) <>
+    (nameInstance==JobScheduling) ->
+    (
+      method_call_begin(id,__getSitesRequired(jobState)).
+      sum reply:Reply.method_call_end(id,__getSitesRequired'(reply)).
+      (reply!=OK) -> method_var_end(id,optimizeJob'(reply,jobState))
+      <>
+	method_var_end(id,optimizeJob'(OK,jobState))
+    )
+;
+% JobSanity
+proc ModInstance_checkPlatformSupported(id:Nat) = 
+  sum jobState:TaskObject.method_var_begin(id,checkPlatformSupported(jobState)).
+  ( method_var_end(id,checkPlatformSupported'(OK)) + method_var_end(id,checkPlatformSupported'(ERROR)))
+;
+
+% JobSanity
+proc ModInstance_checkInputSandbox(id:Nat) = 
+  sum jobState:TaskObject.method_var_begin(id,checkInputSandbox(jobState)).
+  ( method_var_end(id,checkInputSandbox'(OK)) + method_var_end(id,checkInputSandbox'(ERROR)))
+;
+
+% InputData
+proc ModInstance___resolveInputData(id:Nat) = 
+  sum jobState:TaskObject.method_var_begin(id,__resolveInputData(jobState)).
+  ( method_var_end(id,__resolveInputData'(OK)) + method_var_end(id,__resolveInputData'(ERROR)))
+;
+
+% JobScheduling
+proc ModInstance___getSitesRequired(id:Nat) = 
+  sum jobState:TaskObject.method_var_begin(id,__getSitesRequired(jobState)).
+  ( method_var_end(id,__getSitesRequired'(OK)) + method_var_end(id,__getSitesRequired'(ERROR)))
+;
 
 
-proc P1 = method1.P1;
-proc P2 = method1.P2;
-proc P3 = method1.P3;
-proc P4 = method1.P4;
-proc P5 = method1.P5;
-proc P6 = method1.P6;
+%---------DONE client---------  
+proc ModInstance_setNextOptimizer(id:Nat,nameInstance:eType) = 
+ sum jobState:TaskObject.method_var_begin(id,setNextOptimizer(jobState)).
+    method_call_begin(id,getOptParameter(jobState)).
+    sum reply:Reply,opPath:List(eType).method_call_end(id,getOptParameter'(reply,opPath)).
+    !(nameInstance in opPath) -> method_var_end(id,setNextOptimizer'(ERROR)) %optimizer not in chain
+    <>
+    ((#opPath-1)==indexOf(opPath,nameInstance)) -> 
+    % if chainLength - 1 == opIndex % last optimizer in chain
+      method_call_begin(id,setStatus(jobState,statusBundle(Waiting,PilotAgentSubmission))).
+      sum reply:Reply.method_call_end(id,setStatus'(reply)).
+      method_var_end(id,setNextOptimizer'(OK))
+      <> % nextOp = opChain[ opIndex + 1 ]
+      method_call_begin(id,setStatus(jobState,statusBundle(Checking,opPath.(Int2Nat(indexOf(opPath,nameInstance))+1) ))).
+      sum reply:Reply.method_call_end(id,setStatus'(reply)).
+      method_var_end(id,setNextOptimizer'(reply))
+;
 
-init 
- block({getData_call,getData_var
+
+% ---------DONE client---------  
+proc CachedJobState_setStatus(id:Nat) = 
+  sum jobState:TaskObject,fullStatus:FullStatus.method_var_begin(id, setStatus(jobState,fullStatus)).
+  method_var_end(id,setStatus'(OK))
+;
+
+%---------DONE client---------  
+proc CachedJobState_getInputData(id:Nat) = 
+  sum jobState:TaskObject.method_var_begin(id,getInputData(jobState)).
+  (
+  method_var_end(id,getInputData'(true)) +
+  method_var_end(id,getInputData'(false))
+  )
+;
+
+%---------DONE client---------  
+proc ModInstance___setOptimizerChain(id:Nat,nameInstance:eType) =
+  sum jobState:TaskObject,opPath:List(eType).method_var_begin(id,__setOptimizerChain(jobState,opPath)).
+    method_call_begin(id,setOptParameter(opPath,jobState)).
+    sum reply:Reply.method_call_end(id,setOptParameter'(reply)).
+    method_var_end(id,__setOptimizerChain'(reply,jobState))
+;
+
+
+%---------client---------
+proc CachedJobState_setOptParameter(id:Nat) =
+  sum opPath:List(eType),jobState:TaskObject.method_var_begin(id,setOptParameter(opPath,jobState)).
+    method_call_begin(id,db_setOptParameter(taskID(jobState),opPath)).
+    sum reply:Reply.method_call_end(id,db_setOptParameter'(reply)).
+  method_var_end(id,setOptParameter'(reply))
+;
+
+%---------client AND SERVER?---------
+proc CachedJobState_getOptParameter(id:Nat) =
+  sum jobState:TaskObject.method_var_begin(id,getOptParameter(jobState)).
+    method_call_begin(id,db_getOptParameter(taskID(jobState))).
+    sum opPath:List(eType).method_call_end(id,db_getOptParameter'(opPath)).
+  method_var_end(id,getOptParameter'(OK,opPath))
+;
+
+%---------client--------- 
+proc ModInstance___serialize(id:Nat,nameInstance:eType) =
+  sum taskid:Nat,taskStub:TaskObject.method_var_begin(id,__serialize(taskid,taskStub)).
+    method_call_begin(id,serialize(taskStub)).
+    sum reply:Reply.method_call_end(id,serialize'(reply)).
+  method_var_end(id,__serialize'(reply,taskStub)) 
+;
+
+%---------client--------- 
+proc ModInstance___deserialize(id:Nat,nameInstance:eType) =
+  sum taskid:Nat,taskStub:TaskObject.method_var_begin(id,__deserialize(taskid,taskStub)). 
+  method_call_begin(id,deserialize(taskStub)).
+  sum reply:Reply,taskObj:TaskObject.method_call_end(id,deserialize'(reply,taskObj)).
+  method_var_end(id,__deserialize'(reply,taskObj))
+;
+
+
+%---------client--------- 
+%-----------server AND client both??-----
+proc CachedJobState_deserialize(id:Nat) =
+(
+  sum taskStub:TaskObject.method_var_begin(id,deserialize(taskStub)).	  % refine, not implemented yet!!<- should I not just leave it?
+  method_var_end(id,deserialize'(OK,taskStub)) 
+);
+
+%---------DONE client---------
+proc MindCluster___getInstance(id:Nat) = 
+  sum etype:eType.method_var_begin(id,__getInstance(etype)).
+    method_call_begin(id,__instances_keys).sum etypes:List(eType).method_call_end(id,__instances_keys'(etypes)).
+    !(etype in etypes) -> method_call_begin(id,__instances_addModule(etype)).method_call_end(id,__instances_addModule')
+	      <> internal
+    .method_call_begin(id,__instances_pop(etype)).sum inst:Int.method_call_end(id,__instances_pop'(inst)).
+    (inst!=-1) ->  method_var_end(id,__getInstance'(Int2Nat(inst)))
+    <>
+    method_call_begin(id,__modules_getClass(etype)).sum inst1:Int.method_call_end(id,__modules_getClass'(inst1)).
+    method_var_end(id,__getInstance'(Int2Nat(inst1)))
+;
+
+
+%-----------DONE server---
+proc ExecutorDispatcher___fillExecutors(id:Nat) = 
+  sum etype:eType,defrozeIfNeeded:Bool.method_var_begin(id,__fillExecutors(etype,defrozeIfNeeded)).
+  (defrozeIfNeeded ->
+   method_call_begin(id,__unfreezeTasks(etype)).
+   method_call_end(id,__unfreezeTasks')
+   <> internal
+  ).
+  method_call_begin(id,getIdleExecutor(etype)).
+  sum eId:Nat.method_call_end(id,getIdleExecutor'(eId))
+  .loop_fillExecutors(id,eId,etype).
+  method_var_end(id,__fillExecutors')
+;
+
+%----------- server---
+proc ExecutorDispatcher___unfreezeTasks(id:Nat) =
+  sum etype:eType.method_var_begin(id,__unfreezeTasks(etype)).
+  loop___unfreezeTasks(id,0,etype).
+  method_var_end(id,__unfreezeTasks')
+
+;
+
+proc loop___unfreezeTasks(id:Nat,iP:Nat,etype:eType) = 
+  method_call_begin(id,__taskFreezer_len).
+  sum len:Nat.method_call_end(id,__taskFreezer_len'(len)).
+  (iP<len) ->
+    (
+      method_call_begin(id,__taskFreezer_get(iP)).
+      sum taskid:Int.method_call_end(id,__taskFreezer_get'(taskid)).
+      (taskid==-1) -> method_var_end(id,__unfreezeTasks')
+      <>
+      (
+	method_call_begin(id,__tasks_get(Int2Nat(taskid))).
+	sum eTask:TaskObject.method_call_end(id,__tasks_get'(eTask)).
+	(eTask==NullObj) -> method_call_begin(id,__taskFreezer_pop(iP)).method_call_end(id,__taskFreezer_pop').
+			    loop___unfreezeTasks(id,iP,etype)
+	  <>
+	  !(etype==eType(eTask)) -> loop___unfreezeTasks(id,succ(iP),etype)
+	    <>
+	      method_call_begin(id,__taskFreezer_pop(iP)).method_call_end(id,__taskFreezer_pop').
+	      method_call_begin(id,__dispatchTask(Int2Nat(taskid),false)). 
+	      sum reply:Reply.method_call_end(id,__dispatchTask'(reply)).
+	      loop___unfreezeTasks(id,iP,etype)
+      )
+    )
+    <> internal
+;
+
+%----------- DONE server---
+proc ExecutorDispatcher___dispatchTask(id:Nat) =
+ sum taskid:Nat,defrozeIfNeeded:Bool.method_var_begin(id,__dispatchTask(taskid,defrozeIfNeeded)).
+ method_call_begin(id,getExecutorOfTask(taskid)). 
+ sum eid:Nat.method_call_end(id,getExecutorOfTask'(eid)).
+ (eid>0) ->
+    method_var_end(id,__dispatchTask'(OK))
+    <>
+    (
+     method_call_begin(id,__removeFromFreezer(taskid)). 
+     sum result:Bool.method_call_end(id,__removeFromFreezer'(result)).
+     method_call_begin(id,__getNextExecutor(taskid)). % OK
+     sum reply:Reply,etype:eType.method_call_end(id,__getNextExecutor'(reply,etype)). % OK
+     (reply!=OK) ->
+      (
+	% if self.__freezeOnFailedDispatch <-- model as nondeterministic choice? YES, done!
+	method_call_begin(id,__freezeTask(taskid,etype)).  % OK
+	sum result:Bool.method_call_end(id,__freezeTask'(result)).
+	(result) -> method_var_end(id,__dispatchTask'(OK)) <> method_var_end(id,__dispatchTask'(reply))
+	+ % model as nondeterministic choice, both choices have a return statement so it's ok
+	method_call_begin(id,getTask(taskid)). % OK
+	sum taskObj:TaskObject.method_call_end(id,getTask'(taskObj)).
+	method_call_begin(id,removeTaskDispatcher(taskid)).
+	method_call_end(id,removeTaskDispatcher').
+	method_call_begin(id,cbTaskError(taskid,taskObj)). 
+	method_call_end(id,cbTaskError').
+	method_var_end(id,__dispatchTask'(ERROR))
+     ) 
+      <>
+     (etype==None) ->
+      (
+	method_call_begin(id,removeTaskDispatcher(taskid)).
+	method_call_end(id,removeTaskDispatcher').
+	method_var_end(id,__dispatchTask'(OK))
+      ) 
+      <>
+      (
+	method_call_begin(id,__execTypes_get_eTypes).
+	sum exectypes:List(eType).method_call_end(id,__execTypes_get_eTypes'(exectypes)).
+	!(etype in exectypes) ->
+	  % nondeterministic choice again, freeze task or remove task, and return from method in both cases!
+	  method_call_begin(id,__freezeTask(taskid,etype)).
+	  sum result1:Bool.method_call_end(id,__freezeTask'(result1)).
+	  method_var_end(id,__dispatchTask'(OK))
+	  +
+	  method_call_begin(id,removeTaskDispatcher(taskid)).
+	  method_call_end(id,removeTaskDispatcher').
+	  method_var_end(id,__dispatchTask'(OK))
+	<> (
+	    method_call_begin(id, pushTask(etype,taskid,false)). 
+	    method_call_end(id, pushTask').
+	    method_call_begin(id,__fillExecutors(etype,defrozeIfNeeded)).
+	    method_call_end(id,__fillExecutors').
+	    method_var_end(id,__dispatchTask'(OK))
+	    )
+      )
+    )
+;
+
+%-----------DONE server---
+proc ExecutorDispatcher___getNextExecutor(id:Nat) =
+ sum taskid:Nat.method_var_begin(id,__getNextExecutor(taskid)).
+ method_call_begin(id,__tasks_get(taskid)).sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
+ (taskObj==NullObj) -> method_var_end(id,__getNextExecutor'(ERROR,None))
+    <>
+  (
+   method_call_begin(id,cbDispatch(taskid, taskObj,optimizationChain(taskObj))).
+   sum reply:Reply,etype:eType.method_call_end(id,cbDispatch'(reply,etype)).
+   (reply!=OK) -> method_var_end(id,__getNextExecutor'(ERROR,None))
+    <>
+    method_var_end(id,__getNextExecutor'(OK,etype))
+  )
+;
+
+%-----------DONE server---
+proc ExecutorDispatcher_getTask(id:Nat) =
+  sum taskid:Nat.method_var_begin(id,getTask(taskid)).
+  method_call_begin(id,__tasks_get(taskid)).sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
+  method_var_end(id,getTask'(taskObj))
+;
+
+%-----------DONE server--- 
+proc ExecutorDispatcher___freezeTask(id:Nat) =
+  sum taskid:Nat,eType:eType.method_var_begin(id,__freezeTask(taskid,eType)).
+    method_call_begin(id,__taskFreezer_check(taskid)).
+    sum isIn:Bool.method_call_end(id,__taskFreezer_check'(isIn)).
+    isIn -> method_var_end(id,__freezeTask'(false)) <>
+    (
+      method_call_begin(id,__tasks_get(taskid)).sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
+      (taskObj==NullObj) -> method_var_end(id,__freezeTask'(false)) <>
+	(
+	  method_call_begin(id,__taskFreezer_append(taskid)).method_call_end(id,__taskFreezer_append').
+	  method_var_end(id,__freezeTask'(true))
+
+	  +
+	    % if not isFrozen <-- modeled as a nondeterministic choice, after 10 retries
+	  method_call_begin(id,removeTaskDispatcher(taskid)).
+	  method_call_end(id,removeTaskDispatcher').
+	  method_call_begin(id,cbTaskError(taskid,taskObj)).
+	  method_call_end(id,cbTaskError').
+	  method_var_end(id,__freezeTask'(false))
+	)
+    )
+
+;
+
+
+%-----------DONE server---
+proc MindCallbacks_cbTaskError(id:Nat) = 
+  sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,cbTaskError(taskid,taskObj)).
+  method_call_begin(id,exec_TaskError(taskid,taskObj)).
+  sum reply:Reply.method_call_end(id,exec_TaskError'(reply)).
+  method_var_end(id,cbTaskError')
+;
+
+
+%-----------DONE server---
+proc OptimizationMindHandler_exec_TaskError(id:Nat) =
+sum jid:Nat,cachedJobState:TaskObject.method_var_begin(id,exec_TaskError(jid,cachedJobState)).
+  method_call_begin(id,commitChanges(cachedJobState)).
+  sum reply:Reply.method_call_end(id,commitChanges'(reply)).
+  %     jobState = JobState( jid )     <----- SEE HOW TO MODEL THIS, MISSING, instead jobState, cachedJobState is passed below
+%     result = jobState.getStatus()  ^-----UPDATE: this is quite ok, except maybe for performance analysis, how many are created?
+  method_call_begin(id,setStatus1(cachedJobState,statusBundle(Failed,FailedMinor))).
+  sum reply:Reply.method_call_end(id,setStatus1'(reply)).
+  method_var_end(id,exec_TaskError'(reply))
+;
+
+%-----------DONE server---
+proc JobState_setStatus1(id:Nat) =
+  sum jobState:TaskObject,fullStatus:FullStatus.method_var_begin(id, setStatus1(jobState,fullStatus)). 
+  method_call_begin(id, db_setStatus(taskID(jobState),fullStatus)).
+  method_call_end(id,db_setStatus').
+  method_var_end(id,setStatus1'(OK)) 
+;
+
+
+%-----------DONE server---
+proc CachedJobState_commitChanges(id:Nat) =
+  sum cachedJobState:TaskObject.method_var_begin(id,commitChanges(cachedJobState)).
+  % self.__jobState.commitCache( self.__initState, changes, self.__jobLog )
+  method_call_begin(id,commitCache(cachedJobState, statusBundle(Checking,JobSanity),[statusBundle(Checking,JobScheduling)])).  % jobState should be passed, not cachedJobState! revise;  initialState fixed, trace fixed 
+  sum reply:Reply,newState:FullStatus.method_call_end(id,commitCache'(reply,newState)).
+  (reply!=OK) ->
+    method_call_begin(id,cleanState(cachedJobState,false)).
+    method_call_end(id,cleanState').
+    method_var_end(id,commitChanges'(reply)) 
+    <>
+    % if self.__manifest and self.__manifest.isDirty(): <---  model nondeterministic choice?
+    (
+      method_call_begin(id,setManifest(cachedJobState)). 
+      sum reply1:Reply.method_call_end(id,setManifest'(reply1)).
+      (reply1!=OK) ->
+	method_call_begin(id,cleanState(cachedJobState,false)).
+	method_call_end(id,cleanState'). 
+	method_call_begin(id,rescheduleJob(cachedJobState)).  % jobState should be passed!!!
+	sum reply2:Reply.method_call_end(id,rescheduleJob'(reply2)).
+	method_var_end(id,commitChanges'(reply1)) <> internal
+      +
+      internal
+    ).
+    
+    method_var_end(id,commitChanges'(OK))
+;
+
+%-----------DONE server---
+proc JobState_setManifest(id:Nat) =
+ sum jobState:TaskObject.method_var_begin(id,setManifest(jobState)).
+ (method_var_end(id,setManifest'(OK)) + method_var_end(id,setManifest'(ERROR)))
+;
+
+%-----------DONE server---
+proc JobState_rescheduleJob(id:Nat) =
+ sum jobState:TaskObject.method_var_begin(id,rescheduleJob(jobState)).
+  method_call_begin(id,db_rescheduleJob(taskID(jobState))).
+  sum reply:Reply.method_call_end(id, db_rescheduleJob'(reply)).
+  method_var_end(id,rescheduleJob'(reply))
+;
+
+
+%-----------DONE server---
+proc JobState_commitCache(id:Nat) =
+  sum cachedJobState:TaskObject,initState:FullStatus,trace:List(FullStatus).method_var_begin(id,commitCache(cachedJobState,initState,trace)).
+  method_call_begin(id,db_getJobAttributes(taskID(cachedJobState))).
+  sum reply:Reply, currentStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply,currentStatus)).
+  ((reply!=OK) || (initState!=currentStatus)) -> method_var_end(id,commitCache'(reply,currentStatus))
+    <>
+  (
+      method_call_begin(id,db_setJobAttributes(22, trace.0)).  % fixed trace element pos=0 for update, change it!!
+      sum reply1:Reply.method_call_end(id,db_setJobAttributes'(reply1)).
+      (reply!=OK) -> method_var_end(id,commitCache'(reply1,currentStatus)) <>
+	method_call_begin(id,db_getJobAttributes(22)).
+	sum reply2:Reply,newInitStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply2,newInitStatus)).
+	method_var_end(id,commitCache'(reply2,newInitStatus))
+  )
+;
+
+%-----------DONE server---
+proc CachedJobState_cleanState(id:Nat) = 
+    sum jobState:TaskObject, skipInitState:Bool.method_var_begin(id,cleanState(jobState,skipInitState)).
+    ((!skipInitState) -> 
+      method_call_begin(id,db_getJobAttributes(taskID(jobState))). % jid fixed = 22, should be deduced from CachedJobState?
+      sum reply:Reply,newInitStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply,newInitStatus))
+      <> internal)
+      .method_var_end(id,cleanState')
+      % !! __initState should be updated after this: self.__initState = result[ 'Value' ]
+;
+%-----------DONE server---
+proc MindCallbacks_cbDispatch(id:Nat) = 
+  sum taskid:Nat,taskObj:TaskObject, executedPath:List(eType).method_var_begin(id, cbDispatch(taskid,taskObj,executedPath)).
+  method_call_begin(id, exec_dispatch(taskid,taskObj,executedPath)).
+  sum reply:Reply,nextExecutor:eType.method_call_end(id,exec_dispatch'(reply,nextExecutor)).
+  method_var_end(id, cbDispatch'(reply,nextExecutor))
+;
+
+%----------- server---
+proc OptimizationMindHandler_exec_dispatch(id:Nat) = 
+  sum jid:Nat,jobState:TaskObject,pathExecuted:List(eType).method_var_begin(id, exec_dispatch(jid,jobState,pathExecuted)).
+  method_call_begin(id,getStatus(jobState,jid)).
+  sum reply:Reply,fullStatus:FullStatus.method_call_end(id, getStatus'(reply,fullStatus)).
+  (reply!=OK) -> method_var_end(id,exec_dispatch'(reply,None)) 
+    <>
+    (
+      (!(status(fullStatus) in [Received,Checking])) -> method_var_end(id,exec_dispatch'(OK,None))
+      <>
+      (
+	(status(fullStatus)==Received) -> method_var_end(id,exec_dispatch'(OK,JobPath)) 
+	 <>
+	(
+	     method_call_begin(id,getOptParameter(jobState)).
+	     sum reply1:Reply,opPath:List(eType).method_call_end(id,getOptParameter'(reply1,opPath)).
+	     (reply1!=OK) ->
+	      method_call_begin(id,resetJob(jobState)).
+	      sum reply2:Reply.method_call_end(id,resetJob'(reply2)).
+	      (reply2!=OK) -> method_var_end(id,exec_dispatch'(ERROR,None)) <> method_var_end(id,exec_dispatch'(OK,JobPath))
+	      <>
+	      !(minorStatus(fullStatus) in opPath) -> method_var_end(id,exec_dispatch'(ERROR,None)) 
+		  <> method_var_end(id,exec_dispatch'(OK,minorStatus(fullStatus))) 
+	)
+      )
+    )
+;
+
+%-----------DONE server---
+proc CachedJobState_resetJob(id:Nat) = 
+  sum cachedJobState:TaskObject.method_var_begin(id,resetJob(cachedJobState)).
+  method_call_begin(id,resetJob1(cachedJobState)).
+  sum reply:Reply.method_call_end(id,resetJob1'(reply)).
+  method_var_end(id,resetJob'(reply))
+;
+
+%-----------DONE server---
+proc JobState_resetJob(id:Nat) =
+  sum jobState:TaskObject.method_var_begin(id,resetJob1(jobState)).
+  	method_call_begin(id,rescheduleJob(jobState)). 
+	sum reply2:Reply.method_call_end(id,rescheduleJob'(reply2)).
+    method_var_end(id,resetJob1'(reply2))
+;
+
+%-----------DONE server---
+proc CachedJobState_getStatus(id:Nat) =
+  sum jobState:TaskObject,jid:Nat.method_var_begin(id, getStatus(jobState,jid)).
+  method_call_begin(id,getStatus1(jobState,jid)).
+  sum reply:Reply,status:FullStatus.method_call_end(id,getStatus1'(reply,status)).
+  method_var_end(id,getStatus'(reply,status))
+;
+
+%-----------DONE server---
+proc JobState_getStatus(id:Nat) = 
+  sum jobState:TaskObject,jid:Nat.method_var_begin(id,getStatus1(jobState,jid)).
+  method_call_begin(id, db_getJobAttributes(jid)).
+  sum reply:Reply,fullStatus:FullStatus.method_call_end(id,db_getJobAttributes'(reply,fullStatus)).
+  method_var_end(id,getStatus1'(reply,fullStatus))
+;
+
+%-----------DONE server---
+proc ExecutorDispatcher___removeFromFreezer(id:Nat) = 
+  sum taskid:Nat.method_var_begin(id,__removeFromFreezer(taskid)).
+    method_call_begin(id,__taskFreezer_index(taskid)).
+    sum iP:Int.method_call_end(id,__taskFreezer_index'(iP)).
+    (iP==-1) -> method_var_end(id, __removeFromFreezer'(false))
+    <>
+    (
+      method_call_begin(id,__taskFreezer_pop(Int2Nat(iP))).method_call_end(id,__taskFreezer_pop').
+      method_call_begin(id,__tasks_get(taskid)).sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
+      (taskObj==NullObj) -> method_var_begin(id,__removeFromFreezer'(false))
+	<>
+      method_var_end(id,__removeFromFreezer'(true))
+    )
+;
+
+%-----------DONE server---
+proc ExecutorState_getIdleExecutor(id:Nat) =
+  sum etype:eType.method_var_begin(id,getIdleExecutor(etype)).
+    method_call_begin(id,__typeToId_eids(etype)).
+    sum eids:List(Nat).method_call_end(id,__typeToId_eids'(eids)).
+    loop_getIdleExecutor(id,eids)
+;
+
+proc loop_getIdleExecutor(id:Nat,eids:List(Nat)) =
+  (eids!=[]) ->
+      method_call_begin(id,freeSlots(head(eids))).
+      sum fs:Nat.method_call_end(id,freeSlots'(fs)).
+      (fs>0) -> method_var_end(id,getIdleExecutor'(head(eids))) <> loop_getIdleExecutor(id,tail(eids))
+      <>
+      method_var_end(id,getIdleExecutor'(0)) % None!
+;
+
+%-----------DONE server---
+proc loop_fillExecutors(id:Nat,eId:Nat,etype:eType) = 
+    (eId>0) ->
+       method_call_begin(id,__sendTaskToExecutor(eId,[etype],false)).
+       method_call_end(id,__sendTaskToExecutor').
+       method_call_begin(id,getIdleExecutor(etype)).
+       sum eId:Nat.method_call_end(id,getIdleExecutor'(eId))
+      .loop_fillExecutors(id,eId,etype)
+	<> internal;
+
+
+%-----------DONE server---
+proc OptimizationMindHandler_msg_OptimizeJobs(id:Nat) = 
+  sum jids:List(Nat).DISET_call_receive(id,msg1(OptimizeJobs,jids)). 
+  loop_msg_OptimizeJobs(id,jids)
+;
+
+%-----------DONE server---
+proc loop_msg_OptimizeJobs(id:Nat,jids:List(Nat)) =
+  (jids!=[]) ->
+    method_call_begin(id,forgetTask(head(jids))).
+    method_call_end(id,forgetTask').
+    % !! FIX: instance of CachedJobState should be passed. Here it's Bool; CachedJobState( jid ). plus in constructor there is "cleanState"; cachedJobState=true
+    method_call_begin(id,cleanState(taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor)),false)).
+    method_call_end(id,cleanState'). 
+    method_call_begin(id,executeTask(head(jids),taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor)))).
+    sum reply:Reply.method_call_end(id,executeTask'(reply))
+    
+    .loop_msg_OptimizeJobs(id,tail(jids))
+
+  <> 
+  internal
+;
+
+%-----------DONE server---
+proc OptimizationMindHandler_msg_TaskDone(id:Nat) =
+  sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskDone,eId, taskObj)). 
+  method_call_begin(id,exec_deserializeTask(taskObj)).
+  sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).   
+  (reply!=OK) -> internal <>
+    (
+      method_call_begin(id,taskProcessed(eId,taskID(taskObj1),taskObj1)). 
+      sum reply1:Reply.method_call_end(id,taskProcessed'(reply1))
+    )
+;
+
+%-----------DONE server---
+proc OptimizationMindHandler_msg_TaskError(id:Nat) =
+  sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskError,eId, taskObj)).
+  method_call_begin(id,exec_deserializeTask(taskObj)).
+  sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).
+  (reply!=OK) -> internal <>
+    (
+      method_call_begin(id,removeTaskDispatcher(taskID(taskObj1))).method_call_end(id,removeTaskDispatcher').
+      method_call_begin(id,exec_TaskError(taskID(taskObj1),taskObj1)). %msgObj vs taskObj
+      sum reply:Reply.method_call_end(id,exec_TaskError'(reply))
+    )
+;
+
+
+%-----------DONE server---
+proc OptimizationMindHandler_msg_TaskFreeze(id:Nat) =
+  sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskFreeze,eId, taskObj)).
+  method_call_begin(id,exec_deserializeTask(taskObj)).
+  sum reply:Reply,taskObj1:TaskObject.method_call_end(id,exec_deserializeTask'(reply,taskObj1)).
+  (reply!=OK) -> internal <>
+    (
+      method_call_begin(id,freezeTask(eId,taskID(taskObj1),taskObj1)).
+      sum reply1:Reply.method_call_end(id,freezeTask'(reply1))
+     )
+;
+
+
+%-----------DONE server---
+proc OptimizationMindHandler_msg_ExecutorError(id:Nat) =
+  sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(ExecutorError,eId, taskObj)).
+    method_call_begin(id,removeExecutor(eId)).
+    method_call_end(id,removeExecutor')
+;
+
+
+proc ExecutorDispatcher_freezeTask(id:Nat) = 
+  sum eid:Nat,taskid:Nat,taskObj:TaskObject.method_var_begin(id,freezeTask(eid,taskid,taskObj)).
+    method_call_begin(id,__taskReceived(taskid,eid)).
+    sum reply:Reply,eType:eType.method_call_end(id,__taskReceived'(reply,eType)).
+    (reply!=OK) -> method_var_end(id,freezeTask'(reply))
+    <>
+    (
+      (eType==None) ->  
+	method_call_begin(id,__sendTaskToExecutor(eid,[],false)).
+	method_call_end(id,__sendTaskToExecutor').
+	method_var_end(id,freezeTask'(OK))
+      <>
+      (
+	method_call_begin(id,cbTaskFreeze(taskid,taskObj,eType)).
+	sum reply1:Reply.method_call_end(id,cbTaskFreeze'(reply1)).
+	(reply1!=OK) -> 
+	  method_call_begin(id,__sendTaskToExecutor(eid,[],false)).
+	  method_call_end(id,__sendTaskToExecutor').
+	  method_var_end(id,freezeTask'(reply1))
+	  <>
+	  method_call_begin(id,__freezeTask(taskid,eType)).
+	  sum result:Bool.method_call_end(id,__freezeTask'(result)).
+	  method_call_begin(id,__sendTaskToExecutor(eid,[eType],false)).
+	  method_call_end(id,__sendTaskToExecutor').
+	  method_var_end(id,freezeTask'(OK))
+      )
+    )
+;
+
+%-----------DONE server---
+proc MindCallbacks_cbTaskFreeze(id:Nat) = 
+  sum taskid:Nat,taskObj:TaskObject,etype:eType.method_var_begin(id,cbTaskFreeze(taskid,taskObj,etype)).
+  method_call_begin(id,exec_taskFreeze(taskid,taskObj,etype)).
+  sum reply:Reply.method_call_end(id,exec_taskFreeze'(reply)).
+  method_var_end(id,cbTaskFreeze'(reply))
+;
+
+%-----------DONE server---
+proc OptimizationMindHandler_exec_taskFreeze(id:Nat) =
+  sum jid:Nat,jobState:TaskObject,eType:eType.method_var_begin(id,exec_taskFreeze(jid,jobState,eType)).
+  method_call_begin(id,commitChanges(jobState)).
+  sum reply:Reply.method_call_end(id,commitChanges'(reply)).
+  method_var_end(id,exec_taskFreeze'(reply))
+;
+
+%-----------DONE server---
+proc OptimizationMindHandler_deserializeTask(id:Nat) = 
+  sum taskStub:TaskObject.method_var_begin(id,exec_deserializeTask(taskStub)).
+  method_call_begin(id,deserialize(taskStub)).
+  sum reply:Reply,taskObj:TaskObject.method_call_end(id,deserialize'(reply,taskObj)).
+  method_var_end(id,exec_deserializeTask'(reply,taskObj))
+;
+
+%-----------DONE server---
+proc ExecutorDispatcher_taskProcessed(id:Nat) = 
+  sum eId:Nat,taskId:Nat,taskObj:TaskObject.method_var_begin(id,taskProcessed(eId,taskId,taskObj)).
+    method_call_begin(id,__taskReceived(taskId,eId)).
+    sum reply:Reply,eType:eType.method_call_end(id,__taskReceived'(reply,eType)).
+    (reply!=OK) -> method_var_end(id,taskProcessed'(reply)) 
+    <>
+    (
+      (eType==None) -> 
+	  ( method_call_begin(id,__sendTaskToExecutor(eId,[],false)).
+	    method_call_end(id,__sendTaskToExecutor').
+	    method_var_end(id,taskProcessed'(OK))  )
+	    <>
+	    (
+	      method_call_begin(id,cbTaskProcessed(taskId,taskObj,eType)).
+	      sum reply1:Reply.method_call_end(id,cbTaskProcessed'(reply1)).
+	      (reply1!=OK) -> method_call_begin(id,__sendTaskToExecutor(eId,[],false)).method_call_end(id,__sendTaskToExecutor').
+			      method_call_begin(id,removeTaskDispatcher(taskId)).method_call_end(id,removeTaskDispatcher').method_var_end(id,taskProcessed'(reply1))
+			      <>
+			      (
+				method_call_begin(id,__dispatchTask(taskId,true)).
+				sum reply2:Reply.method_call_end(id,__dispatchTask'(reply2)).
+				method_call_begin(id,__sendTaskToExecutor(eId,[eType],false)).
+				method_call_end(id,__sendTaskToExecutor').
+				method_var_end(id,taskProcessed'(reply2))
+			      )
+	    )
+    )
+;
+
+%-----------DONE server---
+proc MindCallbacks_cbTaskProcessed(id:Nat) = 
+  sum taskid:Nat,taskObj:TaskObject,etype:eType.method_var_begin(id,cbTaskProcessed(taskid,taskObj,etype)).
+  method_call_begin(id,exec_taskProcessed(taskid,taskObj,etype)).
+  sum reply:Reply.method_call_end(id,exec_taskProcessed'(reply)).
+  method_var_end(id,cbTaskProcessed'(reply))
+;
+
+%-----------DONE server---
+proc OptimizationMindHandler_exec_taskProcessed(id:Nat) =
+  sum jid:Nat,jobState:TaskObject,eType:eType.method_var_begin(id,exec_taskProcessed(jid,jobState,eType)).
+  method_call_begin(id,commitChanges(jobState)).
+  sum reply:Reply.method_call_end(id,commitChanges'(reply)).
+  method_var_end(id,exec_taskProcessed'(reply))
+;
+
+
+%-----------DONE server---
+proc ExecutorDispatcher___taskReceived(id:Nat) =
+  sum taskid:Nat,eid:Nat.method_var_begin(id,__taskReceived(taskid,eid)).
+    method_call_begin(id,__tasks_get(taskid)).
+    sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
+    (taskObj==NullObj) -> method_var_end(id,__taskReceived'(ERROR,None))
+    <>
+    (
+        method_call_begin(id,removeTask(taskid,eid)).
+	sum result:Bool.method_call_end(id,removeTask'(result)).
+        (!result) -> method_var_end(id,__taskReceived'(OK,None)) <>
+	(
+	  method_call_begin(id,__idMap_get(eid)).
+	  sum etypes:List(eType).method_call_end(id,__idMap_get'(etypes)).
+	  !(eType(taskObj) in etypes) ->
+	        method_call_begin(id,removeExecutor(eid)).
+		method_call_end(id,removeExecutor').
+		method_call_begin(id,__dispatchTask(taskid,true)).
+		sum reply:Reply.method_call_end(id,__dispatchTask'(reply)).
+		method_var_end(id,__taskReceived'(ERROR,None))
+		<>
+		 method_var_end(id,__taskReceived'(OK,eType(taskObj)))
+	)
+    )
+;
+
+%-----------DONE server---
+proc ExecutorDispatcher_removeExecutor(id:Nat) =
+  sum eid:Nat.method_var_begin(id,removeExecutor(eid)).
+    method_call_begin(id,__idMap_keys).
+    sum eids:List(Nat).method_call_end(id,__idMap_keys'(eids)).
+    !(eid in eids) -> method_var_end(id,removeExecutor')
+      <>
+      (
+	method_call_begin(id,__idMap_pop(eid)).
+	sum eTypes:List(eType).method_call_end(id,__idMap_pop'(eTypes)).
+	loop_removeExecutor4(id,eTypes).
+	method_call_begin(id,removeExecutorStates(eid)).
+	sum tasksInExec:List(Nat).method_call_end(id,removeExecutorStates'(tasksInExec)).
+	loop_removeExecutor(id,tasksInExec).
+	method_call_begin(id,cbDisconectExecutor(eid)).
+	method_call_end(id,cbDisconectExecutor').
+	loop_removeExecutor1(id,eTypes).
+	method_var_end(id,removeExecutor')
+      )
+
+;
+
+%-----------DONE server---
+proc loop_removeExecutor(id:Nat,tasksInExec:List(Nat)) =
+  (tasksInExec!=[]) ->
+    ( 
+	method_call_begin(id,__tasks_get(head(tasksInExec))).
+	sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
+	(taskObj!=NullObj && eType(taskObj)!=None) ->
+	  method_call_begin(id, pushTask(eType(taskObj),head(tasksInExec),true)). 
+	  method_call_end(id, pushTask')
+	 <>
+	method_call_begin(id,__dispatchTask(head(tasksInExec),true)).
+	sum reply:Reply.method_call_end(id,__dispatchTask'(reply))
+    ).loop_removeExecutor(id,tail(tasksInExec))
+  <> internal
+;
+
+proc loop_removeExecutor1(id:Nat,eTypes:List(eType)) =
+  (eTypes!=[]) ->
+   method_call_begin(id,__fillExecutors(head(eTypes),true)).
+   method_call_end(id,__fillExecutors')
+   .loop_removeExecutor1(id,tail(eTypes))
+  <> internal
+;
+
+proc loop_removeExecutor4(id:Nat,eTypes:List(eType)) =
+  (eTypes!=[]) ->
+    method_call_begin(id,__execTypes_dec(head(eTypes))).method_call_end(id,__execTypes_dec').
+    loop_removeExecutor4(id,tail(eTypes))
+  <> internal
+;
+
+%-----------DONE server---
+proc MindCallbacks_cbDisconectExecutor(id:Nat) =
+  sum trid:Nat.method_var_begin(id,cbDisconectExecutor(trid)).
+  method_call_begin(id,exec_executorDisconnected(trid)).
+  method_call_end(id,exec_executorDisconnected')
+;
+
+%-----------DONE server---
+proc OptimizationMindHandler_exec_executorDisconnected(id:Nat) =
+  sum trid:Nat.method_var_begin(id,exec_executorDisconnected(trid)).
+  %     result = cls.srv_disconnectClient( trid ) <-- low level, refine! <- not much to refine
+  method_var_end(id,exec_executorDisconnected')
+;
+ 
+%-----------DONE server---
+proc ExecutorState_removeExecutor(id:Nat) =
+  sum eid:Nat.method_var_begin(id,removeExecutorStates(eid)).
+    method_call_begin(id,__typeToId_keys).
+    sum etypes:List(eType).method_call_end(id,__typeToId_keys'(etypes)).
+    loop_removeExecutor2(id,etypes,eid).
+    method_call_begin(id,__execTasks_taskids(eid)).
+    sum taskids:List(Nat).method_call_end(id,__execTasks_taskids'(taskids)).
+    loop_removeExecutor3(id,taskids).
+    method_call_begin(id,__execTasks_pop(eid)).method_call_end(id,__execTasks_pop').
+    method_call_begin(id,__maxTasks_pop(eid)).method_call_end(id,__maxTasks_pop').
+  method_var_end(id,removeExecutorStates'(taskids)) 
+;
+
+proc loop_removeExecutor2(id:Nat,etypes:List(eType),eid:Nat) =
+  (etypes!=[]) -> method_call_begin(id,__typeToId_remove(head(etypes),eid)).method_call_end(id,__typeToId_remove').
+		  loop_removeExecutor2(id,tail(etypes),eid)
+		  <>
+		  internal
+;
+
+proc loop_removeExecutor3(id:Nat,taskids:List(Nat)) = 
+  (taskids!=[]) -> method_call_begin(id,__taskInExec_pop(head(taskids))).method_call_end(id,__taskInExec_pop').
+		loop_removeExecutor3(id,tail(taskids))
+		<>
+		internal
+;
+
+
+
+%-----------DONE server---
+proc OptimizationMindHandler_executeTask(id:Nat) = 
+  sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,executeTask(taskid,taskObj)).
+  method_call_begin(id,addTaskDispatcher(taskid,taskObj)).
+  sum reply:Reply.method_call_end(id,addTaskDispatcher'(reply)).
+  method_var_end(id,executeTask'(reply))
+;
+
+
+%-----------DONE server---
+proc ExecutorDispatcher_addTask(id:Nat) = 
+  sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,addTaskDispatcher(taskid,taskObj)).
+  method_call_begin(id,__addTaskIfNew(taskid,taskObj)).
+  sum result:Bool.method_call_end(id,__addTaskIfNew'(result)).
+  (!result) -> 
+      method_call_begin(id,__unfreezeTasks(None)).
+      method_call_end(id,__unfreezeTasks').
+      method_var_end(id,addTaskDispatcher'(OK))
+    <>
+      method_call_begin(id,__dispatchTask(taskid,true)).
+      sum reply:Reply.method_call_end(id,__dispatchTask'(reply)).
+      method_var_end(id,addTaskDispatcher'(reply))
+;
+
+
+proc ExecutorDispatcher___addTaskIfNew(id:Nat) = 
+  sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,__addTaskIfNew(taskid,taskObj)).
+    method_call_begin(id,__tasks_keys).sum taskids:List(Nat).method_call_end(id,__tasks_keys'(taskids)).
+    (taskid in taskids) -> method_var_end(id,__addTaskIfNew'(false))
+    <>
+    (
+      method_call_begin(id,__tasks_add(taskObj)).method_call_end(id,__tasks_add').
+      method_var_end(id,__addTaskIfNew'(true))
+    )
+;
+
+%-----------DONE server---
+proc JobManagerHandler_submitJob(id:Nat) =
+  sum jobIDs:List(Nat).method_var_begin(id,submitJob(jobIDs)).
+  method_call_begin(id,__sendNewJobsToMind(jobIDs)).
+  method_call_end(id,__sendNewJobsToMind').
+  method_var_end(id,submitJob')
+;
+
+
+%-----------DONE server---
+proc JobManagerHandler___sendNewJobsToMind(id:Nat) = % <--- THIS IS WHERE IT STARTS, in init take care...no, in ProcP!
+  sum jobIDs:List(Nat).method_var_begin(id,__sendNewJobsToMind(jobIDs)).
+  DISET_call_send(id,msg1(OptimizeJobs,jobIDs)).
+  method_var_end(id,__sendNewJobsToMind')
+;
+
+%-----------DONE server---
+proc JobManagerHandler_killJob(id:Nat) = % THIS SHOULD CAUSE RACE CONDITIONS
+  sum jobID:Nat.method_var_begin(id,killJob(jobID)).
+  method_call_begin(id,db_setStatus(jobID,statusBundle(Killed,MarkedForTermination))).
+  method_call_end(id,db_setStatus').
+  method_var_end(id,killJob')
+;
+
+
+%-----------DONE server---
+proc JobManager_resetJob(id:Nat) = 
+  sum jobID:Nat.method_var_begin(id,resetJobAPI(jobID)).
+  method_call_begin(id,db_rescheduleJob(jobID)).
+  sum reply:Reply.method_call_end(id,db_rescheduleJob'(reply)).
+  DISET_call_send(id,msg1(OptimizeJobs,[jobID])).
+  method_var_end(id,resetJobAPI')
+;
+
+
+%-----------DONE server---
+proc OptimizationMindHandler_forgetTask(id:Nat) = 
+  sum taskid:Nat.method_var_begin(id,forgetTask(taskid)).
+	method_call_begin(id,removeTaskDispatcher(taskid)).
+	method_call_end(id,removeTaskDispatcher').
+  method_var_end(id,forgetTask')
+;
+
+%-----------DONE server---
+proc OptimizationMindHandler_conn_connected(id:Nat) = 
+  sum trid:Nat,eTypes:List(eType),maxTasks:Nat.method_var_begin(id,conn_connected(trid,eTypes,maxTasks)).
+  method_call_begin(id,addExecutor(trid,eTypes,maxTasks)).
+  method_call_end(id,addExecutor').
+  method_call_begin(id,exec_executorConnected(trid,eTypes)).
+  sum reply:Reply.method_call_end(id,exec_executorConnected'(reply)).
+  method_var_end(id,conn_connected'(reply))
+;
+
+%-----------DONE server---
+proc OptimizationMindHandler_conn_drop(id:Nat) = 
+sum trid:Nat.method_var_begin(id,conn_drop(trid)).
+method_call_begin(id,removeExecutor(trid)).
+method_call_end(id,removeExecutor').
+method_var_end(id,conn_drop')
+;
+
+%-----------DONE client---
+proc ExecutorDispatcher_addExecutor(id:Nat) =
+  sum eid:Nat,eTypes:List(eType),maxTasks:Nat.method_var_begin(id,addExecutor(eid,eTypes,maxTasks)).
+    method_call_begin(id,__idMap_keys).sum eids:List(Nat).method_call_end(id,__idMap_keys'(eids)).
+    (eid in eids) -> method_var_end(id,addExecutor') <>
+    (
+      method_call_begin(id,__idMap_set(eid,eTypes)).method_call_end(id,__idMap_set').
+      method_call_begin(id,addExecutorState(eid,eTypes,maxTasks)).
+      method_call_end(id,addExecutorState').
+      loop_addExecutor(id,eTypes).
+      method_var_end(id,addExecutor')
+    )
+;
+
+%-----------DONE client---
+proc loop_addExecutor(id:Nat,eTypes:List(eType)) =
+  (eTypes!=[]) ->
+   method_call_begin(id,__execTypes_get_eTypes).sum etypes:List(eType).method_call_end(id,__execTypes_get_eTypes'(etypes)).
+   (head(eTypes) in etypes) -> 
+	(
+	  method_call_begin(id,__execTypes_add(head(eTypes))).method_call_end(id,__execTypes_add').
+	  method_call_begin(id,__execTypes_inc(head(eTypes))).method_call_end(id,__execTypes_inc')
+	)
+      <> internal
+   .method_call_begin(id,__fillExecutors(head(eTypes),true)).
+   method_call_end(id,__fillExecutors')
+   .loop_addExecutor(id,tail(eTypes))
+  <> internal
+;
+
+
+%-----------DONE client---
+proc ExecutorState_addExecutor(id:Nat) = 
+  sum eid:Nat,eTypes:List(eType),maxTasks:Nat.method_var_begin(id,addExecutorState(eid,eTypes,maxTasks)). 
+    method_call_begin(id,__maxTasks_add(eid,max(1,maxTasks))).method_call_end(id,__maxTasks_add').
+    method_call_begin(id,__execTasks_keys).
+    sum eids:List(Nat).method_call_end(id,__execTasks_keys'(eids)).
+    !(eid in eids) -> 
+	method_call_begin(id,__execTasks_addeid(eid)).method_call_end(id,__execTasks_addeid') 
+	<> internal
+  .loop_addExecutor1(id,eTypes,eid)
+  .method_var_end(id,addExecutorState')
+;
+
+proc loop_addExecutor1(id:Nat,etypes:List(eType),eid:Nat) = 
+  (etypes!=[]) -> 
+  (
+    method_call_begin(id,__typeToId_keys).sum etypes1:List(eType).method_call_end(id,__typeToId_keys'(etypes1)).
+    !(head(etypes) in etypes1) -> method_call_begin(id,__typeToId_addeType(head(etypes))).method_call_end(id,__typeToId_addeType')
+			      <> internal
+	.method_call_begin(id,__typeToId_addeid(head(etypes),eid)).method_call_end(id,__typeToId_addeid')
+	.loop_addExecutor1(id,tail(etypes),eid)
+  ) <> internal
+;
+
+%-----------DONE server---
+proc OptimizationMindHandler_exec_executorConnected(id:Nat) =
+  sum trid:Nat,eTypes:List(eType).method_var_begin(id,exec_executorConnected(trid,eTypes)).
+  method_call_begin(id,__loadJobs(eTypes)).
+  sum reply:Reply.method_call_end(id,__loadJobs'(reply)).
+  method_var_end(id,exec_executorConnected'(reply))
+;
+
+%-----------DONE server---
+% !! this is also periodic: result = ThreadScheduler.gThreadScheduler.addPeriodicTask( period, cls.__loadJobs )
+proc OptimizationMindHandler___loadJobs(id:Nat) = 
+  sum etypes:List(eType).method_var_begin(id,__loadJobs(etypes)).
+    (etypes==[]) ->
+     ( method_call_begin(id,getExecutorsConnected).
+     sum etypes:List(eType).method_call_end(id,getExecutorsConnected'(etypes)) 
+      % should take into account only those with >0 counter AND ignore jobPath, change!
+      % CHANGED: getExecutorsConnected is only called here, so I changed its implementation to
+      % take the above into account 
+     ) <> internal .
+     (etypes==[]) -> method_var_end(id,__loadJobs'(OK)) 
+      <> 
+      (
+	method_call_begin(id,db_selectJobs(Received,[])).
+	sum jidList:List(Nat).method_call_end(id,db_selectJobs'(jidList)).
+	method_call_begin(id,getTaskIds).	
+	sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
+	loop___loadJobs(id,jidList,knownJids)
+	
+	.method_call_begin(id,db_selectJobs(Checking,etypes)). 
+	sum jidList:List(Nat).method_call_end(id,db_selectJobs'(jidList)).
+	method_call_begin(id,getTaskIds).
+	sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
+	loop___loadJobs(id,jidList,knownJids).
+	method_var_end(id,__loadJobs'(OK))
+      )
+;
+
+proc loop___loadJobs(id:Nat,jidList:List(Nat),knownJids:List(Nat)) =
+  (jidList!=[]) ->
+   (
+     !(head(jidList) in knownJids) -> 
+      (
+	method_call_begin(id,executeTask(head(jidList),taskObj(4,[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(New,NewMinor)))). % cls.executeTask( jid, CachedJobState( jid ) ) <-- CachedJobState = true <- fixed!
+	sum reply:Reply.method_call_end(id,executeTask'(reply))
+    ) <> internal
+  .loop___loadJobs(id,tail(jidList),knownJids)
+  )
+   <> 
+  internal
+;
+
+
+%-----------DONE server---
+proc ExecutorDispatcher_getTaskIds(id:Nat) =
+  method_var_begin(id,getTaskIds).
+    method_call_begin(id,__tasks_keys).
+    sum taskids:List(Nat).method_call_end(id,__tasks_keys'(taskids)).
+  method_var_end(id,getTaskIds'(taskids))
+;
+
+%-----------DONE server---
+proc ExecutorDispatcher_getExecutorsConnected(id:Nat) =
+  method_var_begin(id,getExecutorsConnected).
+    method_call_begin(id,__execTypes_getExecutorsConnected).
+    sum etypes:List(eType).method_call_end(id,__execTypes_getExecutorsConnected'(etypes)).
+  method_var_end(id,getExecutorsConnected'(etypes))
+;
+
+%-----------DONE server---
+proc ExecutorDispatcher___doPeriodicStuff(id:Nat) =
+  method_var_begin(id,__doPeriodicStuff).
+    method_call_begin(id,__unfreezeTasks(None)).
+    method_call_end(id,__unfreezeTasks').
+    method_call_begin(id,__execTypes_get_eTypes).
+    sum etypes:List(eType).method_call_end(id,__execTypes_get_eTypes'(etypes)).
+    loop___doPeriodicStuff(id,etypes).
+  method_var_end(id,__doPeriodicStuff') 
+;
+
+%-----------DONE server---
+proc loop___doPeriodicStuff(id:Nat,etypes:List(eType)) = 
+  (etypes!=[]) -> (
+		  method_call_begin(id,__fillExecutors(head(etypes),true)). method_call_end(id,__fillExecutors').
+		  loop___doPeriodicStuff(id,tail(etypes))
+		  )
+		  <>
+		  internal
+;
+
+
+%-----------DONE server---
+proc dirac_executor(id:Nat) =
+  method_call_begin(id,createExecutorReactor). % FISHY, see below
+  sum instance:Nat.method_call_end(id,createExecutorReactor'(instance)).
+    method_call_begin(id,loadModules(instance,[JobPath,JobSanity,InputData,JobScheduling])). % fixed, change! Actually it's fine?
+    method_call_end(id,loadModules'(instance)).
+    method_call_begin(id,go(instance)).
+    method_call_end(id,go'(instance))
+;
+   
+
+%-----------DONE client---
+proc ExecutorReactor_createExecutorReactor(id:Nat) =  % FISHY
+  method_var_begin(id,createExecutorReactor). 
+  method_var_end(id,createExecutorReactor'(2)) % fixed instance=2, for each new instance it should increase
+;
+
+%-----------DONE client---
+proc ExecutorReactor_loadModules(id:Nat) =
+  sum instance:Nat,modules:List(eType).method_var_begin(id,loadModules(instance,modules)).
+  loop_loadModules(id,instance,modules).
+  method_var_end(id,loadModules'(instance))
+;
+
+proc loop_loadModules(id:Nat,instance:Nat,modules:List(eType)) = 
+  (modules!=[]) -> method_call_begin(id,__executorModules_setClass(head(modules),instance)).
+		    method_call_end(id,__executorModules_setClass')
+		    .loop_loadModules(id,instance,tail(modules))
+  <> internal
+;
+%-----------DONE client---
+proc ExecutorReactor_go(id:Nat) =
+  sum instance:Nat.method_var_begin(id,go(instance)).
+  method_call_begin(id,__executorModules_keys).
+  sum etypes:List(eType).method_call_end(id,__executorModules_keys'(etypes)).
+  loop_go(id,instance,etypes).
+  method_call_begin(id,__minds_keys).
+  sum minds:List(Mind).method_call_end(id,__minds_keys'(minds)).
+  loop_go1(id,instance,minds).
+  method_var_end(id,go'(instance))
+;
+
+%-----------DONE client---
+proc loop_go(id:Nat,instance:Nat,modules:List(eType)) = 
+  (modules!=[]) ->
+   (
+    method_call_begin(id,_ex_initialize(instance,head(modules))).
+    method_call_end(id,_ex_initialize'(instance)).
+    method_call_begin(id,ex_getMind(instance,head(modules))).
+    sum mind:Mind.method_call_end(id,ex_getMind'(instance,mind)).
+    method_call_begin(id,__minds_keys).
+    sum minds:List(Mind).method_call_end(id,__minds_keys'(minds)).
+   % self.__minds[ mind ] = self.MindCluster( mind, self.__aliveLock ) is missing
+    !(mind in minds) -> method_call_begin(id,__minds_set(mind,instance)).
+			method_call_end(id,__minds_set')
+      <> internal
+    .method_call_begin(id,addModule(instance,mind,head(modules))).
+    method_call_end(id,addModule')
+    .loop_go(id,instance,tail(modules))
+    )
+  <> internal
+;
+
+%-----------DONE client---
+proc loop_go1(id:Nat,instance:Nat,minds:List(Mind)) = 
+  (minds!=[]) ->
+  (
+    method_call_begin(id,connect(instance,head(minds))). 
+    method_call_end(id,connect')
+    .loop_go1(id,instance,tail(minds))
+  )
+  <> internal
+;
+
+%-----------DONE client---
+proc MindCluster_addModule(id:Nat) = 
+  sum instance:Nat,mind:Mind,module:eType.method_var_begin(id,addModule(instance,mind,module)).
+    method_call_begin(id,__modules_set(module,instance)).method_call_end(id,__modules_set').
+  method_var_end(id,addModule')
+;
+
+%-----------DONE client---
+proc ModInstance__ex_initialize(id:Nat,nameInstance:eType) = 
+  sum instance:Nat,module:eType.method_var_begin(id,_ex_initialize(instance,module)).
+  method_call_begin(id,initialize(instance,module)).
+  method_call_end(id,initialize').
+  method_var_end(id,_ex_initialize'(instance))
+;
+
+%-----------DONE client---
+proc ModInstance_initialize(id:Nat,nameInstance:eType) = 
+  sum instance:Nat,module:eType.method_var_begin(id,initialize(instance,module)).
+  method_call_begin(id,setMind(instance,module,OptimizationMind)).
+  method_call_end(id,setMind').
+  method_var_end(id,initialize')
+;
+
+%-----------DONE client---
+proc ModInstance_setMind(id:Nat,nameInstance:eType) = 
+  sum instance:Nat,module:eType,mind:Mind.method_var_begin(id,setMind(instance,module,mind)).   % refine, low level
+  method_var_end(id,setMind')
+;
+
+  
+%-----------DONE client---
+proc ModInstance_ex_getMind(id:Nat,nameInstance:eType) =
+    sum instance:Nat,module:eType.method_var_begin(id,ex_getMind(instance,module)). 
+    method_var_end(id,ex_getMind'(instance,OptimizationMind)) % fixed for now, refine!
+;
+
+%-----------DONE client---
+proc MindCluster_connect(id:Nat) = 
+% should this be asynchronous??
+      % connect( executorTypes = list( self.__modules.keys() ), maxTasks = self.__maxTasks, extraArgs = self.__extraArgs )
+% argument mind is not used? but implicitely it is, instance+mind name = unique reference
+    sum instance:Nat,mind:Mind.method_var_begin(id,connect(instance,mind)). 
+    method_call_begin(id,__modules_keys).
+    sum executorTypes:List(eType).method_call_end(id,__modules_keys'(executorTypes)).
+    method_call_begin(id,conn_connected(instance,executorTypes ,1)). % fixed maxtasks=1
+    sum reply:Reply.method_call_end(id,conn_connected'(reply)).
+    method_var_end(id,connect')
+;
+
+%-----------
+proc methodsP(id:Nat) = ExecutorDispatcher_removeTask(id) ||  %fixed taskId=2
+		  ExecutorState_getExecutorOfTask(id) ||
+				  ExecutorQueues_deleteTask(id) ||
+				ExecutorState_removeTask(id) ||
+				ExecutorDispatcher___sendTaskToExecutor(id) ||
+				 ExecutorState_freeSlots(id) ||
+				ExecutorQueues_popTask(id) ||
+			      ExecutorState_addTask(id) ||
+			      ExecutorDispatcher___msgTaskToExecutor(id) ||
+			    ExecutorQueues_pushTask(id) ||
+			  MindCallbacks_cbSendTask(id) ||
+		      OptimizationMindHandler___sendTask(id) ||
+		    OptimizationMindHandler_exec_prepareToSend(id) ||
+		      OptimizationMindHandler_exec_serializeTask(id) ||
+		    CachedJobState_recheckValidity(id) ||
+		  CachedJobState_serialize(id) ||
+		MindCluster___processTask(id) ||
+		MindCluster___moduleProcess(id) ||
+		MindCluster___getInstance(id) ||
+		MindCluster___storeInstance(id) ||
+		ModInstance__ex_processTask(id,JobSanity) ||
+		ModInstance___deserialize(id,JobSanity) ||
+		CachedJobState_deserialize(id) ||
+		ModInstance_processTask(id,JobSanity) ||
+		CachedJobState_getManifest(id) ||
+		ModInstance_optimizeJob(id,JobSanity) ||
+		CachedJobState_getInputData(id) ||
+		ModInstance___setOptimizerChain(id,JobSanity) ||
+		CachedJobState_setOptParameter(id) ||
+		CachedJobState_getOptParameter(id) ||
+% 		CachedJobState_setParameter(id) ||  
+		CachedJobState_setStatus(id) ||
+		ExecutorDispatcher___fillExecutors(id) ||
+		ExecutorState_getIdleExecutor(id) ||
+		ExecutorDispatcher___unfreezeTasks(id) ||
+		ExecutorDispatcher___dispatchTask(id) ||
+		ExecutorDispatcher___removeFromFreezer(id) ||
+		ExecutorDispatcher___getNextExecutor(id) ||
+		ExecutorDispatcher_getTask(id) ||
+		ExecutorDispatcher___freezeTask(id) ||
+		MindCallbacks_cbTaskError(id) ||
+		OptimizationMindHandler_exec_TaskError(id) ||
+		JobState_setStatus1(id) ||
+		CachedJobState_commitChanges(id) ||
+		JobState_commitCache(id) ||
+		MindCallbacks_cbDispatch(id) ||
+		JobState_setManifest(id) ||
+		CachedJobState_cleanState(id) ||
+		JobState_rescheduleJob(id) ||
+% 		JobDB_db_rescheduleJob(id) ||
+		OptimizationMindHandler_exec_dispatch(id) ||
+		CachedJobState_resetJob(id) ||
+		OptimizationMindHandler_msg_OptimizeJobs(id) ||
+		ExecutorDispatcher_addTask(id) ||
+		ExecutorDispatcher___addTaskIfNew(id) ||
+		OptimizationMindHandler_forgetTask(id) ||
+		JobManagerHandler_submitJob(id) ||
+		JobManagerHandler___sendNewJobsToMind(id) ||
+		JobManagerHandler_killJob(id) ||
+		OptimizationMindHandler_msg_TaskDone(id) ||
+		OptimizationMindHandler_deserializeTask(id) ||
+		ExecutorDispatcher_taskProcessed(id) ||
+		ExecutorDispatcher___doPeriodicStuff(id) ||
+		ExecutorDispatcher_getExecutorsConnected(id) ||
+		ExecutorDispatcher_getTaskIds(id) ||
+% 		JobDB_db_selectJobs(id) ||
+		OptimizationMindHandler___loadJobs(id) ||
+		OptimizationMindHandler_exec_executorConnected(id) ||
+		ExecutorState_addExecutor(id) ||
+		ExecutorDispatcher_addExecutor(id) ||
+		OptimizationMindHandler_conn_drop(id) ||
+		OptimizationMindHandler_conn_connected(id) ||
+		JobManager_resetJob(id) ||
+% 		JobDB_db_setJobStatus(id) ||
+		MindCluster_connect(id) ||
+		ModInstance_ex_getMind(id,JobSanity) ||
+		ModInstance_setMind(id,JobSanity) ||
+		ModInstance_initialize(id,JobSanity) ||
+		ModInstance__ex_initialize(id,JobSanity) ||
+		MindCluster_addModule(id) ||
+		ExecutorReactor_go(id) ||
+		ExecutorReactor_loadModules(id) ||
+		JobState_getAttributes(id);
+
+proc P(id:Nat) = 
+    method_call_begin(id,removeTaskDispatcher(2)) % taskid=2 fixed
+   .method_call_end(id,removeTaskDispatcher')
+;
+
+proc All(id:Nat) = P(id) || methodsP(id);
+
+init hide ({internal},
+ allow({internal,method_begin,method_end, DISET_call
+% ,method_begin|method_begin,method_begin|method_end,method_end|method_end
+% ,method_begin|method_begin,method_begin|method_end
+%,method_end|method_end
+%     block({method_call_begin,method_call_end,method_var_begin,method_var_end,DISET_call_send,DISET_call_receive
+%  block({method_var_begin,method_var_end,method_call_begin,method_call_end,DISET_call_receive,DISET_call_send
 },
 comm({
-getData_var|getData_call->
-getData
+method_call_begin|method_var_begin->
+method_begin,
+method_call_end|method_var_end->
+method_end,
+DISET_call_send|DISET_call_receive->
+DISET_call
 }, 
-P1 || P2 || P3 || P4 || P5 || P6
-));
+% 				P(1) || ProcP(1)
+				All(1)
+)));
 
 
-
-%I see no theoretical objections to your modelling approach (it's a nice approach), but the drawback is that indeed, processes cannot pass on their 'return' values. It kind of depends on the granularity of the methods, but if that is, say 1, I could imagine that if you know the type of returns, you could solve it as follows:
-
-% proc P1(r:Results) = sum r':Results. method1(r').method2(r')
-% 
-% Clearly, this fails if method1 contains more than 1 action sequentially, but if it is just a single action, it works (to illustrate why it would fail: it's the lion-princess thingy all over agian... sum b:Bool. action1. action2(b) .method2(b) determines the value b before action2 actually fixes it, creating potential deadlocks after action1).

@@ -14,7 +14,35 @@ import org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl;
 import org.eclipse.uml2.uml.internal.impl.ModelImpl;
 import  org.eclipse.uml2.uml.*;
 import org.eclipse.emf.ecore.impl.*;
-class Test {
+
+class Process {
+  String id;
+  String className;
+  String objInstanceName;
+  String methodName;
+  String[] methodArguments;
+  String[] argumentTypes;
+  String methodName_return;
+  String[] methodName_returnArguments;
+  String[] methodName_returnTypes;
+  
+  public void setId(String id){ this.id = id; }
+  public void setClassName(String className){this.className = className;}
+  public void setObjInstanceName(String objInstanceName){this.objInstanceName = objInstanceName;}
+  public void setMethodName(String methodName) { this.methodName = methodName; }  
+  public String getId() { return this.id;}
+  public String getClassName() { return className;}
+  public String getObjInstanceName() { return objInstanceName;}
+  public String getMethodName() { return methodName; }
+  public String[] getMethodArguments() { return methodArguments; }
+  public String[] getArgumentTypes() { return argumentTypes; }
+  public String getMethodName_return() { return methodName_return; }
+  public String[] getMethodName_returnArguments() { return methodName_returnArguments; }
+  public String[] getMethodName_returnTypes() { return methodName_returnTypes; }
+}
+
+
+public class Test {
   public static void main(String args[]) throws Exception{
   
       EPackage.Registry.INSTANCE.put(UMLPackage.eNS_URI, UMLPackage.eINSTANCE);
@@ -25,8 +53,8 @@ class Test {
       resourceSet.getPackageRegistry().put("http://schema.omg.org/spec/UML/2.1", UMLPackage.eINSTANCE);
 
       Resource resource = null;
-	File f = new File("ExportedProject.uml"); 
-
+// 	File f = new File("ExportedProject.uml"); 
+	File f = new File("/home/daniela/sw/IBM/git/UML-MARTE/OKThanksBye/ExportedtSmall1.uml"); 
 
       URI uri = URI.createFileURI(f.getAbsolutePath());
       resource = resourceSet.getResource(uri, true);
@@ -39,7 +67,7 @@ class Test {
       
       while(model_iterator.hasNext()){
 	Model model1 = (Model)model_iterator.next();
-	  if (model1.getName().equals("TestProject")){
+	  if (model1.getName().equals("SmallProject")){
 	    java.util.Collection<org.eclipse.uml2.uml.internal.impl.PackageImpl> packages =  EcoreUtil.getObjectsByType(model1.eContents(), UMLPackage.Literals.PACKAGE);
 	    System.out.println("e aj:"+packages);
 	    //iterate through packages
@@ -107,7 +135,7 @@ class Test {
 			      org.eclipse.uml2.uml.InteractionFragment fragment = (org.eclipse.uml2.uml.InteractionFragment)fragments_iterator.next();
 			      System.out.println("INTERACTION FRAGMENT========");
 // 			      System.out.println("name:"+fragment.getName());
-			       org.eclipse.emf.common.util.EList<Lifeline> covereds =  fragment.getCovereds();
+			       org.eclipse.emf.common.util.EList<Lifeline> covereds =  fragment.getCovereds();			      
 			       Iterator covereds_iterator = covereds.iterator();
 			       while(covereds_iterator.hasNext()){
 				  org.eclipse.uml2.uml.Lifeline lifeline1 = (org.eclipse.uml2.uml.Lifeline)covereds_iterator.next();

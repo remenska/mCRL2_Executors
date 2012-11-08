@@ -1,5 +1,4 @@
 client:
-
 MindCluster___processTask(id) ||
 MindCluster___moduleProcess(id) ||
 MindCluster___getInstance(id) ||

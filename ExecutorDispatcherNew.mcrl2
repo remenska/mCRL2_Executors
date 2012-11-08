@@ -1958,11 +1958,11 @@ proc loop___doPeriodicStuff(id:Nat,etypes:List(eType)) =
 proc methodsP(id:Nat) = 
     		ExecutorState_mem(id,[],[],[],[]) ||
 		ExecutorQueues_mem(id,[],[]) ||
-% 		ExecutorDispatcher_mem(id,[],[],[],[]) ||
-		ExecutorDispatcher_mem(id,[],
-		[__tasks1(333,taskObj(333,[JobPath,JobSanity],JobPath,statusBundle(Received,JobAccepted))),
-		__tasks1(444,taskObj(444,[JobPath,JobSanity],JobPath,statusBundle(Received,JobAccepted)))]
-		,[333,444],[]) ||
+		ExecutorDispatcher_mem(id,[],[],[],[]) ||
+% 		ExecutorDispatcher_mem(id,[],
+% 		[__tasks1(333,taskObj(333,[JobPath,JobSanity],JobPath,statusBundle(Received,JobAccepted))),
+% 		__tasks1(444,taskObj(444,[JobPath,JobSanity],JobPath,statusBundle(Received,JobAccepted)))]
+% 		,[333,444],[]) ||
 
 		ExecutorDispatcher_removeTask(id) || 
 		ExecutorState_getExecutorOfTask(id) ||

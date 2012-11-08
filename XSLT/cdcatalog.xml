@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="cdcatalog.xsl"?>
+<catalog>
+  <cd>
+    <title>Empire Burlesque</title>
+    <artist>Bob Dylan</artist>
+    <country>USA</country>
+    <company>Columbia</company>
+    <price>10.90</price>
+    <year>1985</year>
+  </cd>
+.  <cd>
+    <title>Empire asdasfdf</title>
+    <artist>Bob Dysdsdfsdlan</artist>
+    <country>asdasd</country>
+    <company>afasdasd</company>
+    <price>234.90</price>
+    <year>3254543</year>
+  </cd>
+.
+.
+</catalog>

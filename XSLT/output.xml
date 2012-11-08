@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+packagedElement = uml:Collaboration, type = uml:Collaboration
+=================
+  ownedBehavior = Interaction1, type = uml:Interaction
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:ExecutionOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    message = uml:Message  name= message0
+    message = uml:Message  name= message0
+    message = uml:Message  name= message1
+    message = uml:Message  name= message1
+    message = uml:Message  name= DISETcall
+    message = uml:Message  name= needSomething
+    message = uml:Message  name= needSomething
+    message = uml:Message  name= message2
+    message = uml:Message  name= message2
+    message = uml:Message  name= message3
+    message = uml:Message  name= message3
+    message = uml:Message  name= aman
+    message = uml:Message  name= aman
+    message = uml:Message  name= innerOp
+    message = uml:Message  name= innerOp
+    message = uml:Message  name= complicateThings
+    message = uml:Message  name= complicateThings
+    lifeline = uml:Lifeline  name= objA
+    lifeline = uml:Lifeline  name= objB
+    lifeline = uml:Lifeline  name= objC
+    lifeline = uml:Lifeline  name= classD
+=================
+
+=================
+  ownedBehavior = Interaction2, type = uml:Interaction
+    fragment = uml:ExecutionOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:InteractionUse
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:CombinedFragment
+	operand = uml:InteractionOperand
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+	operand = uml:InteractionOperand
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:CombinedFragment
+	operand = uml:InteractionOperand
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:BehaviorExecutionSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:MessageOccurrenceSpecification
+    fragment = uml:ExecutionOccurrenceSpecification
+    message = uml:Message  name= message1
+    message = uml:Message  name= message1
+    message = uml:Message  name= complicateThings
+    message = uml:Message  name= complicateThings
+    message = uml:Message  name= getMeIntValue
+    message = uml:Message  name= getMeIntValue
+    message = uml:Message  name= message0
+    message = uml:Message  name= message0
+    lifeline = uml:Lifeline  name= objC
+    lifeline = uml:Lifeline  name= objA
+    lifeline = uml:Lifeline  name= objB
+=================
+
+this is a CLASS = uml:Class, type = uml:Class
+this is a CLASS = uml:Class, type = uml:Class
+packagedElement = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement = uml:ExecutionEvent, type = uml:ExecutionEvent
+packagedElement = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement = uml:SendOperationEvent, type = uml:SendOperationEvent
+this is a CLASS = uml:Class, type = uml:Class
+packagedElement = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+this is a CLASS = uml:Class, type = uml:Class
+packagedElement = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement = uml:Package, type = uml:Package
+profileApplication = uml:ProfileApplication, type = uml:ProfileApplication
+packageImport = uml:PackageImport, type = uml:PackageImport

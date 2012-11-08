@@ -1,77 +1,66 @@
-% ==================DATA 
-sort eType = struct One | Two | Three;
-
-sort TaskObject = struct taskObj(taskID:Nat,optimizationChain:List(eType),eType:eType) | None;
-
-% sort None = struct none;
-% =================
-sort __execTypes = eType -> Int;
-
-% cons empty: __execTypes;
-map __execTypes_inc: __execTypes # eType -> __execTypes;
-    __execTypes_get: __execTypes # eType -> Int;
-    __execTypes_dec:__execTypes # eType -> __execTypes;
-    __execTypes_reset:__execTypes # eType -> __execTypes;
-    __execTypes_get_eTypes:__execTypes -> List(eType);
-var a: __execTypes;
-    eType: eType;
-    list:List(eType);
-    el:eType;
-eqn __execTypes_inc(a, eType) = a[eType -> succ(__execTypes_get(a,eType))];
-    __execTypes_dec(a, eType) = if(__execTypes_get(a,eType)>0,
-				      a[eType -> pred(__execTypes_get(a,eType))],
-					    a[eType -> __execTypes_get(a,eType)]);
-    __execTypes_get(a, eType) = a(eType);
-    __execTypes_reset(a, eType) = a[eType->0];
-%     __execTypes_get_eTypes(a(el)) = if(__execTypes_get(a,el)>0,el |> __execTypes_get_eTypes(a),__execTypes(a));
-    __execTypes_get_eTypes(a[el->0]) = [];
-    __execTypes_get(a,el)>0 -> __execTypes_get_eTypes(a) = el|> __execTypes_get_eTypes(a);
-
-map __execTypes_init: __execTypes;
-var eType:eType;
-eqn __execTypes_init(eType) = 0;
-%     initialTypes(Two) = 0;
-% var initTypes:__execTypes;
-
-% map f: Nat # Nat # Pos -> Bool;
-% eqn f = lambda x,y: Nat, p: Pos . x + y == p
-    
-% =================
-
-% =================
-sort __tasks = Nat -> TaskObject;
-map pop: __tasks # Nat -> __tasks;
-    get: __tasks # Nat -> TaskObject;
-    set: __tasks # Nat # TaskObject -> __tasks;
-    keys: __tasks -> List(Nat);
-var t:__tasks;
-    pos:Nat;
-    to:TaskObject;
-eqn pop(t,pos) = t[pos->None];
-    get(t,pos) = t(pos);
-    set(t,pos,to) = t[pos->to];
-
-map init__tasks:__tasks;
-var taskObj1:TaskObject;
-% eqn taskObj1 = taskObj(1,[One,Two],Three);
-% eqn taskObj1 = 
- eqn init__tasks(1) = taskObj(1,[One,Two],Three);
-
-% =================
-
-act action2:TaskObject;
-act internal;
-act action1:Int;
-act actionGet:List(eType);
-proc P(ex:__execTypes,initTasks:__tasks) = 
-actionGet(__execTypes_get_eTypes(ex)).
-action1(ex(Two)).action1(__execTypes_get(__execTypes_inc(ex,One),One)).action2(initTasks(1)).
-action1(__execTypes_get(__execTypes_reset(ex,Two),Two)).
-action2(get(pop(initTasks,1),1)).
-P(__execTypes_inc(ex,One),initTasks)
+sort Method = struct
+recursiveMethod(doIt:Bool) |
+recursiveMethod'
 ;
 
-proc Q = internal;
+act method_call_begin,method_var_begin:Method;
+act method_call_end,method_var_end:Method;
 
-init P(__execTypes_init,init__tasks);
-% init Q;
+act method_begin:Method;
+act method_end:Method;
+act internal;
+
+
+proc RecursiveProc = 
+  sum doIt:Bool.method_var_begin(recursiveMethod(doIt)).
+  doIt-> method_call_begin(recursiveMethod(false)).
+	 method_call_end(recursiveMethod').method_var_end(recursiveMethod')
+	<>
+	method_var_end(recursiveMethod')
+;
+
+
+proc startProc = method_call_begin(recursiveMethod(false)).method_call_end(recursiveMethod');
+init hide ({internal},
+ allow({internal,method_begin,method_end
+},
+comm({
+method_call_begin|method_var_begin->
+method_begin,
+method_call_end|method_var_end->
+method_end
+}, 
+% 				P(1) || ProcP(1)
+				startProc || RecursiveProc
+)));
+
+% %---------DONE client---------
+% proc MindCluster___moduleProcess(id:Nat) = 
+%   sum etype:eType,taskId:Nat,taskObj:TaskObject.method_var_begin(id,__moduleProcess(etype,taskId,taskObj)). 
+%     method_call_begin(id,__getInstance(etype)).
+%     sum modInstance:Nat.method_call_end(id,__getInstance'(modInstance)).
+%     method_call_begin(id,_ex_processTask(modInstance,taskId,taskObj)).
+%     sum reply:Reply,fastTrackType:eType.method_call_end(id,_ex_processTask'(reply,fastTrackType)).
+%     method_call_begin(id,__storeInstance(etype,modInstance)).
+%     method_call_end(id,__storeInstance').
+%     ((reply!=OK) ->
+%       method_var_end(id,__moduleProcess'(OK,TaskError))
+%     <>
+%       (
+% 	method_call_begin(id,__modules_keys).
+% 	sum modules:List(eType).method_call_end(id,__modules_keys'(modules)).
+% 	(fastTrackType!=None && (fastTrackType in modules)) -> 
+% 	  % return self.__moduleProcess( fastTrackType, taskId, taskStub, fastTrackLevel + 1 ) 
+% 	  %<-- HOW TO RECURSIVELY CALL? Like this below?? test it on a hypotethical example
+% 	  % or just ignore the if section below, it's a new implementation anyways
+% 	  method_call_begin(id,__moduleProcess(fastTrackType,taskId,taskObj)).
+% 	  sum reply:Reply,message:Message.method_call_end(id,__moduleProcess'(reply,message)).
+% 	  method_var_end(id,__moduleProcess'(reply,message))
+% 	<> (
+% 	method_var_end(id,__moduleProcess'(OK,TaskFreeze))
+% 	+
+% 	method_var_end(id,__moduleProcess'(OK,TaskDone))
+% 	  )
+%       )
+%     )
+% ;
