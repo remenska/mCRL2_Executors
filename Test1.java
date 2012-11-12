@@ -83,10 +83,35 @@ class Process {
 		invocations.add(invocation);
 	}
 	
-	public void addAltFragment(){
-		//TBD
+	public void addAltFragment(String guard){
+		invocations.add("("+guard+")->(");
 	}
 	
+	public void addOptFragment(String guard){
+		invocations.add("(("+guard+")->(");
+	}
+	
+	public void closeOptFragment(){
+		invocations.add(")<>internal");
+	}
+	
+	public void addEndAltFragment(boolean lastStep){
+		if(lastStep)
+			invocations.add(")");
+		else
+			invocations.add(" ) <> ");
+	}
+	
+	public void addCloseFragment(boolean withInternal){
+		if(withInternal)
+			invocations.add("<> internal)");
+		else
+			invocations.add(")");
+	}
+	public void addBeginAltFragment(){
+		invocations.add("(");
+	}
+
 	public boolean equals(Process anotherProc){
 		return (this.classImpl == anotherProc.classImpl 
 				&& this.operationImpl == anotherProc.operationImpl);
@@ -359,6 +384,50 @@ public static LinkedList<LifelineImpl> getLifeLinesForInteraction(
 	return allLifelines;
 }
 
+public static String getMessageArguments(Message message){
+	
+	EList arguments = message.getArguments();
+	Iterator arguments_iterator = arguments.iterator();
+	StringBuffer args = new StringBuffer();
+	boolean isFirst = true;
+	int count = 0;
+	while(arguments_iterator.hasNext()){
+		OpaqueExpression argument = (OpaqueExpression)arguments_iterator.next();
+//		System.out.print("; arg="+argument.getBodies().get(0));
+		if(isFirst)
+			args.append("(");
+		count++;
+		if(count==arguments.size())
+			args.append(argument.getBodies().get(0)+")");
+		else
+			args.append(argument.getBodies().get(0)+",");
+		isFirst = false;
+	}
+	
+	return args.toString();
+}
+
+public static String getClassAndObjectForMCB(Message message){
+	StringBuffer args = new StringBuffer();
+	InteractionFragmentImpl event = (MessageOccurrenceSpecificationImpl)message.getReceiveEvent();
+	
+	args.append(event.getCovered(null).getRepresents().getType().getName()+
+			","+
+			event.getCovered(null).getRepresents().getName()+",");
+	return args.toString();
+}
+
+public static String getClassAndObjectForMCE(Message message){
+	StringBuffer args = new StringBuffer();
+	InteractionFragmentImpl event = (MessageOccurrenceSpecificationImpl)message.getSendEvent();
+	
+	args.append(event.getCovered(null).getRepresents().getType().getName()+
+			","+
+			event.getCovered(null).getRepresents().getName()+",");
+	return args.toString();
+}
+
+
 public static Collection<InteractionFragmentImpl> getFragmentsForInteraction(
 		InteractionImpl interaction) {
 	// EList<EObject> fragments = interaction.eContents();
@@ -382,7 +451,8 @@ public static Collection<InteractionFragmentImpl> getFragmentsForInteraction(
 			System.out.print("; Message:"
 					+ ((MessageOccurrenceSpecificationImpl) el)
 							.getMessage().getName());
-			
+
+			String arguments = getMessageArguments(((MessageOccurrenceSpecificationImpl) el).getMessage());
 			
 			MessageOccurrenceSpecificationImpl occurence = (MessageOccurrenceSpecificationImpl) el;
 			Event event = occurence.getEvent();
@@ -402,9 +472,11 @@ public static Collection<InteractionFragmentImpl> getFragmentsForInteraction(
 					Stack theStack = readyProcessesPerLifeline.get(((InteractionFragmentImpl) el).getCovered(null)
 							.getRepresents().getName());
 					Process theProcess = (Process)theStack.pop();
-					theProcess.addInvocation("method_call_begin("+
+					String classAndobject = getClassAndObjectForMCB(((MessageOccurrenceSpecificationImpl) el).getMessage());
+					
+					theProcess.addInvocation("method_call_begin("+classAndobject+
 					((MessageOccurrenceSpecificationImpl) el)
-					.getMessage().getName()+")");
+					.getMessage().getName()+arguments+")");
 					System.out.println("!!!!Stack:"+theStack.toString());
 					
 					//now push it to busy
@@ -420,7 +492,7 @@ public static Collection<InteractionFragmentImpl> getFragmentsForInteraction(
 					if(!theProcess.isProcessed){
 						theProcess.addInvocation("method_var_end("+
 								((MessageOccurrenceSpecificationImpl) el)
-						.getMessage().getName()+")");
+						.getMessage().getName()+arguments+")");
 						theProcess.setProcessed();
 					}
 					
@@ -480,7 +552,11 @@ public static Collection<InteractionFragmentImpl> getFragmentsForInteraction(
 					Stack theStack = readyProcessesPerLifeline.get(((InteractionFragmentImpl) el).getCovered(null)
 							.getRepresents().getName());
 					theStack.push(findProcess);
+					
+					String classAndobject = getClassAndObjectForMCE(((MessageOccurrenceSpecificationImpl) el).getMessage());
+					
 					findProcess.addInvocation("method_call_end("+
+							classAndobject+
 					((MessageOccurrenceSpecificationImpl) el)
 					.getMessage().getName()+")");
 					System.out.println("!!!!Stack:"+theStack.toString());
@@ -492,12 +568,13 @@ public static Collection<InteractionFragmentImpl> getFragmentsForInteraction(
 			System.out.println("sort:"
 					+ occurence.getMessage().getMessageSort());
 		} else if (el.getClass().equals(CombinedFragmentImpl.class)) {
-			System.out.print("CombinedFragment:"
+			System.out.println("CombinedFragment:"
 					+ ((CombinedFragmentImpl) el).getCovered(null)
 							.getName());
 			System.out.println("interactionOperator:"
 					+ ((CombinedFragmentImpl) el).getInteractionOperator());
-			getOperandsForCombinedFragment((CombinedFragmentImpl) el);
+			getOperandsForCombinedFragment((CombinedFragmentImpl) el, ((CombinedFragmentImpl) el).getInteractionOperator().toString());
+			System.out.println("EndCombinedFragment");
 		}
 	}
 
@@ -505,10 +582,13 @@ public static Collection<InteractionFragmentImpl> getFragmentsForInteraction(
 }
 
 public static EList<InteractionOperand> getOperandsForCombinedFragment(
-		CombinedFragment fragment) {
+		CombinedFragment fragment, String operator) {
 	EList<InteractionOperand> operands = fragment.getOperands();
 	// System.out.println(operands);
 	Iterator operands_iterator = operands.iterator();
+	boolean firstOperand = true;
+	boolean lastOperand = false;
+	int countThem = 0;
 	while (operands_iterator.hasNext()) {
 		InteractionOperand operand = (InteractionOperand) operands_iterator
 				.next();
@@ -517,16 +597,24 @@ public static EList<InteractionOperand> getOperandsForCombinedFragment(
 				.getGuard().getSpecification();
 		System.out.println("InteractionOperand guard:"
 				+ opaqueExpression.getBodies().get(0));
-		getFragmentsInsideOperand(operand);
+		//here I should pass the guard in order to insert it to the process where needed
+		countThem++;
+		if(countThem==operands.size()) lastOperand=true;
+		getFragmentsInsideOperand(operand, operator,firstOperand, lastOperand, opaqueExpression.getBodies().get(0).toString());
+		//operator=alt, guard=choice1, this>1 etc
+		System.out.println("END_InteractionOperand guard:"
+				+ opaqueExpression.getBodies().get(0));
+		firstOperand = false;
 	}
 	return operands;
 }
 
 public static EList<InteractionFragment> getFragmentsInsideOperand(
-		InteractionOperand operand) {
+		InteractionOperand operand,String operator,boolean firstOperand, boolean lastOperand, String guard) {
 	EList<InteractionFragment> fragments = operand.getFragments();
 	Iterator fragments_iterator = fragments.iterator();
-
+	boolean firstSendFound = false;
+	Process responsibleProcess = null;;
 	while (fragments_iterator.hasNext()) {
 		InteractionFragmentImpl el = (InteractionFragmentImpl) fragments_iterator
 				.next();
@@ -542,6 +630,7 @@ public static EList<InteractionFragment> getFragmentsInsideOperand(
 					+ ((MessageOccurrenceSpecificationImpl) el)
 							.getMessage().getName());
 			
+			String arguments = getMessageArguments(((MessageOccurrenceSpecificationImpl) el).getMessage());
 			
 			MessageOccurrenceSpecificationImpl occurence = (MessageOccurrenceSpecificationImpl) el;
 			Event event = occurence.getEvent();
@@ -558,18 +647,41 @@ public static EList<InteractionFragment> getFragmentsInsideOperand(
 						+ sendEvent.getOperation().getName());		
 				if(occurence.getMessage().getMessageSort().toString().equals("synchCall")){
 					//Case 1:
+					
 					Stack theStack = readyProcessesPerLifeline.get(((InteractionFragmentImpl) el).getCovered(null)
 							.getRepresents().getName());
 					Process theProcess = (Process)theStack.pop();
+					if(!firstSendFound){
+						responsibleProcess = theProcess;
+						if(operator.equals("alt")){
+							if(firstOperand)
+								responsibleProcess.addBeginAltFragment();
+							if(!guard.equals("else"))
+								responsibleProcess.addAltFragment(guard);
+							else
+								responsibleProcess.addBeginAltFragment();
+						}
+						
+						else if(operator.equals("opt")){
+							responsibleProcess.addOptFragment(guard);
+						}
+							
+						firstSendFound = true;
+					}
+						
+					String classAndobject = getClassAndObjectForMCB(((MessageOccurrenceSpecificationImpl) el).getMessage());
+					
 					theProcess.addInvocation("method_call_begin("+
+							classAndobject+
 					((MessageOccurrenceSpecificationImpl) el)
-					.getMessage().getName()+")");
+					.getMessage().getName()+arguments+")");
 					System.out.println("!!!!Stack:"+theStack.toString());
 					
 					//now push it to busy
 					Stack busyStack = busyProcessesPerLifeline.get(((InteractionFragmentImpl) el).getCovered(null)
 							.getRepresents().getName());
 					busyStack.push(theProcess);
+					
 				}
 				else if(occurence.getMessage().getMessageSort().toString().equals("reply")){
 					//Case 2:
@@ -579,7 +691,7 @@ public static EList<InteractionFragment> getFragmentsInsideOperand(
 					if(!theProcess.isProcessed){
 						theProcess.addInvocation("method_var_end("+
 								((MessageOccurrenceSpecificationImpl) el)
-								.getMessage().getName()+")");
+								.getMessage().getName()+arguments+")");
 						theProcess.setProcessed();
 					}
 					
@@ -639,7 +751,10 @@ public static EList<InteractionFragment> getFragmentsInsideOperand(
 					Stack theStack = readyProcessesPerLifeline.get(((InteractionFragmentImpl) el).getCovered(null)
 							.getRepresents().getName());
 					theStack.push(findProcess);
+					String classAndobject = getClassAndObjectForMCE(((MessageOccurrenceSpecificationImpl) el).getMessage());
+					
 					findProcess.addInvocation("method_call_end("+
+							classAndobject+
 					((MessageOccurrenceSpecificationImpl) el)
 					.getMessage().getName()+")");
 					System.out.println("!!!!Stack:"+theStack.toString());
@@ -651,14 +766,29 @@ public static EList<InteractionFragment> getFragmentsInsideOperand(
 			System.out.println("sort:"
 					+ occurence.getMessage().getMessageSort());
 		} else if (el.getClass().equals(CombinedFragmentImpl.class)) {
-			System.out.print("CombinedFragment:"
+			System.out.println("CombinedFragment:"
 					+ ((CombinedFragmentImpl) el).getCovered(null)
 							.getName());
 			System.out.println("interactionOperator:"
 					+ ((CombinedFragmentImpl) el).getInteractionOperator());
-			getOperandsForCombinedFragment((CombinedFragmentImpl) el);
+			getOperandsForCombinedFragment((CombinedFragmentImpl) el,((CombinedFragmentImpl) el).getInteractionOperator().toString());
+			System.out.println("EndCombinedFragment");
 		}
 	}
+	if(operator.equals("alt"))
+	{
+		
+		responsibleProcess.addEndAltFragment(lastOperand);
+		if(lastOperand)
+			if(guard.equals("else"))
+				responsibleProcess.addCloseFragment(false);
+			else
+				responsibleProcess.addCloseFragment(true);
+	}
+	else if(operator.equals("opt")){
+		responsibleProcess.closeOptFragment();
+	}
+			
 	return fragments;
 }
 
