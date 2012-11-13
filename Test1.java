@@ -922,6 +922,7 @@ public class Test1 {
 		ListIterator processes_iterator = processes.listIterator(0);
 		System.out.println("PROCESSES:");
 		while (processes_iterator.hasNext()) {
+			System.out.println("----process-----");
 			System.out.println(processes_iterator.next());
 		}
 
