@@ -46,6 +46,21 @@ import org.eclipse.uml2.uml.internal.impl.*;
  }
  */
 
+class LoopProcess extends Process{
+	String processSignature;
+	String condition;
+	LinkedList<String> invocations = new LinkedList<String>();
+
+	public void addLoopSignature(String signature){
+		this.processSignature = signature;
+	}
+	
+	public void addCondition(String condition){
+		this.condition = condition;
+	}
+
+}
+
 class Process {
 	String id = "1"; // fixed for now, needs to be inspected from Activity
 	// diagrams
@@ -55,10 +70,15 @@ class Process {
 	String methodReturnSignature;
 	LinkedList<String> invocations = new LinkedList<String>();
 	boolean isProcessed = false;
-
+	int loopCounter = 0;
+	
 	public Process() {
 	}
 
+	public int getLoopCounter(){
+		return this.loopCounter;
+	}
+	
 	public Process(ClassImpl classImpl, OperationImpl operationImpl) {
 		this.classImpl = classImpl;
 		this.operationImpl = operationImpl;
@@ -114,13 +134,19 @@ class Process {
 		invocations.add("(");
 	}
 
+	public void addCallLoopFragment(){
+			invocations.add("_loop"+loopCounter+"(id)");
+			loopCounter++;
+	}
+	
 	public boolean equals(Process anotherProc) {
 		return (this.classImpl == anotherProc.classImpl && this.operationImpl == anotherProc.operationImpl);
 	}
 
 	public String toString() {
 		if (classImpl == null || methodSignature == null)
-			return "Empty Process";
+			return "No class & method signature" + "\n"+
+			 invocations.toString() + "\n";
 		else
 			return "Class:" + this.classImpl.getName() + "\n"
 					+ this.methodSignature + "\n" + this.methodReturnSignature
@@ -140,6 +166,7 @@ class Process {
 public class Test1 {
 
 	public static LinkedList<Process> processes = new LinkedList<Process>();
+	public static LinkedList<LoopProcess> loop_processes = new LinkedList<LoopProcess>();
 	public static LinkedList<String> ClassType = new LinkedList<String>();
 	public static LinkedList<String> ClassObject = new LinkedList<String>();
 	public static LinkedList<String> OperationSignatures = new LinkedList<String>();
@@ -462,7 +489,9 @@ public class Test1 {
 
 		boolean firstSendFound = false;
 		Process responsibleProcess = null;
-
+		LoopProcess loopProcess = null;
+		Stack theReadyStack = null;
+		Stack theBusyStack = null;
 		while (fragments_iterator.hasNext()) {
 			InteractionFragmentImpl el = (InteractionFragmentImpl) fragments_iterator
 					.next();
@@ -474,7 +503,7 @@ public class Test1 {
 				System.out.print("; represents:"
 						+ ((InteractionFragmentImpl) el).getCovered(null)
 								.getRepresents().getType().getName());
-				System.out.print("; Message:"
+				System.out.println("; Message:"
 						+ ((MessageOccurrenceSpecificationImpl) el)
 								.getMessage().getName());
 
@@ -488,20 +517,32 @@ public class Test1 {
 				// 2. SendOccurence reply
 				// 3. ReceiveOccurence synchCall
 				// 4. ReceiveOccurence reply
-
+				System.out.println("sort:"
+						+ occurence.getMessage().getMessageSort());
+				
+				theReadyStack = readyProcessesPerLifeline
+						.get(((InteractionFragmentImpl) el)
+								.getCovered(null).getRepresents()
+								.getName());
+				theBusyStack = busyProcessesPerLifeline
+						.get(((InteractionFragmentImpl) el)
+								.getCovered(null).getRepresents()
+								.getName());
+				System.out.println("Ready stack BEFORE message occurence:"+theReadyStack.toString());
+				System.out.println("Busy stack BEFORE message occurence:"+theBusyStack.toString());
+				
 				if (occurence.getMessage().getSendEvent() == el) {
-					System.out.print("; sending; ");
+					System.out.print("DIRECTION; sending; ");
 					SendOperationEvent sendEvent = (SendOperationEvent) event;
 					System.out.println("Original operation:"
 							+ sendEvent.getOperation().getName());
 					if (occurence.getMessage().getMessageSort().toString()
 							.equals("synchCall")) {
 						// Case 1:
-						Stack theStack = readyProcessesPerLifeline
-								.get(((InteractionFragmentImpl) el)
-										.getCovered(null).getRepresents()
-										.getName());
-						Process theProcess = (Process) theStack.pop();
+
+						
+						Process theProcess = (Process) theReadyStack.pop();
+
 						if (!firstSendFound && insideOperand) {
 							responsibleProcess = theProcess;
 							if (operator.equals("alt")) {
@@ -516,9 +557,27 @@ public class Test1 {
 							else if (operator.equals("opt")) {
 								responsibleProcess.addOptFragment(guard);
 							}
-
+							else if(operator.equals("loop")){
+								responsibleProcess.addCallLoopFragment();
+								theReadyStack.push(theProcess); //push it back to ready again, since it's only a call to "_loop(id)."
+								//no method_call_begin and method_call_end
+								
+								loopProcess = new LoopProcess();
+								loopProcess.addLoopSignature("_loop"+responsibleProcess.getLoopCounter()+"(id:Nat)");
+//								loopProcess.setOperationImpl(responsibleProcess.operationImpl);
+//								loopProcess.setClassImpl(responsibleProcess.classImpl);
+								processes.add(loopProcess);
+//								
+								// now, should set the _loop Process as the active one on the lifeline
+								// so that all the calls below will go there
+								theProcess = loopProcess;
+								
+							}
+							
 							firstSendFound = true;
 						}
+					
+						
 						String classAndobject = getClassAndObjectForMCB(((MessageOccurrenceSpecificationImpl) el)
 								.getMessage());
 
@@ -527,22 +586,24 @@ public class Test1 {
 								+ ((MessageOccurrenceSpecificationImpl) el)
 										.getMessage().getName() + arguments
 								+ ")");
-						System.out.println("!!!!Stack:" + theStack.toString());
+//						System.out.println("!!!!Stack:" + theStack.toString());
 
 						// now push it to busy
-						Stack busyStack = busyProcessesPerLifeline
+						theBusyStack = busyProcessesPerLifeline
 								.get(((InteractionFragmentImpl) el)
 										.getCovered(null).getRepresents()
 										.getName());
-						busyStack.push(theProcess);
+						theBusyStack.push(theProcess);
+						
 					} else if (occurence.getMessage().getMessageSort()
 							.toString().equals("reply")) {
 						// Case 2:
-						Stack theStack = readyProcessesPerLifeline
+						theReadyStack = readyProcessesPerLifeline
 								.get(((InteractionFragmentImpl) el)
 										.getCovered(null).getRepresents()
 										.getName());
-						Process theProcess = (Process) theStack.pop();
+						Process theProcess = (Process) theReadyStack.pop();
+						
 						if (!theProcess.isProcessed) {
 							theProcess.addInvocation("method_var_end("
 									+ ((MessageOccurrenceSpecificationImpl) el)
@@ -551,20 +612,11 @@ public class Test1 {
 							theProcess.setProcessed();
 						}
 
-						System.out.println("!!!!Stack:" + theStack.toString());
+//						System.out.println("!!!!Stack:" + theReadyStack.toString());
 					}
-					// OperationImpl opCheck =
-					// (OperationImpl)sendEvent.getOperation();
-					// ClassImpl classCheck = (ClassImpl)
-					// ((InteractionFragmentImpl)
-					// el).getCovered(null).getRepresents().getType();
-					// Process findProcess = findProcess(classCheck,opCheck);
-					// if(findProcess==null)
-					// findProcess = new Process(classCheck,opCheck);
-					//
 
 				} else if (occurence.getMessage().getReceiveEvent() == el) {
-					System.out.println("; receiving...");
+					System.out.println("DIRECTION; receiving...");
 					ReceiveOperationEvent receiveEvent = (ReceiveOperationEvent) event;
 					System.out.println("Original operation:"
 							+ receiveEvent.getOperation().getName());
@@ -580,22 +632,25 @@ public class Test1 {
 								.getOperation();
 						ClassImpl classCheck = (ClassImpl) ((InteractionFragmentImpl) el)
 								.getCovered(null).getRepresents().getType();
+						
 						Process findProcess = findProcess(classCheck, opCheck);
+						
+//						Process findProcess = (Process) theReadyStack.pop();
 						if (findProcess == null) {
 							findProcess = new Process(classCheck, opCheck);
-
+							processes.add(findProcess);
 						}
 						if (!findProcess.isProcessed) {
 							findProcess.addInvocation("method_var_begin("
 									+ ((MessageOccurrenceSpecificationImpl) el)
 											.getMessage().getName() + ")");
 						}
-						Stack theStack = readyProcessesPerLifeline
+						theReadyStack = readyProcessesPerLifeline
 								.get(((InteractionFragmentImpl) el)
 										.getCovered(null).getRepresents()
 										.getName());
-						theStack.push(findProcess);
-						System.out.println("!!!!Stack:" + theStack.toString());
+						theReadyStack.push(findProcess);
+//						System.out.println("!!!!Stack:" + theStack.toString());
 
 					} else if (occurence.getMessage().getMessageSort()
 							.toString().equals("reply")) {
@@ -616,17 +671,17 @@ public class Test1 {
 						// if(findProcess==null)
 						// System.out.println("Something's fishy, received a reply but noone sent it?");
 						// find last busy process, pop it
-						Stack busyStack = busyProcessesPerLifeline
+						theBusyStack = busyProcessesPerLifeline
 								.get(((InteractionFragmentImpl) el)
 										.getCovered(null).getRepresents()
 										.getName());
-						Process findProcess = (Process) busyStack.pop();
+						Process findProcess = (Process) theBusyStack.pop();
 						// push it to ready now
-						Stack theStack = readyProcessesPerLifeline
+						theReadyStack = readyProcessesPerLifeline
 								.get(((InteractionFragmentImpl) el)
 										.getCovered(null).getRepresents()
 										.getName());
-						theStack.push(findProcess);
+						theReadyStack.push(findProcess);
 
 						String classAndobject = getClassAndObjectForMCE(((MessageOccurrenceSpecificationImpl) el)
 								.getMessage());
@@ -636,13 +691,15 @@ public class Test1 {
 								+ ((MessageOccurrenceSpecificationImpl) el)
 										.getMessage().getName() + "_return"
 								+ ")");
-						System.out.println("!!!!Stack:" + theStack.toString());
+//						System.out.println("!!!!Stack:" + theStack.toString());
 					}
 
 				}
 				// System.out.println("; Message event:"+((MessageOccurrenceSpecificationImpl)el).getMessage().getSendEvent());
-				System.out.println("sort:"
-						+ occurence.getMessage().getMessageSort());
+				
+				System.out.println("Ready stack AFTER message occurence:"+theReadyStack.toString());
+				System.out.println("Busy stack AFTER message occurence:"+theBusyStack.toString());
+				
 			} else if (el.getClass().equals(CombinedFragmentImpl.class)) {
 				System.out.println("CombinedFragment:"
 						+ ((CombinedFragmentImpl) el).getCovered(null)
@@ -667,7 +724,12 @@ public class Test1 {
 						responsibleProcess.addCloseFragment(true);
 			} else if (operator.equals("opt")) {
 				responsibleProcess.closeOptFragment();
+			} else if(operator.equals("loop")){
+				//remove the ready _loop process from the queue in order to keep method_var_end appearing
+				//in the right process
+				theReadyStack.pop();
 			}
+			
 		}
 
 	}
@@ -732,8 +794,8 @@ public class Test1 {
 						UMLPackage.Literals.INTERACTION_FRAGMENT);
 
 		extractFragments(fragments, operand, operator, firstOperand,
-				lastOperand, guard, true); //true flag for insideOperand
-		
+				lastOperand, guard, true); // true flag for insideOperand
+
 		return fragments;
 	}
 
