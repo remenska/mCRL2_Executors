@@ -151,8 +151,9 @@ class Process {
 	}
 
 	public void addCallLoopFragment(String operation){
-			invocations.add(operation+"_loop"+loopCounter+"(id)");
-			loopCounter++;
+		loopCounter++;
+			invocations.add(operation);
+			
 	}
 	
 	public boolean equals(Process anotherProc) {
@@ -197,7 +198,7 @@ public class Test1 {
 	public static LinkedList<String> OperationSignatures = new LinkedList<String>();
 	public static HashMap<String, Stack<Process>> readyProcessesPerLifeline = new HashMap<String, Stack<Process>>();
 	public static HashMap<String, Stack<Process>> busyProcessesPerLifeline = new HashMap<String, Stack<Process>>();
-
+	public static int loopCounter = 1;
 	public static void createSorts(org.eclipse.uml2.uml.Package rootPackage) {
 		Collection<org.eclipse.uml2.uml.internal.impl.ClassImpl> classes = getClasses(rootPackage);
 		// System.out.println(classes);
@@ -583,12 +584,13 @@ public class Test1 {
 								responsibleProcess.addOptFragment(guard);
 							}
 							else if(operator.equals("loop")){
-								responsibleProcess.addCallLoopFragment(responsibleProcess.operationImpl.getName());
+								responsibleProcess.addCallLoopFragment(responsibleProcess.operationImpl.getName()+"_loop"+loopCounter+"(id:Nat)");
 								theReadyStack.push(theProcess); //push it back to ready again, since it's only a call to "_loop(id)."
 								//no method_call_begin and method_call_end
 								
 								loopProcess = new LoopProcess();
-								loopProcess.addLoopSignature(responsibleProcess.operationImpl.getName()+"_loop"+responsibleProcess.getLoopCounter()+"(id:Nat)");
+								loopProcess.addLoopSignature(responsibleProcess.operationImpl.getName()+"_loop"+loopCounter+"(id:Nat)");
+								loopCounter++;
 								loopProcess.setOperationImpl(responsibleProcess.operationImpl);
 //								loopProcess.setClassImpl(responsibleProcess.classImpl);
 								loopProcess.addCondition(guard);
@@ -892,6 +894,10 @@ public class Test1 {
 				UMLPackage.Literals.PARAMETER);
 	}
 
+	public static void printProcessesMCRL2(Process p){
+		
+	}
+	
 	public static void main(String args[]) throws Exception {
 		int starter = 0;
 		EPackage.Registry.INSTANCE
