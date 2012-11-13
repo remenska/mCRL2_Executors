@@ -58,6 +58,11 @@ class LoopProcess extends Process{
 	public void addCondition(String condition){
 		this.condition = condition;
 	}
+	public String toString(){
+		return super.toString()+"\n"+
+				"condition:"+this.condition+"\n"
+				+ "loop signature:"+this.processSignature+"\n";
+	}
 
 }
 
@@ -134,8 +139,8 @@ class Process {
 		invocations.add("(");
 	}
 
-	public void addCallLoopFragment(){
-			invocations.add("_loop"+loopCounter+"(id)");
+	public void addCallLoopFragment(String operation){
+			invocations.add(operation+"_loop"+loopCounter+"(id)");
 			loopCounter++;
 	}
 	
@@ -144,13 +149,22 @@ class Process {
 	}
 
 	public String toString() {
-		if (classImpl == null || methodSignature == null)
-			return "No class & method signature" + "\n"+
+		if (classImpl == null && operationImpl ==null)
+			return "No class && operation signature" + "\n"+
 			 invocations.toString() + "\n";
-		else
+		else if (classImpl==null)
+			return this.methodSignature + "\n" + this.methodReturnSignature
+					+ "\n+" + " " + invocations.toString() + "\n"+
+					"operation:"+ this.operationImpl.getName() +"\n";
+		else if (operationImpl==null)
+			return "Class:" + this.classImpl.getName() + "\n"
+			+ this.methodSignature + "\n" + this.methodReturnSignature
+			+ "\n+" + " " + invocations.toString() + "\n;";
+		else			
 			return "Class:" + this.classImpl.getName() + "\n"
 					+ this.methodSignature + "\n" + this.methodReturnSignature
-					+ "\n+" + " " + invocations.toString() + "\n";
+					+ "\n+" + " " + invocations.toString() + "\n"+
+					"operation:"+ this.operationImpl.getName() +"\n";
 	}
 
 	public void setProcessed() {
@@ -558,14 +572,15 @@ public class Test1 {
 								responsibleProcess.addOptFragment(guard);
 							}
 							else if(operator.equals("loop")){
-								responsibleProcess.addCallLoopFragment();
+								responsibleProcess.addCallLoopFragment(responsibleProcess.operationImpl.getName());
 								theReadyStack.push(theProcess); //push it back to ready again, since it's only a call to "_loop(id)."
 								//no method_call_begin and method_call_end
 								
 								loopProcess = new LoopProcess();
-								loopProcess.addLoopSignature("_loop"+responsibleProcess.getLoopCounter()+"(id:Nat)");
-//								loopProcess.setOperationImpl(responsibleProcess.operationImpl);
+								loopProcess.addLoopSignature(responsibleProcess.operationImpl.getName()+"_loop"+responsibleProcess.getLoopCounter()+"(id:Nat)");
+								loopProcess.setOperationImpl(responsibleProcess.operationImpl);
 //								loopProcess.setClassImpl(responsibleProcess.classImpl);
+								loopProcess.addCondition(guard);
 								processes.add(loopProcess);
 //								
 								// now, should set the _loop Process as the active one on the lifeline
