@@ -80,6 +80,17 @@ class Process {
 	public Process() {
 	}
 
+	public ClassImpl getClassImpl(){
+		return this.classImpl;
+	}
+	
+	public OperationImpl getOperationImpl(){
+		return this.operationImpl;
+	}
+	
+	public LinkedList<String> getInvocations(){
+		return this.invocations;
+	}
 	public int getLoopCounter(){
 		return this.loopCounter;
 	}
@@ -882,7 +893,7 @@ public class Test1 {
 	}
 
 	public static void main(String args[]) throws Exception {
-
+		int starter = 0;
 		EPackage.Registry.INSTANCE
 				.put(UMLPackage.eNS_URI, UMLPackage.eINSTANCE);
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(
@@ -922,8 +933,16 @@ public class Test1 {
 		ListIterator processes_iterator = processes.listIterator(0);
 		System.out.println("PROCESSES:");
 		while (processes_iterator.hasNext()) {
-			System.out.println("----process-----");
-			System.out.println(processes_iterator.next());
+			Process process = (Process)processes_iterator.next();
+			if(!process.getInvocations().isEmpty()){//those with no invocations are surpus, the rest are initiators
+				System.out.println("----process-----");
+				System.out.println(process);
+				if(process.getClassImpl()==null && process.getOperationImpl()==null){
+					starter++;
+					System.out.println("starter"+starter);
+					
+				}
+			}
 		}
 
 	}
