@@ -74,6 +74,11 @@ class Process {
 	String methodSignature;
 	String methodReturnSignature;
 	LinkedList<String> invocations = new LinkedList<String>();
+	HashMap<String,String> opParametersIn  
+	= new HashMap<String, String>();
+	HashMap<String,String> opParametersReturn  
+	= new HashMap<String, String>();
+	
 	boolean isProcessed = false;
 	int loopCounter = 0;
 	
@@ -88,6 +93,70 @@ class Process {
 		return this.operationImpl;
 	}
 	
+	public Collection<ParameterImpl> getParameters(
+			OperationImpl operationarg) {
+		return EcoreUtil.getObjectsByType(operationarg.eContents(),
+				UMLPackage.Literals.PARAMETER);
+	}
+	
+	public HashMap<String,String> getOpParametersIn(){
+		fillOperationParameters();
+		return this.opParametersIn;
+	}
+	
+	public HashMap<String,String> getOpParametersReturn(){
+		fillOperationParameters();
+		return this.opParametersReturn;
+	}
+	
+	private void fillOperationParameters(){
+		
+		Collection<ParameterImpl> operationParameters = getParameters(this.operationImpl);
+		Iterator parameters_iterator = operationParameters.iterator();
+
+		while (parameters_iterator.hasNext()) {
+
+			ParameterImpl parameterFromCollection = (ParameterImpl) parameters_iterator
+					.next();
+			// System.out.print(parameterFromCollection.getName());
+			// System.out.println("; direction="+parameterFromCollection.getDirection().toString());
+
+			// return parameters
+			if (parameterFromCollection.getDirection().toString()
+					.equals("return")) {
+				if (parameterFromCollection.getType().getClass()
+						.equals(PrimitiveTypeImpl.class)){
+					this.opParametersReturn.put(parameterFromCollection.getName(),Test1.determinePrimitiveType((PrimitiveTypeImpl) parameterFromCollection
+							.getType()));
+				}
+					
+				else{
+					this.opParametersReturn.put(parameterFromCollection.getName(), parameterFromCollection.getType()
+							.getName());
+				}
+					
+			}
+
+			// input parameters
+			else {
+
+				if (parameterFromCollection.getType().getClass()
+						.equals(PrimitiveTypeImpl.class)){
+					this.opParametersIn.put(parameterFromCollection
+				.getName(), Test1.determinePrimitiveType((PrimitiveTypeImpl) parameterFromCollection
+						.getType()));
+				}
+
+				else{
+					this.opParametersIn.put(parameterFromCollection
+							.getName(),parameterFromCollection.getType()
+							.getName());
+				}
+					
+			}
+
+		}
+	}
 	public LinkedList<String> getInvocations(){
 		return this.invocations;
 	}
@@ -186,7 +255,10 @@ class Process {
 	public boolean isProcessed() {
 		return this.isProcessed;
 	}
-
+	
+	public boolean equalsClassNameANDOperationName(String className,String operationName){
+		return (this.classImpl.getName().equals(className) && this.operationImpl.getName().equals(operationName));
+	}
 }
 
 public class Test1 {
@@ -198,6 +270,8 @@ public class Test1 {
 	public static LinkedList<String> OperationSignatures = new LinkedList<String>();
 	public static HashMap<String, Stack<Process>> readyProcessesPerLifeline = new HashMap<String, Stack<Process>>();
 	public static HashMap<String, Stack<Process>> busyProcessesPerLifeline = new HashMap<String, Stack<Process>>();
+	public static LinkedList<String> SortString = new LinkedList<String>();
+	
 	public static int loopCounter = 1;
 	public static void createSorts(org.eclipse.uml2.uml.Package rootPackage) {
 		Collection<org.eclipse.uml2.uml.internal.impl.ClassImpl> classes = getClasses(rootPackage);
@@ -475,6 +549,8 @@ public class Test1 {
 			else
 				args.append(argument.getBodies().get(0) + ",");
 			isFirst = false;
+		if(argument.getBodies().get(0).startsWith("\"") && !SortString.contains(argument.getBodies().get(0)))
+			SortString.add(argument.getBodies().get(0));
 		}
 
 		return args.toString();
@@ -487,22 +563,54 @@ public class Test1 {
 	// method_call_begin
 	public static String getClassAndObjectForMCB(Message message) {
 		StringBuffer args = new StringBuffer();
-		InteractionFragmentImpl event = (MessageOccurrenceSpecificationImpl) message
-				.getReceiveEvent();
+		// if we're dealing with a gate
+		if(message.getReceiveEvent().getClass().equals
+				(org.eclipse.uml2.uml.internal.impl.GateImpl.class)){
+			GateImpl actualGateCalling = (GateImpl) message.getReceiveEvent();
+			//we neeed the owner fragment InteractionUse that will tell us
+			// which lifeline it covers
+			Element ownerClass = ((org.eclipse.uml2.uml.Element) actualGateCalling)
+					.getOwner();
+			InteractionFragmentImpl ownerFragment = (InteractionFragmentImpl) ownerClass;
+			args.append(ownerFragment.getCovered(null).getRepresents().getType().getName()
+					+ "," + ownerFragment.getCovered(null).getRepresents().getName() + ",");
+			
+//			System.out.println(((ClassImpl) ownerClass).getName());
+			
+		}else if(message.getReceiveEvent().getClass().
+				equals(org.eclipse.uml2.uml.internal.impl.MessageOccurrenceSpecificationImpl.class)){
+			InteractionFragmentImpl event = (MessageOccurrenceSpecificationImpl) message
+					.getReceiveEvent();
 
-		args.append(event.getCovered(null).getRepresents().getType().getName()
-				+ "," + event.getCovered(null).getRepresents().getName() + ",");
+			args.append(event.getCovered(null).getRepresents().getType().getName()
+					+ "," + event.getCovered(null).getRepresents().getName() + ",");
+		}
 		return args.toString();
 	}
 
 	// method_call_end
 	public static String getClassAndObjectForMCE(Message message) {
 		StringBuffer args = new StringBuffer();
-		InteractionFragmentImpl event = (MessageOccurrenceSpecificationImpl) message
-				.getSendEvent();
+		// if we're dealing with a gate
+		if(message.getSendEvent().getClass().equals
+				(org.eclipse.uml2.uml.internal.impl.GateImpl.class)){
+			GateImpl actualGateReceiving = (GateImpl) message.getSendEvent();
+			Element ownerClass = ((org.eclipse.uml2.uml.Element) actualGateReceiving)
+					.getOwner();
+			InteractionFragmentImpl ownerFragment = (InteractionFragmentImpl) ownerClass;
+			args.append(ownerFragment.getCovered(null).getRepresents().getType().getName()
+					+ "," + ownerFragment.getCovered(null).getRepresents().getName() + ",");
+			
+		}else if(message.getSendEvent().getClass().
+				equals(org.eclipse.uml2.uml.internal.impl.MessageOccurrenceSpecificationImpl.class)){
+			
+			InteractionFragmentImpl event = (MessageOccurrenceSpecificationImpl) message
+					.getSendEvent();
 
-		args.append(event.getCovered(null).getRepresents().getType().getName()
-				+ "," + event.getCovered(null).getRepresents().getName() + ",");
+			args.append(event.getCovered(null).getRepresents().getType().getName()
+					+ "," + event.getCovered(null).getRepresents().getName() + ",");
+		}
+	
 		return args.toString();
 	}
 
@@ -696,8 +804,6 @@ public class Test1 {
 						// Process findProcess =
 						// findProcess(classCheck,opCheck);
 
-						// if(findProcess==null)
-						// System.out.println("Something's fishy, received a reply but noone sent it?");
 						// find last busy process, pop it
 						theBusyStack = busyProcessesPerLifeline
 								.get(((InteractionFragmentImpl) el)
@@ -858,6 +964,19 @@ public class Test1 {
 		return proc;
 
 	}
+	
+	public static Process findProcessViaClassANDOperationName(String className,String operationName){
+		Process proc = null;
+		ListIterator iterator = processes.listIterator(0);
+		while (iterator.hasNext()) {
+			Process p = (Process) iterator.next();
+			if(p.equalsClassNameANDOperationName(className, operationName)){
+				proc = p;
+				break;
+			}
+		}
+		return proc;
+	}
 
 	public static void createActionDefinitions() {
 		System.out.println("\n\nact method_call_begin,method_var_begin:Nat;");
@@ -946,10 +1065,13 @@ public class Test1 {
 				if(process.getClassImpl()==null && process.getOperationImpl()==null){
 					starter++;
 					System.out.println("starter"+starter);
-					
+				}else{
+					System.out.println("OpParametersIn:"+process.getOpParametersIn());
+					System.out.println("OpParametersReturn:"+process.getOpParametersReturn());
 				}
 			}
 		}
+		System.out.println("SORTSTRING:"+SortString);
 
 	}
 }
