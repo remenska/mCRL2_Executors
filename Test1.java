@@ -10,10 +10,8 @@ import org.eclipse.uml2.uml.resource.UMLResource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import java.util.*;
 import org.eclipse.emf.common.util.*;
-import org.eclipse.emf.ecore.xml.type.impl.AnyTypeImpl;
 import org.eclipse.uml2.uml.internal.impl.ClassImpl;
 import org.eclipse.uml2.uml.internal.impl.MessageOccurrenceSpecificationImpl;
-import org.eclipse.uml2.uml.internal.impl.ModelImpl;
 import org.eclipse.uml2.uml.*;
 import org.eclipse.emf.ecore.impl.*;
 import org.eclipse.emf.common.util.*;
@@ -46,22 +44,22 @@ import org.eclipse.uml2.uml.internal.impl.*;
  }
  */
 
-class LoopProcess extends Process{
+class LoopProcess extends Process {
 	String processSignature;
 	String condition;
 	LinkedList<String> invocations = new LinkedList<String>();
 
-	public void addLoopSignature(String signature){
+	public void addLoopSignature(String signature) {
 		this.processSignature = signature;
 	}
-	
-	public void addCondition(String condition){
+
+	public void addCondition(String condition) {
 		this.condition = condition;
 	}
-	public String toString(){
-		return super.toString()+"\n"+
-				"condition:"+this.condition+"\n"
-				+ "loop signature:"+this.processSignature+"\n";
+
+	public String toString() {
+		return super.toString() + "\n" + "condition:" + this.condition + "\n"
+				+ "loop signature:" + this.processSignature + "\n";
 	}
 
 }
@@ -74,43 +72,40 @@ class Process {
 	String methodSignature;
 	String methodReturnSignature;
 	LinkedList<String> invocations = new LinkedList<String>();
-	HashMap<String,String> opParametersIn  
-	= new HashMap<String, String>();
-	HashMap<String,String> opParametersReturn  
-	= new HashMap<String, String>();
-	
+	HashMap<String, String> opParametersIn = new HashMap<String, String>();
+	HashMap<String, String> opParametersReturn = new HashMap<String, String>();
+
 	boolean isProcessed = false;
 	int loopCounter = 0;
-	
+
 	public Process() {
 	}
 
-	public ClassImpl getClassImpl(){
+	public ClassImpl getClassImpl() {
 		return this.classImpl;
 	}
-	
-	public OperationImpl getOperationImpl(){
+
+	public OperationImpl getOperationImpl() {
 		return this.operationImpl;
 	}
-	
-	public Collection<ParameterImpl> getParameters(
-			OperationImpl operationarg) {
+
+	public Collection<ParameterImpl> getParameters(OperationImpl operationarg) {
 		return EcoreUtil.getObjectsByType(operationarg.eContents(),
 				UMLPackage.Literals.PARAMETER);
 	}
-	
-	public HashMap<String,String> getOpParametersIn(){
+
+	public HashMap<String, String> getOpParametersIn() {
 		fillOperationParameters();
 		return this.opParametersIn;
 	}
-	
-	public HashMap<String,String> getOpParametersReturn(){
+
+	public HashMap<String, String> getOpParametersReturn() {
 		fillOperationParameters();
 		return this.opParametersReturn;
 	}
-	
-	private void fillOperationParameters(){
-		
+
+	private void fillOperationParameters() {
+
 		Collection<ParameterImpl> operationParameters = getParameters(this.operationImpl);
 		Iterator parameters_iterator = operationParameters.iterator();
 
@@ -125,45 +120,50 @@ class Process {
 			if (parameterFromCollection.getDirection().toString()
 					.equals("return")) {
 				if (parameterFromCollection.getType().getClass()
-						.equals(PrimitiveTypeImpl.class)){
-					this.opParametersReturn.put(parameterFromCollection.getName(),Test1.determinePrimitiveType((PrimitiveTypeImpl) parameterFromCollection
-							.getType()));
+						.equals(PrimitiveTypeImpl.class)) {
+					this.opParametersReturn
+							.put(parameterFromCollection.getName(),
+									Test1.determinePrimitiveType((PrimitiveTypeImpl) parameterFromCollection
+											.getType()));
 				}
-					
-				else{
-					this.opParametersReturn.put(parameterFromCollection.getName(), parameterFromCollection.getType()
-							.getName());
+
+				else {
+					this.opParametersReturn.put(
+							parameterFromCollection.getName(),
+							parameterFromCollection.getType().getName());
 				}
-					
+
 			}
 
 			// input parameters
 			else {
 
 				if (parameterFromCollection.getType().getClass()
-						.equals(PrimitiveTypeImpl.class)){
-					this.opParametersIn.put(parameterFromCollection
-				.getName(), Test1.determinePrimitiveType((PrimitiveTypeImpl) parameterFromCollection
-						.getType()));
+						.equals(PrimitiveTypeImpl.class)) {
+					this.opParametersIn
+							.put(parameterFromCollection.getName(),
+									Test1.determinePrimitiveType((PrimitiveTypeImpl) parameterFromCollection
+											.getType()));
 				}
 
-				else{
-					this.opParametersIn.put(parameterFromCollection
-							.getName(),parameterFromCollection.getType()
-							.getName());
+				else {
+					this.opParametersIn.put(parameterFromCollection.getName(),
+							parameterFromCollection.getType().getName());
 				}
-					
+
 			}
 
 		}
 	}
-	public LinkedList<String> getInvocations(){
+
+	public LinkedList<String> getInvocations() {
 		return this.invocations;
 	}
-	public int getLoopCounter(){
+
+	public int getLoopCounter() {
 		return this.loopCounter;
 	}
-	
+
 	public Process(ClassImpl classImpl, OperationImpl operationImpl) {
 		this.classImpl = classImpl;
 		this.operationImpl = operationImpl;
@@ -219,33 +219,33 @@ class Process {
 		invocations.add("(");
 	}
 
-	public void addCallLoopFragment(String operation){
+	public void addCallLoopFragment(String operation) {
 		loopCounter++;
-			invocations.add(operation);
-			
+		invocations.add(operation);
+
 	}
-	
+
 	public boolean equals(Process anotherProc) {
 		return (this.classImpl == anotherProc.classImpl && this.operationImpl == anotherProc.operationImpl);
 	}
 
 	public String toString() {
-		if (classImpl == null && operationImpl ==null)
-			return "No class && operation signature" + "\n"+
-			 invocations.toString() + "\n";
-		else if (classImpl==null)
+		if (classImpl == null && operationImpl == null)
+			return "No class && operation signature" + "\n"
+					+ invocations.toString() + "\n";
+		else if (classImpl == null)
 			return this.methodSignature + "\n" + this.methodReturnSignature
-					+ "\n+" + " " + invocations.toString() + "\n"+
-					"operation:"+ this.operationImpl.getName() +"\n";
-		else if (operationImpl==null)
-			return "Class:" + this.classImpl.getName() + "\n"
-			+ this.methodSignature + "\n" + this.methodReturnSignature
-			+ "\n+" + " " + invocations.toString() + "\n;";
-		else			
+					+ "\n+" + " " + invocations.toString() + "\n"
+					+ "operation:" + this.operationImpl.getName() + "\n";
+		else if (operationImpl == null)
 			return "Class:" + this.classImpl.getName() + "\n"
 					+ this.methodSignature + "\n" + this.methodReturnSignature
-					+ "\n+" + " " + invocations.toString() + "\n"+
-					"operation:"+ this.operationImpl.getName() +"\n";
+					+ "\n+" + " " + invocations.toString() + "\n;";
+		else
+			return "Class:" + this.classImpl.getName() + "\n"
+					+ this.methodSignature + "\n" + this.methodReturnSignature
+					+ "\n+" + " " + invocations.toString() + "\n"
+					+ "operation:" + this.operationImpl.getName() + "\n";
 	}
 
 	public void setProcessed() {
@@ -255,9 +255,11 @@ class Process {
 	public boolean isProcessed() {
 		return this.isProcessed;
 	}
-	
-	public boolean equalsClassNameANDOperationName(String className,String operationName){
-		return (this.classImpl.getName().equals(className) && this.operationImpl.getName().equals(operationName));
+
+	public boolean equalsClassNameANDOperationName(String className,
+			String operationName) {
+		return (this.classImpl.getName().equals(className) && this.operationImpl
+				.getName().equals(operationName));
 	}
 }
 
@@ -271,8 +273,9 @@ public class Test1 {
 	public static HashMap<String, Stack<Process>> readyProcessesPerLifeline = new HashMap<String, Stack<Process>>();
 	public static HashMap<String, Stack<Process>> busyProcessesPerLifeline = new HashMap<String, Stack<Process>>();
 	public static LinkedList<String> SortString = new LinkedList<String>();
-	
+
 	public static int loopCounter = 1;
+
 	public static void createSorts(org.eclipse.uml2.uml.Package rootPackage) {
 		Collection<org.eclipse.uml2.uml.internal.impl.ClassImpl> classes = getClasses(rootPackage);
 		// System.out.println(classes);
@@ -546,12 +549,13 @@ public class Test1 {
 			count++;
 			if (count == arguments.size())
 				args.append(argument.getBodies().get(0).replace("\"", "") + ")");
-			//strip the quotes of a string: .replace("\"","")
+			// strip the quotes of a string: .replace("\"","")
 			else
 				args.append(argument.getBodies().get(0).replace("\"", "") + ",");
 			isFirst = false;
-		if(argument.getBodies().get(0).startsWith("\"") && !SortString.contains(argument.getBodies().get(0)))
-			SortString.add(argument.getBodies().get(0).replace("\"", ""));
+			if (argument.getBodies().get(0).startsWith("\"")
+					&& !SortString.contains(argument.getBodies().get(0)))
+				SortString.add(argument.getBodies().get(0).replace("\"", ""));
 		}
 
 		return args.toString();
@@ -565,26 +569,34 @@ public class Test1 {
 	public static String getClassAndObjectForMCB(Message message) {
 		StringBuffer args = new StringBuffer();
 		// if we're dealing with a gate
-		if(message.getReceiveEvent().getClass().equals
-				(org.eclipse.uml2.uml.internal.impl.GateImpl.class)){
+		if (message.getReceiveEvent().getClass()
+				.equals(org.eclipse.uml2.uml.internal.impl.GateImpl.class)) {
 			GateImpl actualGateCalling = (GateImpl) message.getReceiveEvent();
-			//we neeed the owner fragment InteractionUse that will tell us
+			// we neeed the owner fragment InteractionUse that will tell us
 			// which lifeline it covers
 			Element ownerClass = ((org.eclipse.uml2.uml.Element) actualGateCalling)
 					.getOwner();
 			InteractionFragmentImpl ownerFragment = (InteractionFragmentImpl) ownerClass;
-			args.append(ownerFragment.getCovered(null).getRepresents().getType().getName()
-					+ "," + ownerFragment.getCovered(null).getRepresents().getName() + ",");
-			
-//			System.out.println(((ClassImpl) ownerClass).getName());
-			
-		}else if(message.getReceiveEvent().getClass().
-				equals(org.eclipse.uml2.uml.internal.impl.MessageOccurrenceSpecificationImpl.class)){
+			args.append(ownerFragment.getCovered(null).getRepresents()
+					.getType().getName()
+					+ ","
+					+ ownerFragment.getCovered(null).getRepresents().getName()
+					+ ",");
+
+			// System.out.println(((ClassImpl) ownerClass).getName());
+
+		} else if (message
+				.getReceiveEvent()
+				.getClass()
+				.equals(org.eclipse.uml2.uml.internal.impl.MessageOccurrenceSpecificationImpl.class)) {
 			InteractionFragmentImpl event = (MessageOccurrenceSpecificationImpl) message
 					.getReceiveEvent();
 
-			args.append(event.getCovered(null).getRepresents().getType().getName()
-					+ "," + event.getCovered(null).getRepresents().getName() + ",");
+			args.append(event.getCovered(null).getRepresents().getType()
+					.getName()
+					+ ","
+					+ event.getCovered(null).getRepresents().getName()
+					+ ",");
 		}
 		return args.toString();
 	}
@@ -593,25 +605,33 @@ public class Test1 {
 	public static String getClassAndObjectForMCE(Message message) {
 		StringBuffer args = new StringBuffer();
 		// if we're dealing with a gate
-		if(message.getSendEvent().getClass().equals
-				(org.eclipse.uml2.uml.internal.impl.GateImpl.class)){
+		if (message.getSendEvent().getClass()
+				.equals(org.eclipse.uml2.uml.internal.impl.GateImpl.class)) {
 			GateImpl actualGateReceiving = (GateImpl) message.getSendEvent();
 			Element ownerClass = ((org.eclipse.uml2.uml.Element) actualGateReceiving)
 					.getOwner();
 			InteractionFragmentImpl ownerFragment = (InteractionFragmentImpl) ownerClass;
-			args.append(ownerFragment.getCovered(null).getRepresents().getType().getName()
-					+ "," + ownerFragment.getCovered(null).getRepresents().getName() + ",");
-			
-		}else if(message.getSendEvent().getClass().
-				equals(org.eclipse.uml2.uml.internal.impl.MessageOccurrenceSpecificationImpl.class)){
-			
+			args.append(ownerFragment.getCovered(null).getRepresents()
+					.getType().getName()
+					+ ","
+					+ ownerFragment.getCovered(null).getRepresents().getName()
+					+ ",");
+
+		} else if (message
+				.getSendEvent()
+				.getClass()
+				.equals(org.eclipse.uml2.uml.internal.impl.MessageOccurrenceSpecificationImpl.class)) {
+
 			InteractionFragmentImpl event = (MessageOccurrenceSpecificationImpl) message
 					.getSendEvent();
 
-			args.append(event.getCovered(null).getRepresents().getType().getName()
-					+ "," + event.getCovered(null).getRepresents().getName() + ",");
+			args.append(event.getCovered(null).getRepresents().getType()
+					.getName()
+					+ ","
+					+ event.getCovered(null).getRepresents().getName()
+					+ ",");
 		}
-	
+
 		return args.toString();
 	}
 
@@ -654,18 +674,18 @@ public class Test1 {
 				// 4. ReceiveOccurence reply
 				System.out.println("sort:"
 						+ occurence.getMessage().getMessageSort());
-				
+
 				theReadyStack = readyProcessesPerLifeline
-						.get(((InteractionFragmentImpl) el)
-								.getCovered(null).getRepresents()
-								.getName());
+						.get(((InteractionFragmentImpl) el).getCovered(null)
+								.getRepresents().getName());
 				theBusyStack = busyProcessesPerLifeline
-						.get(((InteractionFragmentImpl) el)
-								.getCovered(null).getRepresents()
-								.getName());
-				System.out.println("Ready stack BEFORE message occurence:"+theReadyStack.toString());
-				System.out.println("Busy stack BEFORE message occurence:"+theBusyStack.toString());
-				
+						.get(((InteractionFragmentImpl) el).getCovered(null)
+								.getRepresents().getName());
+				System.out.println("Ready stack BEFORE message occurence:"
+						+ theReadyStack.toString());
+				System.out.println("Busy stack BEFORE message occurence:"
+						+ theBusyStack.toString());
+
 				if (occurence.getMessage().getSendEvent() == el) {
 					System.out.print("DIRECTION; sending; ");
 					SendOperationEvent sendEvent = (SendOperationEvent) event;
@@ -675,7 +695,6 @@ public class Test1 {
 							.equals("synchCall")) {
 						// Case 1:
 
-						
 						Process theProcess = (Process) theReadyStack.pop();
 
 						if (!firstSendFound && insideOperand) {
@@ -691,30 +710,43 @@ public class Test1 {
 
 							else if (operator.equals("opt")) {
 								responsibleProcess.addOptFragment(guard);
-							}
-							else if(operator.equals("loop")){
-								responsibleProcess.addCallLoopFragment(responsibleProcess.operationImpl.getName()+"_loop"+loopCounter+"(id:Nat)");
-								theReadyStack.push(theProcess); //push it back to ready again, since it's only a call to "_loop(id)."
-								//no method_call_begin and method_call_end
-								
+							} else if (operator.equals("loop")) {
+								responsibleProcess
+										.addCallLoopFragment(responsibleProcess.operationImpl
+												.getName()
+												+ "_loop"
+												+ loopCounter + "(id:Nat)");
+								theReadyStack.push(theProcess); // push it back
+																// to ready
+																// again, since
+																// it's only a
+																// call to
+																// "_loop(id)."
+								// no method_call_begin and method_call_end
+
 								loopProcess = new LoopProcess();
-								loopProcess.addLoopSignature(responsibleProcess.operationImpl.getName()+"_loop"+loopCounter+"(id:Nat)");
+								loopProcess
+										.addLoopSignature(responsibleProcess.operationImpl
+												.getName()
+												+ "_loop"
+												+ loopCounter + "(id:Nat)");
 								loopCounter++;
-								loopProcess.setOperationImpl(responsibleProcess.operationImpl);
-//								loopProcess.setClassImpl(responsibleProcess.classImpl);
+								loopProcess
+										.setOperationImpl(responsibleProcess.operationImpl);
+								// loopProcess.setClassImpl(responsibleProcess.classImpl);
 								loopProcess.addCondition(guard);
 								processes.add(loopProcess);
-//								
-								// now, should set the _loop Process as the active one on the lifeline
+								//
+								// now, should set the _loop Process as the
+								// active one on the lifeline
 								// so that all the calls below will go there
 								theProcess = loopProcess;
-								
+
 							}
-							
+
 							firstSendFound = true;
 						}
-					
-						
+
 						String classAndobject = getClassAndObjectForMCB(((MessageOccurrenceSpecificationImpl) el)
 								.getMessage());
 
@@ -723,7 +755,8 @@ public class Test1 {
 								+ ((MessageOccurrenceSpecificationImpl) el)
 										.getMessage().getName() + arguments
 								+ ")");
-//						System.out.println("!!!!Stack:" + theStack.toString());
+						// System.out.println("!!!!Stack:" +
+						// theStack.toString());
 
 						// now push it to busy
 						theBusyStack = busyProcessesPerLifeline
@@ -731,7 +764,7 @@ public class Test1 {
 										.getCovered(null).getRepresents()
 										.getName());
 						theBusyStack.push(theProcess);
-						
+
 					} else if (occurence.getMessage().getMessageSort()
 							.toString().equals("reply")) {
 						// Case 2:
@@ -740,7 +773,7 @@ public class Test1 {
 										.getCovered(null).getRepresents()
 										.getName());
 						Process theProcess = (Process) theReadyStack.pop();
-						
+
 						if (!theProcess.isProcessed) {
 							theProcess.addInvocation("method_var_end("
 									+ ((MessageOccurrenceSpecificationImpl) el)
@@ -749,8 +782,10 @@ public class Test1 {
 							theProcess.setProcessed();
 						}
 
-//						System.out.println("!!!!Stack:" + theReadyStack.toString());
-					} else if (occurence.getMessage().getMessageSort().toString().equals("asynchCall")){
+						// System.out.println("!!!!Stack:" +
+						// theReadyStack.toString());
+					} else if (occurence.getMessage().getMessageSort()
+							.toString().equals("asynchCall")) {
 						// Case 6: asynch send
 						String classAndobject = getClassAndObjectForMCB(((MessageOccurrenceSpecificationImpl) el)
 								.getMessage());
@@ -779,10 +814,10 @@ public class Test1 {
 								.getOperation();
 						ClassImpl classCheck = (ClassImpl) ((InteractionFragmentImpl) el)
 								.getCovered(null).getRepresents().getType();
-						
+
 						Process findProcess = findProcess(classCheck, opCheck);
-						
-//						Process findProcess = (Process) theReadyStack.pop();
+
+						// Process findProcess = (Process) theReadyStack.pop();
 						if (findProcess == null) {
 							findProcess = new Process(classCheck, opCheck);
 							processes.add(findProcess);
@@ -797,7 +832,8 @@ public class Test1 {
 										.getCovered(null).getRepresents()
 										.getName());
 						theReadyStack.push(findProcess);
-//						System.out.println("!!!!Stack:" + theStack.toString());
+						// System.out.println("!!!!Stack:" +
+						// theStack.toString());
 
 					} else if (occurence.getMessage().getMessageSort()
 							.toString().equals("reply")) {
@@ -836,18 +872,20 @@ public class Test1 {
 								+ ((MessageOccurrenceSpecificationImpl) el)
 										.getMessage().getName() + "_return"
 								+ ")");
-//						System.out.println("!!!!Stack:" + theStack.toString());
-					} else if (occurence.getMessage().getMessageSort().toString().equals("asynchCall")){
-						
+						// System.out.println("!!!!Stack:" +
+						// theStack.toString());
+					} else if (occurence.getMessage().getMessageSort()
+							.toString().equals("asynchCall")) {
+
 						// Case 5: // asynchronous receive
 						OperationImpl opCheck = (OperationImpl) receiveEvent
 								.getOperation();
 						ClassImpl classCheck = (ClassImpl) ((InteractionFragmentImpl) el)
 								.getCovered(null).getRepresents().getType();
-						
+
 						Process findProcess = findProcess(classCheck, opCheck);
-						
-//						Process findProcess = (Process) theReadyStack.pop();
+
+						// Process findProcess = (Process) theReadyStack.pop();
 						if (findProcess == null) {
 							findProcess = new Process(classCheck, opCheck);
 							processes.add(findProcess);
@@ -862,16 +900,19 @@ public class Test1 {
 										.getCovered(null).getRepresents()
 										.getName());
 						theReadyStack.push(findProcess);
-//						System.out.println("!!!!Stack:" + theStack.toString());
+						// System.out.println("!!!!Stack:" +
+						// theStack.toString());
 
 					}
 
 				}
 				// System.out.println("; Message event:"+((MessageOccurrenceSpecificationImpl)el).getMessage().getSendEvent());
-				
-				System.out.println("Ready stack AFTER message occurence:"+theReadyStack.toString());
-				System.out.println("Busy stack AFTER message occurence:"+theBusyStack.toString());
-				
+
+				System.out.println("Ready stack AFTER message occurence:"
+						+ theReadyStack.toString());
+				System.out.println("Busy stack AFTER message occurence:"
+						+ theBusyStack.toString());
+
 			} else if (el.getClass().equals(CombinedFragmentImpl.class)) {
 				System.out.println("CombinedFragment:"
 						+ ((CombinedFragmentImpl) el).getCovered(null)
@@ -896,12 +937,13 @@ public class Test1 {
 						responsibleProcess.addCloseFragment(true);
 			} else if (operator.equals("opt")) {
 				responsibleProcess.closeOptFragment();
-			} else if(operator.equals("loop")){
-				//remove the ready _loop process from the queue in order to keep method_var_end appearing
-				//in the right process
+			} else if (operator.equals("loop")) {
+				// remove the ready _loop process from the queue in order to
+				// keep method_var_end appearing
+				// in the right process
 				theReadyStack.pop();
 			}
-			
+
 		}
 
 	}
@@ -1002,13 +1044,14 @@ public class Test1 {
 		return proc;
 
 	}
-	
-	public static Process findProcessViaClassANDOperationName(String className,String operationName){
+
+	public static Process findProcessViaClassANDOperationName(String className,
+			String operationName) {
 		Process proc = null;
 		ListIterator iterator = processes.listIterator(0);
 		while (iterator.hasNext()) {
 			Process p = (Process) iterator.next();
-			if(p.equalsClassNameANDOperationName(className, operationName)){
+			if (p.equalsClassNameANDOperationName(className, operationName)) {
 				proc = p;
 				break;
 			}
@@ -1051,10 +1094,10 @@ public class Test1 {
 				UMLPackage.Literals.PARAMETER);
 	}
 
-	public static void printProcessesMCRL2(Process p){
-		
+	public static void printProcessesMCRL2(Process p) {
+
 	}
-	
+
 	public static void main(String args[]) throws Exception {
 		int starter = 0;
 		EPackage.Registry.INSTANCE
@@ -1096,20 +1139,26 @@ public class Test1 {
 		ListIterator processes_iterator = processes.listIterator(0);
 		System.out.println("PROCESSES:");
 		while (processes_iterator.hasNext()) {
-			Process process = (Process)processes_iterator.next();
-			if(!process.getInvocations().isEmpty()){//those with no invocations are surpus, the rest are initiators
+			Process process = (Process) processes_iterator.next();
+			if (!process.getInvocations().isEmpty()) {// those with no
+														// invocations are
+														// surpus, the rest are
+														// initiators
 				System.out.println("----process-----");
 				System.out.println(process);
-				if(process.getClassImpl()==null && process.getOperationImpl()==null){
+				if (process.getClassImpl() == null
+						&& process.getOperationImpl() == null) {
 					starter++;
-					System.out.println("starter"+starter);
-				}else{
-					System.out.println("OpParametersIn:"+process.getOpParametersIn());
-					System.out.println("OpParametersReturn:"+process.getOpParametersReturn());
+					System.out.println("starter" + starter);
+				} else {
+					System.out.println("OpParametersIn:"
+							+ process.getOpParametersIn());
+					System.out.println("OpParametersReturn:"
+							+ process.getOpParametersReturn());
 				}
 			}
 		}
-		System.out.println("SORTSTRING:"+SortString);
+		System.out.println("SORTSTRING:" + SortString);
 
 	}
 }
