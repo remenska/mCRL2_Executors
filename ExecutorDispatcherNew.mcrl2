@@ -1,219 +1,233 @@
 %comment 
 sort Method = struct
 	getExecutorOfTask(taskId:Nat) | 
-      getExecutorOfTask'(eId:Nat) | 
+      getExecutorOfTask_return(eId:Nat) | 
       deleteTask(taskId:Nat) |  
-      deleteTask' |  
+      deleteTask_return |  
       removeTask(taskId:Nat,eid:Nat) |  
-      removeTask'(result:Bool) |   
+      removeTask_return(result:Bool) |   
   __sendTaskToExecutor(eId:Nat,eTypes:List(eType),checkIdle:Bool) |    
-  __sendTaskToExecutor'(reply:Reply,tid:Nat) |     
+  __sendTaskToExecutor_return(reply:Reply,tid:Nat) |     
     freeSlots(eId:Nat) |     
-  freeSlots'(fs:Nat) |     
+  freeSlots_return(fs:Nat) |     
   popTask(eTypes:List(eType)) | 
-  popTask'(taskId:Nat,eType:eType) | 
+  popTask_return(taskId:Nat,eType:eType) | 
   addTask(eId:Nat,taskId:Nat) |    
-  addTask' |    
+  addTask_return |    
   __msgTaskToExecutor(taskId:Nat,eId:Nat,eType:eType) |     
-  __msgTaskToExecutor'(result:Reply) |     
+  __msgTaskToExecutor_return(result:Reply) |     
   pushTask(eType:eType,taskId:Nat,ahead:Bool) |     
-  pushTask' |     
+  pushTask_return |     
   cbSendTask(taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType) |     
-  cbSendTask'(result:Reply) |     
+  cbSendTask_return(result:Reply) |     
 
   msg(msg:Message,eId:Nat, taskObj:TaskObject) |
   removeTaskDispatcher(taskid:Nat) | 
-  removeTaskDispatcher'(reply:Reply) | 	% should return reply:Reply
+  removeTaskDispatcher_return(reply:Reply) | 	% should return reply:Reply
   __fillExecutors(etype:eType,defrozeIfNeeded:Bool) |	%OK
-  __fillExecutors' | 
+  __fillExecutors_return | 
   __unfreezeTasks(etype:eType) |	 
-  __unfreezeTasks' |	 
+  __unfreezeTasks_return |	 
   getIdleExecutor(etype:eType) | 
-  getIdleExecutor'(eId:Nat) | 
+  getIdleExecutor_return(eId:Nat) | 
   __dispatchTask(taskId:Nat,defrozeIfNeeded:Bool) | 
-  __dispatchTask'(reply:Reply) | 
+  __dispatchTask_return(reply:Reply) | 
   __removeFromFreezer(taskid:Nat) | 
-  __removeFromFreezer'(result:Bool) | 
+  __removeFromFreezer_return(result:Bool) | 
   __getNextExecutor(taskid:Nat) | 
-  __getNextExecutor'(reply:Reply,etype:eType) | 
+  __getNextExecutor_return(reply:Reply,etype:eType) | 
   __freezeTask(taskid:Nat,eType:eType) | 
-  __freezeTask'(result:Bool) | 
+  __freezeTask_return(result:Bool) | 
   getTask(taskid:Nat) | 
-  getTask'(taskObj:TaskObject) | 
+  getTask_return(taskObj:TaskObject) | 
 
   cbDispatch(taskid:Nat,taskObj:TaskObject,executedPath:List(eType)) | 
-  cbDispatch'(reply:Reply,etype:eType) | 
+  cbDispatch_return(reply:Reply,etype:eType) | 
 
   setStatus1(jobState:TaskObject,fullStatus:FullStatus) | 
-  setStatus1'(reply:Reply) | 
+  setStatus1_return(reply:Reply) | 
 
   rescheduleJob(jobState:TaskObject) | 
-  rescheduleJob'(reply:Reply) | 
+  rescheduleJob_return(reply:Reply) | 
 
   exec_dispatch(jid:Nat,jobState:TaskObject,pathExecuted:List(eType)) | 
-  exec_dispatch'(reply:Reply,nextExecutor:eType) | 
+  exec_dispatch_return(reply:Reply,nextExecutor:eType) | 
 
   msg1(msg:Message,jids:List(Nat)) |
   forgetTask(taskid:Nat) |	%OK
-  forgetTask' | 
+  forgetTask_return | 
   executeTask(jid:Nat,cachedJobState:TaskObject) | 
-  executeTask'(reply:Reply) | 
+  executeTask_return(reply:Reply) | 
   addTaskDispatcher(taskid:Nat,taskObj:TaskObject) | 
-  addTaskDispatcher'(reply:Reply) | 
+  addTaskDispatcher_return(reply:Reply) | 
   __addTaskIfNew(taskid:Nat,taskObj:TaskObject) | 
-  __addTaskIfNew'(result:Bool) | 
+  __addTaskIfNew_return(result:Bool) | 
   submitJob(jobIDs:List(Nat)) | 
-  submitJob' | 
+  submitJob_return | 
   __sendNewJobsToMind(jobIDs:List(Nat)) | 
-  __sendNewJobsToMind' | 
+  __sendNewJobsToMind_return | 
   killJob(jobID:Nat) |	%OK
-  killJob' | 
+  killJob_return | 
   resetJobAPI(jobID:Nat) |	%OK
-  resetJobAPI' |	%OK
+  resetJobAPI_return |	%OK
   taskProcessed(eId:Nat,taskId:Nat,taskObj1:TaskObject) | 
-  taskProcessed'(reply:Reply) | 
+  taskProcessed_return(reply:Reply) | 
   __taskReceived(taskId:Nat,eId:Nat) | 
-  __taskReceived'(reply:Reply,eType:eType) | 
+  __taskReceived_return(reply:Reply,eType:eType) | 
   cbTaskProcessed(taskId:Nat,taskObj:TaskObject,eType:eType) | 
-  cbTaskProcessed'(reply:Reply) | 
+  cbTaskProcessed_return(reply:Reply) | 
 
   removeExecutor(eid:Nat) | 
-  removeExecutor' | 
+  removeExecutor_return | 
   removeExecutorStates(eid:Nat) | 
-  removeExecutorStates'(tasksInExec:List(Nat)) | 
+  removeExecutorStates_return(tasksInExec:List(Nat)) | 
   cbDisconectExecutor(eid:Nat) | 
-  cbDisconectExecutor' | 
+  cbDisconectExecutor_return | 
   exec_executorDisconnected(trid:Nat) | 
-  exec_executorDisconnected' | 
+  exec_executorDisconnected_return | 
   freezeTask(eid:Nat,taskid:Nat,taskObj:TaskObject) | 
-  freezeTask'(reply:Reply) | 
+  freezeTask_return(reply:Reply) | 
   conn_connected(trid:Nat,eTypes:List(eType),maxTasks:Nat) | 
-  conn_connected'(reply:Reply) | 
+  conn_connected_return(reply:Reply) | 
   addExecutor(trid:Nat,eTypes:List(eType),maxTasks:Nat) | 
-  addExecutor' | 
+  addExecutor_return | 
   exec_executorConnected(trid:Nat,eTypes:List(eType)) | 
-  exec_executorConnected'(reply:Reply) | 
+  exec_executorConnected_return(reply:Reply) | 
   addExecutorState(eid:Nat,eTypes:List(eType),maxTasks:Nat) | 
-  addExecutorState' | 
+  addExecutorState_return | 
   getExecutorsConnected | 
-  getExecutorsConnected'(eTypes:List(eType)) | 
+  getExecutorsConnected_return(eTypes:List(eType)) | 
 
   getTaskIds | 
-  getTaskIds'(knownJids:List(Nat)) | 
+  getTaskIds_return(knownJids:List(Nat)) | 
   __loadJobs(eTypes:List(eType)) | 
-  __loadJobs'(reply:Reply) | 
+  __loadJobs_return(reply:Reply) | 
   conn_drop(trid:Nat) | 
-  conn_drop' | 
+  conn_drop_return | 
   __doPeriodicStuff |
-  __doPeriodicStuff' |
+  __doPeriodicStuff_return |
 
   connect(instance:Nat, mind:Mind) |
-  connect' |
+  connect_return |
 
   __taskInQueue_get(taskid:Nat) |
-  __taskInQueue_get'(etype:eType) |
+  __taskInQueue_get_return(etype:eType) |
   __taskInQueue_del(taskid:Nat) | 
-  __taskInQueue_del' |
+  __taskInQueue_del_return |
   __queues_index(etype:eType,taskid:Nat) |
-  __queues_index'(pos:Int) |
+  __queues_index_return(pos:Int) |
   __queues_delAtPos(etype:eType,pos:Nat) |
-  __queues_delAtPos' |
+  __queues_delAtPos_return |
   __queues_pop(etype:eType,pos:Nat) |
-  __queues_pop'(taskid:Int) |
+  __queues_pop_return(taskid:Int) |
   __taskInQueue_keys |
-  __taskInQueue_keys'(taskids:List(Nat)) |
+  __taskInQueue_keys_return(taskids:List(Nat)) |
   __queues_keys |
-  __queues_keys'(etypes:List(eType)) |
+  __queues_keys_return(etypes:List(eType)) |
   __queues_addetype(etype:eType) |
-  __queues_addetype' |
+  __queues_addetype_return |
   __queues_insert(etype:eType,taskid:Nat) |
-  __queues_insert' |
+  __queues_insert_return |
   __queues_append(etype:eType,taskid:Nat) |
-  __queues_append' |
+  __queues_append_return |
   __taskInQueue_set(taskid:Nat,etype:eType) |
-  __taskInQueue_set' |
+  __taskInQueue_set_return |
   __taskInExec_get(taskid:Nat) |
-  __taskInExec_get'(eid:Int) |
+  __taskInExec_get_return(eid:Int) |
   __execTasks_removetaskid(eid:Nat,taskid:Nat) |
-  __execTasks_removetaskid' |
+  __execTasks_removetaskid_return |
   __taskInExec_pop(taskid:Nat) |
-  __taskInExec_pop' |
+  __taskInExec_pop_return |
   __maxTasks_get(eid:Nat) |
-  __maxTasks_get'(maxtasks:Nat) |
+  __maxTasks_get_return(maxtasks:Nat) |
   __execTasks_taskids(eid:Nat) |
-  __execTasks_taskids'(taskids:List(Nat)) |
+  __execTasks_taskids_return(taskids:List(Nat)) |
   __taskInExec_set(taskid:Nat,eid:Nat) |
-  __taskInExec_set' |
+  __taskInExec_set_return |
   __execTasks_addtaskid(eid:Nat,taskid:Nat) |
-  __execTasks_addtaskid' |
+  __execTasks_addtaskid_return |
   __typeToId_eids(etype:eType) |
-  __typeToId_eids'(eids:List(Nat)) |
+  __typeToId_eids_return(eids:List(Nat)) |
   __typeToId_keys |
-  __typeToId_keys'(etypes:List(eType)) |
+  __typeToId_keys_return(etypes:List(eType)) |
   __typeToId_remove(etype:eType,eid:Nat) |
-  __typeToId_remove' |
+  __typeToId_remove_return |
   __execTasks_pop(eid:Nat) |
-  __execTasks_pop' |
+  __execTasks_pop_return |
   __maxTasks_pop(eid:Nat) |
-  __maxTasks_pop' |
+  __maxTasks_pop_return |
   __maxTasks_add(eid:Nat,maxTasks:Nat) |
-  __maxTasks_add' |
+  __maxTasks_add_return |
   __execTasks_keys |
-  __execTasks_keys'(eids:List(Nat)) |
+  __execTasks_keys_return(eids:List(Nat)) |
   __execTasks_addeid(eid:Nat) |
-  __execTasks_addeid' |
+  __execTasks_addeid_return |
   __typeToId_addeType(etype:eType) |
-  __typeToId_addeType' |
+  __typeToId_addeType_return |
   __typeToId_addeid(etype:eType,eid:Nat) |
-  __typeToId_addeid' |
+  __typeToId_addeid_return |
   
   
   __tasks_get(taskid:Nat) | 
-  __tasks_get'(taskObj:TaskObject) |
+  __tasks_get_return(taskObj:TaskObject) |
   __taskFreezer_check(taskid:Nat) |
-  __taskFreezer_check'(isIn:Bool) |
+  __taskFreezer_check_return(isIn:Bool) |
   __taskFreezer_append(taskid:Nat) |
-  __taskFreezer_append' |
+  __taskFreezer_append_return |
   __taskFreezer_index(taskid:Nat) |
-  __taskFreezer_index'(ipos:Int) |
+  __taskFreezer_index_return(ipos:Int) |
   __taskFreezer_pop(ipos:Nat) |
-  __taskFreezer_pop' |
+  __taskFreezer_pop_return |
   __tasks_keys |
-  __tasks_keys'(taskids:List(Nat)) |
+  __tasks_keys_return(taskids:List(Nat)) |
   __execTypes_get_eTypes |
-  __execTypes_get_eTypes'(etypes:List(eType)) |
+  __execTypes_get_eTypes_return(etypes:List(eType)) |
   __tasks_add(taskObj:TaskObject) |
-  __tasks_add' |
+  __tasks_add_return |
   __idMap_keys |
-  __idMap_keys'(eids:List(Nat)) |
+  __idMap_keys_return(eids:List(Nat)) |
   __idMap_set(eid:Nat,etypes:List(eType)) |
-  __idMap_set' |
+  __idMap_set_return |
   __execTypes_add(etype:eType) |
-  __execTypes_add' |
+  __execTypes_add_return |
   __execTypes_inc(etype:eType) |
-  __execTypes_inc' |
+  __execTypes_inc_return |
   __idMap_pop(eid:Nat) |
-  __idMap_pop'(etypes:List(eType)) |
+  __idMap_pop_return(etypes:List(eType)) |
   __execTypes_dec(etype:eType) |
-  __execTypes_dec' |
+  __execTypes_dec_return |
   __idMap_get(eid:Nat) |
-  __idMap_get'(etypes:List(eType)) |
+  __idMap_get_return(etypes:List(eType)) |
   __taskFreezer_len |
-  __taskFreezer_len'(len:Nat) |
+  __taskFreezer_len_return(len:Nat) |
   __taskFreezer_get(iP:Nat) | 
-  __taskFreezer_get'(taskid:Int) |
-
+  __taskFreezer_get_return(taskid:Int) |
   __execTypes_getExecutorsConnected |
-  __execTypes_getExecutorsConnected'(etypes:List(eType)) |
-%   getJobAttributes(jid:Nat) | 
-%   getJobAttributes'(reply:Reply,currentStatus:FullStatus) |
+  __execTypes_getExecutorsConnected_return(etypes:List(eType)) |
   __tasks_update(taskid:Nat,taskObj:TaskObject) |
-  __tasks_update' |
+  __tasks_update_return |
   __tasks_pop(taskid:Nat) |
-  __tasks_pop'
+  __tasks_pop_return
 ;
 
 
+sort ClassType = struct ExecutorDispatcher |
+			ExecutorState |
+			ExecutorQueues |
+			OptimizationMindHandler |
+			JobManagerHandler |
+			MindCluster |
+			MindCallbacks;
+
+sort ClassObject = struct __eDispatch |
+			  __eDispatch1 |
+			  __cbHolder |
+			  __queues |
+			  __states |
+			  MindHandler |
+			  JobManager |
+			  mindCluster;
+			
 sort Reply = struct OK | ERROR ;
 
 sort Message = struct ProcessTask | 
@@ -653,160 +667,247 @@ eqn
 %-----------------
 % memory processes
 proc ExecutorQueues_mem(id:Nat,queues:__queues,taskInQueue:__taskInQueue) =
-  sum taskid:Nat.method_var_begin(id,__taskInQueue_get(taskid)).
-  method_var_end(id,__taskInQueue_get'(__taskInQueue_get(taskInQueue,taskid)))
+  sum taskid:Nat,obj:ClassObject.method_var_begin(id,ExecutorQueues,obj,__taskInQueue_get(taskid)).
+  method_var_end(id,ExecutorQueues,obj,__taskInQueue_get_return(__taskInQueue_get(taskInQueue,taskid)))
     .ExecutorQueues_mem(id,queues,taskInQueue)
    +
-  sum taskid:Nat.method_var_begin(id,__taskInQueue_del(taskid)).method_var_end(id,__taskInQueue_del')
+  sum taskid:Nat,obj:ClassObject.method_var_begin(id,ExecutorQueues,obj,__taskInQueue_del(taskid)).
+    method_var_end(id,ExecutorQueues,obj,__taskInQueue_del_return)
     .ExecutorQueues_mem(id,queues,__taskInQueue_del(taskInQueue,taskid))
    +
-  sum etype:eType,taskid:Nat.method_var_begin(id,__queues_index(etype,taskid)).method_var_end(id,__queues_index'(__queues_index(queues,etype,taskid)))
+  sum etype:eType,taskid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorQueues,obj,__queues_index(etype,taskid)).
+  method_var_end(id,ExecutorQueues,obj,__queues_index_return(__queues_index(queues,etype,taskid)))
       .ExecutorQueues_mem(id,queues,taskInQueue)
    +
-  sum etype:eType,pos:Nat.method_var_begin(id,__queues_delAtPos(etype,pos)).method_var_end(id,__queues_delAtPos')
+  sum etype:eType,pos:Nat,obj:ClassObject.method_var_begin(id,ExecutorQueues,obj,__queues_delAtPos(etype,pos)).
+  method_var_end(id,ExecutorQueues,obj,__queues_delAtPos_return)
       .ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
    +
-  sum etype:eType,pos:Nat.method_var_begin(id,__queues_pop(etype,pos)).
+  sum etype:eType,pos:Nat,obj:ClassObject.method_var_begin(id,ExecutorQueues,obj,__queues_pop(etype,pos)).
     (__queues_pop(queues,etype,0)!=-1)
-     ->  method_var_end(id,__queues_pop'(__queues_pop(queues,etype,0))).ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
-    <> method_var_end(id,__queues_pop'(__queues_pop(queues,etype,0))).ExecutorQueues_mem(id,queues,taskInQueue)
+     ->  method_var_end(id,ExecutorQueues,obj,__queues_pop_return(__queues_pop(queues,etype,0)))
+     .ExecutorQueues_mem(id,__queues_delAtPos(queues,etype,pos),taskInQueue)
+    <> 
+    method_var_end(id,ExecutorQueues,obj,__queues_pop_return(__queues_pop(queues,etype,0)))
+    .ExecutorQueues_mem(id,queues,taskInQueue)
    +    
-  method_var_begin(id, __taskInQueue_keys).method_var_end(id,__taskInQueue_keys'(__taskInQueue_keys(taskInQueue)))
+  sum obj:ClassObject.
+  method_var_begin(id,ExecutorQueues,obj,__taskInQueue_keys).
+  method_var_end(id,ExecutorQueues,obj,__taskInQueue_keys_return(__taskInQueue_keys(taskInQueue)))
       .ExecutorQueues_mem(id,queues,taskInQueue)
    +
-  method_var_begin(id,__queues_keys).method_var_end(id,__queues_keys'(__queues_keys(queues)))
+  sum obj:ClassObject.
+  method_var_begin(id,ExecutorQueues,obj,__queues_keys).
+  method_var_end(id,ExecutorQueues,obj,__queues_keys_return(__queues_keys(queues)))
       .ExecutorQueues_mem(id,queues,taskInQueue)
    +
-  sum etype:eType.method_var_begin(id,__queues_addetype(etype)).method_var_end(id,__queues_addetype')
+  sum etype:eType,obj:ClassObject.
+    method_var_begin(id,ExecutorQueues,obj,__queues_addetype(etype)).
+    method_var_end(id,ExecutorQueues,obj,__queues_addetype_return)
       .ExecutorQueues_mem(id,__queues_addetype(queues,etype),taskInQueue)
    +
-  sum etype:eType,taskid:Nat.method_var_begin(id,__queues_insert(etype,taskid)).method_var_end(id,__queues_insert')
+  sum etype:eType,taskid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorQueues,obj,__queues_insert(etype,taskid)).
+  method_var_end(id,ExecutorQueues,obj,__queues_insert_return)
       .ExecutorQueues_mem(id,__queues_insert(queues,etype,taskid),taskInQueue)
    +
-  sum etype:eType,taskid:Nat.method_var_begin(id,__queues_append(etype,taskid)).method_var_end(id,__queues_append')
+  sum etype:eType,taskid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorQueues,obj,__queues_append(etype,taskid)).
+  method_var_end(id,ExecutorQueues,obj,__queues_append_return)
       .ExecutorQueues_mem(id,__queues_append(queues,etype,taskid),taskInQueue)
    +
-  sum taskid:Nat,etype:eType.method_var_begin(id,__taskInQueue_set(taskid,etype)).method_var_end(id,__taskInQueue_set')
+  sum taskid:Nat,etype:eType,obj:ClassObject.
+  method_var_begin(id,ExecutorQueues,obj,__taskInQueue_set(taskid,etype)).
+  method_var_end(id,ExecutorQueues,obj,__taskInQueue_set_return)
       .ExecutorQueues_mem(id,queues,__taskInQueue_set(taskInQueue,taskid,etype))
 ;
 
 %-----------
 proc ExecutorState_mem(id:Nat,typeToId:__typeToId,maxTasks:__maxTasks,execTasks:__execTasks,taskInExec:__taskInExec) =
-  sum taskid:Nat.method_var_begin(id,__taskInExec_get(taskid)).method_var_end(id,__taskInExec_get'(__taskInExec_get(taskInExec,taskid)))
+  sum taskid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__taskInExec_get(taskid)).
+  method_var_end(id,ExecutorState,obj,__taskInExec_get_return(__taskInExec_get(taskInExec,taskid)))
     .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
     +
-  sum eId:Nat,taskid:Nat.method_var_begin(id,__execTasks_removetaskid(eId,taskid)).method_var_end(id,__execTasks_removetaskid')
+  sum eId:Nat,taskid:Nat,obj:ClassObject.
+    method_var_begin(id,ExecutorState,obj,__execTasks_removetaskid(eId,taskid)).
+    method_var_end(id,ExecutorState,obj,__execTasks_removetaskid_return)
     .ExecutorState_mem(id,typeToId,maxTasks,__execTasks_removetaskid(execTasks,eId,taskid),taskInExec)
     +
-  sum taskid:Nat.method_var_begin(id,__taskInExec_pop(taskid)).method_var_end(id,__taskInExec_pop')
+  sum taskid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__taskInExec_pop(taskid)).
+  method_var_end(id,ExecutorState,obj,__taskInExec_pop_return)
     .ExecutorState_mem(id,typeToId,maxTasks,execTasks,__taskInExec_pop(taskInExec,taskid))
     +
-  sum eid:Nat.method_var_begin(id,__maxTasks_get(eid)).method_var_end(id,__maxTasks_get'(__maxTasks_get(maxTasks,eid)))
+  sum eid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__maxTasks_get(eid)).
+  method_var_end(id,ExecutorState,obj,__maxTasks_get_return(__maxTasks_get(maxTasks,eid)))
     .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
     +
-  sum eid:Nat.method_var_begin(id,__execTasks_taskids(eid)).method_var_end(id,__execTasks_taskids'(__execTasks_taskids(execTasks,eid)))
+  sum eid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__execTasks_taskids(eid)).
+  method_var_end(id,ExecutorState,obj,__execTasks_taskids_return(__execTasks_taskids(execTasks,eid)))
     .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
     +
-  sum taskid:Nat,eid:Nat.method_var_begin(id,__taskInExec_set(taskid,eid)).method_var_end(id,__taskInExec_set')
+  sum taskid:Nat,eid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__taskInExec_set(taskid,eid)).
+  method_var_end(id,ExecutorState,obj,__taskInExec_set_return)
     .ExecutorState_mem(id,typeToId,maxTasks,execTasks,__taskInExec_set(taskInExec,taskid,eid))
     +
-  sum eid:Nat,taskid:Nat.method_var_begin(id,__execTasks_addtaskid(eid,taskid)).method_var_end(id,__execTasks_addtaskid')
+  sum eid:Nat,taskid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__execTasks_addtaskid(eid,taskid)).
+  method_var_end(id,ExecutorState,obj,__execTasks_addtaskid_return)
     .ExecutorState_mem(id,typeToId,maxTasks,__execTasks_addtaskid(execTasks,eid,taskid),taskInExec)
     +
-  sum etype:eType.method_var_begin(id,__typeToId_eids(etype)).method_var_end(id,__typeToId_eids'(__typeToId_eids(typeToId,etype)))
+  sum etype:eType,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__typeToId_eids(etype)).
+  method_var_end(id,ExecutorState,obj,__typeToId_eids_return(__typeToId_eids(typeToId,etype)))
     .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
     +
-  method_var_begin(id,__typeToId_keys).method_var_end(id,__typeToId_keys'(__typeToId_keys(typeToId)))
+  sum obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__typeToId_keys).
+  method_var_end(id,ExecutorState,obj,__typeToId_keys_return(__typeToId_keys(typeToId)))
     .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
     +
-  sum etype:eType,eid:Nat.method_var_begin(id,__typeToId_remove(etype,eid)).method_var_end(id,__typeToId_remove')
+  sum etype:eType,eid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__typeToId_remove(etype,eid)).
+  method_var_end(id,ExecutorState,obj,__typeToId_remove_return)
     .ExecutorState_mem(id,__typeToId_remove(typeToId,etype,eid),maxTasks,execTasks,taskInExec)
     +
-  sum eid:Nat.method_var_begin(id,__execTasks_pop(eid)).method_var_end(id,__execTasks_pop')
+  sum eid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__execTasks_pop(eid)).
+  method_var_end(id,ExecutorState,obj,__execTasks_pop_return)
     .ExecutorState_mem(id,typeToId,maxTasks,__execTasks_pop(execTasks,eid),taskInExec)
     +
-  sum eid:Nat.method_var_begin(id,__maxTasks_pop(eid)).method_var_end(id,__maxTasks_pop')
+  sum eid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__maxTasks_pop(eid)).
+  method_var_end(id,ExecutorState,obj,__maxTasks_pop_return)
     .ExecutorState_mem(id,typeToId,__maxTasks_pop(maxTasks,eid),execTasks,taskInExec)
     +
-  sum eid:Nat,maxtasks:Nat.method_var_begin(id,__maxTasks_add(eid,maxtasks)).method_var_end(id,__maxTasks_add')
+  sum eid:Nat,maxtasks:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__maxTasks_add(eid,maxtasks)).
+  method_var_end(id,ExecutorState,obj,__maxTasks_add_return)
     .ExecutorState_mem(id,typeToId,__maxTasks_add(maxTasks,eid,maxtasks),execTasks,taskInExec)
     +
-  method_var_begin(id,__execTasks_keys).method_var_end(id,__execTasks_keys'(__execTasks_keys(execTasks)))
+  sum obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__execTasks_keys).
+  method_var_end(id,ExecutorState,obj,__execTasks_keys_return(__execTasks_keys(execTasks)))
     .ExecutorState_mem(id,typeToId,maxTasks,execTasks,taskInExec)
     +
-  sum eid:Nat.method_var_begin(id,__execTasks_addeid(eid)).method_var_end(id,__execTasks_addeid')
+  sum eid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__execTasks_addeid(eid)).
+  method_var_end(id,ExecutorState,obj,__execTasks_addeid_return)
     .ExecutorState_mem(id,typeToId,maxTasks,__execTasks_addeid(execTasks,eid),taskInExec)
     +
-  sum etype:eType.method_var_begin(id,__typeToId_addeType(etype)).method_var_end(id,__typeToId_addeType')
+  sum etype:eType,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__typeToId_addeType(etype)).
+  method_var_end(id,ExecutorState,obj,__typeToId_addeType_return)
     .ExecutorState_mem(id,__typeToId_addeType(typeToId,etype),maxTasks,execTasks,taskInExec)
     +
-  sum etype:eType,eid:Nat.method_var_begin(id,__typeToId_addeid(etype,eid)).method_var_end(id,__typeToId_addeid')
+  sum etype:eType,eid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorState,obj,__typeToId_addeid(etype,eid)).
+  method_var_end(id,ExecutorState,obj,__typeToId_addeid_return)
     .ExecutorState_mem(id,__typeToId_addeid(typeToId,etype,eid),maxTasks,execTasks,taskInExec)
 ;
 
 
 %-----------
 proc ExecutorDispatcher_mem(id:Nat,execTypes:__execTypes,tasks:__tasks,freezer:__taskFreezer,idMap:__idMap) = 
-  sum taskid:Nat.method_var_begin(id,__tasks_get(taskid)).method_var_end(id,__tasks_get'(__tasks_get(tasks,taskid)))
+  sum taskid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__tasks_get(taskid)).
+  method_var_end(id,ExecutorDispatcher,obj,__tasks_get_return(__tasks_get(tasks,taskid)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
-  sum taskid:Nat.method_var_begin(id,__taskFreezer_check(taskid)).
-    (taskid in freezer) -> method_var_end(id,__taskFreezer_check'(true)) <> method_var_end(id,__taskFreezer_check'(false))
+  sum taskid:Nat,obj:ClassObject.method_var_begin(id,ExecutorDispatcher,obj,__taskFreezer_check(taskid)).
+    (taskid in freezer) -> method_var_end(id,ExecutorDispatcher,obj,__taskFreezer_check_return(true)) <> method_var_end(id,ExecutorDispatcher,obj,__taskFreezer_check_return(false))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
-  sum taskid:Nat.method_var_begin(id,__taskFreezer_append(taskid)).method_var_end(id,__taskFreezer_append')
+  sum taskid:Nat,obj:ClassObject.method_var_begin(id,ExecutorDispatcher,obj,__taskFreezer_append(taskid)).
+  method_var_end(id,ExecutorDispatcher,obj,__taskFreezer_append_return)
     .ExecutorDispatcher_mem(id,execTypes,tasks,__taskFreezer_append(freezer,taskid),idMap)
     +
-  sum taskid:Nat.method_var_begin(id,__taskFreezer_index(taskid)).method_var_end(id,__taskFreezer_index'(__taskFreezer_index(freezer,taskid)))
+  sum taskid:Nat,obj:ClassObject.method_var_begin(id,ExecutorDispatcher,obj,__taskFreezer_index(taskid)).
+  method_var_end(id,ExecutorDispatcher,obj,__taskFreezer_index_return(__taskFreezer_index(freezer,taskid)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
-  sum pos:Nat.method_var_begin(id,__taskFreezer_pop(pos)).method_var_end(id,__taskFreezer_pop')
+  sum pos:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__taskFreezer_pop(pos)).
+  method_var_end(id,ExecutorDispatcher,obj,__taskFreezer_pop_return)
     .ExecutorDispatcher_mem(id,execTypes,tasks,__taskFreezer_pop(freezer,pos),idMap)
     +
-  method_var_begin(id,__tasks_keys).method_var_end(id,__tasks_keys'(__tasks_keys(tasks)))
+  sum obj:ClassObject.method_var_begin(id,ExecutorDispatcher,obj,__tasks_keys).
+  method_var_end(id,ExecutorDispatcher,obj,__tasks_keys_return(__tasks_keys(tasks)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
-  method_var_begin(id,__execTypes_get_eTypes).method_var_end(id,__execTypes_get_eTypes'(__execTypes_get_eTypes(execTypes)))
+  sum obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__execTypes_get_eTypes).
+  method_var_end(id,ExecutorDispatcher,obj,__execTypes_get_eTypes_return(__execTypes_get_eTypes(execTypes)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
-  method_var_begin(id,__execTypes_getExecutorsConnected).
-	method_var_end(id,__execTypes_getExecutorsConnected'(__execTypes_getExecutorsConnected(execTypes)))
+  sum obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__execTypes_getExecutorsConnected).
+method_var_end(id,ExecutorDispatcher,obj,__execTypes_getExecutorsConnected_return(__execTypes_getExecutorsConnected(execTypes)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
-  sum taskObj:TaskObject.method_var_begin(id,__tasks_add(taskObj)).method_var_end(id,__tasks_add')
+  sum taskObj:TaskObject,obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__tasks_add(taskObj)).
+  method_var_end(id,ExecutorDispatcher,obj,__tasks_add_return)
     .ExecutorDispatcher_mem(id,execTypes,__tasks_add(tasks,taskObj),freezer,idMap)
     +
-  sum eid:Nat,etypes:List(eType).method_var_begin(id,__idMap_set(eid,etypes)).method_var_end(id,__idMap_set')
+  sum eid:Nat,etypes:List(eType),obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__idMap_set(eid,etypes)).
+  method_var_end(id,ExecutorDispatcher,obj,__idMap_set_return)
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,__idMap_set(idMap,eid,etypes))
     +
-  sum etype:eType.method_var_begin(id,__execTypes_add(etype)).method_var_end(id,__execTypes_add')
+  sum etype:eType,obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__execTypes_add(etype)).
+  method_var_end(id,ExecutorDispatcher,obj,__execTypes_add_return)
     .ExecutorDispatcher_mem(id,__execTypes_add(execTypes,etype),tasks,freezer,idMap)
     +
-  sum etype:eType.method_var_begin(id,__execTypes_inc(etype)).method_var_end(id,__execTypes_inc')
+  sum etype:eType,obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__execTypes_inc(etype)).
+  method_var_end(id,ExecutorDispatcher,obj,__execTypes_inc_return)
     .ExecutorDispatcher_mem(id,__execTypes_inc(execTypes,etype),tasks,freezer,idMap)
     +
-  sum eid:Nat.method_var_begin(id,__idMap_pop(eid)).method_var_end(id,__idMap_pop'(__idMap_pop(idMap,eid)))
+  sum eid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__idMap_pop(eid)).
+  method_var_end(id,ExecutorDispatcher,obj,__idMap_pop_return(__idMap_pop(idMap,eid)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,__idMap_remove(idMap,eid))
     +
-  sum etype:eType.method_var_begin(id,__execTypes_dec(etype)).method_var_end(id,__execTypes_dec')
+  sum etype:eType,obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__execTypes_dec(etype)).
+  method_var_end(id,ExecutorDispatcher,obj,__execTypes_dec_return)
     .ExecutorDispatcher_mem(id,__execTypes_dec(execTypes,etype),tasks,freezer,idMap)
     +
-  sum eid:Nat.method_var_begin(id,__idMap_get(eid)).method_var_end(id,__idMap_get'(__idMap_get(idMap,eid)))
+  sum eid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__idMap_get(eid)).
+  method_var_end(id,ExecutorDispatcher,obj,__idMap_get_return(__idMap_get(idMap,eid)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
-  method_var_begin(id,__taskFreezer_len).method_var_end(id,__taskFreezer_len'(#freezer))
+  sum obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__taskFreezer_len).
+  method_var_end(id,ExecutorDispatcher,obj,__taskFreezer_len_return(#freezer))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
-  method_var_begin(id,__idMap_keys).method_var_end(id,__idMap_keys'(__idMap_keys(idMap)))
+  sum obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__idMap_keys).
+  method_var_end(id,ExecutorDispatcher,obj,__idMap_keys_return(__idMap_keys(idMap)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
-  sum iP:Nat.method_var_begin(id,__taskFreezer_get(iP)).method_var_end(id,__taskFreezer_get'(__taskFreezer_get(freezer,iP)))
+  sum iP:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__taskFreezer_get(iP)).
+  method_var_end(id,ExecutorDispatcher,obj,__taskFreezer_get_return(__taskFreezer_get(freezer,iP)))
     .ExecutorDispatcher_mem(id,execTypes,tasks,freezer,idMap)
     +
-  sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,__tasks_update(taskid,taskObj)).method_var_end(id,__tasks_update')
+  sum taskid:Nat,taskObj:TaskObject,obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__tasks_update(taskid,taskObj)).
+  method_var_end(id,ExecutorDispatcher,obj,__tasks_update_return)
     .ExecutorDispatcher_mem(id,execTypes,__tasks_update(tasks,taskid,taskObj),freezer,idMap)
     +
-  sum taskid:Nat.method_var_begin(id,__tasks_pop(taskid)).method_var_end(id,__tasks_pop')
+  sum taskid:Nat,obj:ClassObject.
+  method_var_begin(id,ExecutorDispatcher,obj,__tasks_pop(taskid)).
+  method_var_end(id,ExecutorDispatcher,obj,__tasks_pop_return)
     .ExecutorDispatcher_mem(id,execTypes,__tasks_pop(tasks,taskid),freezer,idMap)
 ;
 
@@ -817,14 +918,14 @@ proc ExecutorDispatcher_mem(id:Nat,execTypes:__execTypes,tasks:__tasks,freezer:_
 
 % ======= END-DATA=============
 
-act method_call_begin,method_var_begin:Nat#Method;
-act method_call_end,method_var_end:Nat#Method;
+act method_call_begin,method_var_begin:Nat#ClassType#ClassObject#Method;
+act method_call_end,method_var_end:Nat#ClassType#ClassObject#Method;
 
-act method_begin:Nat#Method;
-act method_end:Nat#Method;
+act method_begin:Nat#ClassType#ClassObject#Method;
+act method_end:Nat#ClassType#ClassObject#Method;
 
-act DISET_call_send, DISET_call_receive:Nat#Method;
-act DISET_call:Nat#Method;
+act DISET_call_send, DISET_call_receive:Nat#ClassType#ClassObject#Method;
+act DISET_call:Nat#ClassType#ClassObject#Method;
 
 act internal;
 %--------DATA TRANSFORMATIONS
@@ -843,26 +944,27 @@ eqn
 proc ExecutorDispatcher_removeTask(id:Nat) =
 (
     
-    sum taskId:Nat.method_var_begin(id,removeTaskDispatcher(taskId)).
-    method_call_begin(id,__tasks_pop(taskId)).
-    method_call_end(id,__tasks_pop'). 
-    method_call_begin(id,getExecutorOfTask(taskId)). 
-  sum eId:Nat.method_call_end(id,getExecutorOfTask'(eId)).
-    ( method_call_begin(id,deleteTask(taskId)).
-      method_call_end(id,deleteTask').
-      method_call_begin(id,removeTask(taskId,0)). % eid=0 fixed! to represent eId=None
-      sum result:Bool.method_call_end(id,removeTask'(result)).
-      method_call_begin(id,__taskFreezer_index(taskId)).
-      sum ind:Int.method_call_end(id,__taskFreezer_index'(ind)).
+    sum taskId:Nat,obj:ClassObject.method_var_begin(id,ExecutorDispatcher,obj,removeTaskDispatcher(taskId)).
+    method_call_begin(id,ExecutorDispatcher,obj,__tasks_pop(taskId)).
+    method_call_end(id,ExecutorDispatcher,obj,__tasks_pop_return). 
+    method_call_begin(id,ExecutorState,__states, getExecutorOfTask(taskId)). 
+    sum eId:Nat.method_call_end(id,ExecutorState,__states,getExecutorOfTask_return(eId)).
+    
+    ( method_call_begin(id,ExecutorQueues,__queues,deleteTask(taskId)).
+      method_call_end(id,ExecutorQueues,__queues,deleteTask_return).
+      method_call_begin(id,ExecutorState,__states,removeTask(taskId,0)). % eid=0 fixed! to represent eId=None
+      sum result:Bool.method_call_end(id,ExecutorState,__states,removeTask_return(result)).
+      method_call_begin(id,ExecutorDispatcher,obj,__taskFreezer_index(taskId)).
+      sum ind:Int.method_call_end(id,ExecutorDispatcher,obj,__taskFreezer_index_return(ind)).
       ((ind>0) -> (
-		  method_call_begin(id,__taskFreezer_pop(Int2Nat(ind))).
-		  method_call_end(id,__taskFreezer_pop')
+		  method_call_begin(id,ExecutorDispatcher,obj,__taskFreezer_pop(Int2Nat(ind))).
+		  method_call_end(id,ExecutorDispatcher,obj,__taskFreezer_pop_return)
 		    ) <> internal).
       ((eId>0) -> 
-      method_call_begin(id,__sendTaskToExecutor(eId,[],true)).
-      sum reply:Reply,tid:Nat.method_call_end(id,__sendTaskToExecutor'(reply,tid)) % fixed [] for eTypes=false;checkIdle=true is ok
-      .method_var_end(id,removeTaskDispatcher'(reply)) 
-      <> method_var_end(id,removeTaskDispatcher'(OK))
+      method_call_begin(id,ExecutorDispatcher,obj,__sendTaskToExecutor(eId,[],true)).
+      sum reply:Reply,tid:Nat.method_call_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(reply,tid)) % fixed [] for eTypes=false;checkIdle=true is ok
+      .method_var_end(id,ExecutorDispatcher,obj,removeTaskDispatcher_return(reply)) 
+      <> method_var_end(id,ExecutorDispatcher,obj,removeTaskDispatcher_return(OK))
       )
     )
 
@@ -874,12 +976,12 @@ proc ExecutorDispatcher_removeTask(id:Nat) =
 proc ExecutorState_getExecutorOfTask(id:Nat) = 
 
 (
-	sum taskId:Nat.method_var_begin(id,getExecutorOfTask(taskId)).
-	  method_call_begin(id,__taskInExec_get(taskId)).
-	  sum eid:Int.method_call_end(id,__taskInExec_get'(eid)).
-	  (eid>0) -> method_var_end(id,getExecutorOfTask'(Int2Nat(eid)))
+	sum taskId:Nat,obj:ClassObject.method_var_begin(id,ExecutorState,obj,getExecutorOfTask(taskId)).
+	  method_call_begin(id,ExecutorState,obj,__taskInExec_get(taskId)).
+	  sum eid:Int.method_call_end(id,ExecutorState,obj,__taskInExec_get_return(eid)).
+	  (eid>0) -> method_var_end(id,ExecutorState,obj,getExecutorOfTask_return(Int2Nat(eid)))
 	    <>
-		    method_var_end(id,getExecutorOfTask'(0)) % represents NONE
+		    method_var_end(id,ExecutorState,obj,getExecutorOfTask_return(0)) % represents NONE
 
 )
 . ExecutorState_getExecutorOfTask(id)
@@ -888,20 +990,20 @@ proc ExecutorState_getExecutorOfTask(id:Nat) =
 %-----------DONE server-----------
 proc ExecutorQueues_deleteTask(id:Nat) = 
 (
-    sum taskId:Nat. method_var_begin(id,deleteTask(taskId)).
-    method_call_begin(id,__taskInQueue_get(taskId)).
-    sum etype:eType.method_call_end(id,__taskInQueue_get'(etype)).
+    sum taskId:Nat,obj:ClassObject. method_var_begin(id,ExecutorQueues,obj,deleteTask(taskId)).
+    method_call_begin(id,ExecutorQueues,obj,__taskInQueue_get(taskId)).
+    sum etype:eType.method_call_end(id,ExecutorQueues,obj,__taskInQueue_get_return(etype)).
     
-      method_call_begin(id,__taskInQueue_del(taskId)).
-      method_call_end(id,__taskInQueue_del').
+      method_call_begin(id,ExecutorQueues,obj,__taskInQueue_del(taskId)).
+      method_call_end(id,ExecutorQueues,obj,__taskInQueue_del_return).
       
-      method_call_begin(id,__queues_index(etype,taskId)).
-      sum iPos:Int.method_call_end(id,__queues_index'(iPos)).
+      method_call_begin(id,ExecutorQueues,obj,__queues_index(etype,taskId)).
+      sum iPos:Int.method_call_end(id,ExecutorQueues,obj,__queues_index_return(iPos)).
       ((iPos!=-1) -> 
-	  method_call_begin(id,__queues_delAtPos(etype,Int2Nat(iPos))).
-	  method_call_end(id,__queues_delAtPos')
+	  method_call_begin(id,ExecutorQueues,obj,__queues_delAtPos(etype,Int2Nat(iPos))).
+	  method_call_end(id,ExecutorQueues,obj,__queues_delAtPos_return)
 	  <> internal)
-    .method_var_end(id,deleteTask')
+    .method_var_end(id,ExecutorQueues,obj,deleteTask_return)
 
 )
 .ExecutorQueues_deleteTask(id)
@@ -909,23 +1011,23 @@ proc ExecutorQueues_deleteTask(id:Nat) =
 %-----------DONE server-------
 proc ExecutorState_removeTask(id:Nat) = 
 (
-    sum taskId:Nat,eId:Nat.method_var_begin(id,removeTask(taskId,eId)).
+    sum taskId:Nat,eId:Nat,obj:ClassObject.method_var_begin(id,ExecutorState,obj,removeTask(taskId,eId)).
     (
-	    method_call_begin(id,__taskInExec_get(taskId)). 
-	    sum eId:Int.method_call_end(id,__taskInExec_get'(eId)).
+	    method_call_begin(id,ExecutorState,obj,__taskInExec_get(taskId)). 
+	    sum eId:Int.method_call_end(id,ExecutorState,obj,__taskInExec_get_return(eId)).
 	    (eId>0)->
 	      (
-	      method_call_begin(id,__execTasks_removetaskid(Int2Nat(eId),taskId)).
-	      method_call_end(id,__execTasks_removetaskid').
-	      method_call_begin(id,__taskInExec_pop(taskId)).
-	      method_call_end(id,__taskInExec_pop').
-	      method_var_end(id,removeTask'(true))
+	      method_call_begin(id,ExecutorState,obj,__execTasks_removetaskid(Int2Nat(eId),taskId)).
+	      method_call_end(id,ExecutorState,obj,__execTasks_removetaskid_return).
+	      method_call_begin(id,ExecutorState,obj,__taskInExec_pop(taskId)).
+	      method_call_end(id,ExecutorState,obj,__taskInExec_pop_return).
+	      method_var_end(id,ExecutorState,obj,removeTask_return(true))
 		)
 		<> 
 	      (
-	      method_call_begin(id,__taskInExec_pop(taskId)).
-	      method_call_end(id,__taskInExec_pop').
-	      method_var_end(id,removeTask'(false))
+	      method_call_begin(id,ExecutorState,obj,__taskInExec_pop(taskId)).
+	      method_call_end(id,ExecutorState,obj,__taskInExec_pop_return).
+	      method_var_end(id,ExecutorState,obj,removeTask_return(false))
 	      )
 
       )
@@ -936,55 +1038,56 @@ proc ExecutorState_removeTask(id:Nat) =
 %-----------DONE server-----
 proc ExecutorDispatcher___sendTaskToExecutor(id:Nat) = 
 (
-    sum eId:Nat,eTypes:List(eType),checkIdle:Bool.method_var_begin(id,__sendTaskToExecutor(eId,eTypes,checkIdle)). 
-    method_call_begin(id,freeSlots(eId)). 
-    sum noSlots:Nat.method_call_end(id,freeSlots'(noSlots)).
+    sum eId:Nat,eTypes:List(eType),checkIdle:Bool,obj:ClassObject.
+    method_var_begin(id,ExecutorDispatcher,obj,__sendTaskToExecutor(eId,eTypes,checkIdle)). 
+    method_call_begin(id,ExecutorState,__states,freeSlots(eId)). 
+    sum noSlots:Nat.method_call_end(id,ExecutorState,__states,freeSlots_return(noSlots)).
     (checkIdle && noSlots==0) ->
-      method_var_end(id,__sendTaskToExecutor'(OK,0)) <> % taskid=0 for no task 
+      method_var_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(OK,0)) <> % taskid=0 for no task 
 	    (
 	      (eTypes==[]) -> 
 		  (
-		    method_call_begin(id,__idMap_get(eId)).
-		    sum eTypes:List(eType).method_call_end(id,__idMap_get'(eTypes)).
-		    (eTypes==[]) -> method_var_end(id,__sendTaskToExecutor'(ERROR,0)) <>
+		    method_call_begin(id,ExecutorDispatcher,obj,__idMap_get(eId)).
+		    sum eTypes:List(eType).method_call_end(id,ExecutorDispatcher,obj,__idMap_get_return(eTypes)).
+		    (eTypes==[]) -> method_var_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(ERROR,0)) <>
 		      (
-			method_call_begin(id,popTask(eTypes)).
-			sum taskId:Nat,eType:eType.method_call_end(id,popTask'(taskId,eType)).
+			method_call_begin(id,ExecutorQueues,__queues,popTask(eTypes)).
+			sum taskId:Nat,eType:eType.method_call_end(id,ExecutorQueues,__queues,popTask_return(taskId,eType)).
 		      (taskId==0) ->
-		      method_var_end(id,__sendTaskToExecutor'(OK,0)) <> % no more tasks!
+		      method_var_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(OK,0)) <> % no more tasks!
 			(
-			method_call_begin(id,addTask(eId,taskId)).
-			method_call_end(id,addTask').
-			method_call_begin(id,__msgTaskToExecutor(taskId,eId,eType)). 
-			sum reply:Reply.method_call_end(id,__msgTaskToExecutor'(reply)).
+			method_call_begin(id,ExecutorState,__states,addTask(eId,taskId)).
+			method_call_end(id,ExecutorState,__states,addTask_return).
+			method_call_begin(id,ExecutorDispatcher,obj,__msgTaskToExecutor(taskId,eId,eType)). 
+			sum reply:Reply.method_call_end(id,ExecutorDispatcher,obj,__msgTaskToExecutor_return(reply)).
 			(reply!=OK) ->
-			method_call_begin(id,pushTask(eType,taskId,true)). % ahead=true in call!
-			method_call_end(id,pushTask').
-			method_call_begin(id,removeTask(taskId,0)).  % eid=0 fixed for eid==None!
-			sum result:Bool.method_call_end(id,removeTask'(result)).
-			method_var_end(id,__sendTaskToExecutor'(reply,0))
-			<>  method_var_end(id,__sendTaskToExecutor'(OK,taskId))
+			method_call_begin(id,ExecutorQueues,__queues,pushTask(eType,taskId,true)). % ahead=true in call!
+			method_call_end(id,ExecutorQueues,__queues,pushTask_return).
+			method_call_begin(id,ExecutorState,__states,removeTask(taskId,0)).  % eid=0 fixed for eid==None!
+			sum result:Bool.method_call_end(id,ExecutorState,__states,removeTask_return(result)).
+			method_var_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(reply,0))
+			<>  method_var_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(OK,taskId))
 			)
 		      )
 		  ) <> 
 		  (
 
-			method_call_begin(id,popTask(eTypes)).
-			sum taskId:Nat,eType:eType.method_call_end(id,popTask'(taskId,eType)).
+			method_call_begin(id,ExecutorQueues,__queues,popTask(eTypes)).
+			sum taskId:Nat,eType:eType.method_call_end(id,ExecutorQueues,__queues,popTask_return(taskId,eType)).
 		      (taskId==0) ->
-		      method_var_end(id,__sendTaskToExecutor'(OK,0)) <> % no more tasks!
+		      method_var_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(OK,0)) <> % no more tasks!
 			(
-			method_call_begin(id,addTask(eId,taskId)).
-			method_call_end(id,addTask').
-			method_call_begin(id,__msgTaskToExecutor(taskId,eId,eType)). 
-			sum reply:Reply.method_call_end(id,__msgTaskToExecutor'(reply)).
+			method_call_begin(id,ExecutorState,__states,addTask(eId,taskId)).
+			method_call_end(id,ExecutorState,__states,addTask_return).
+			method_call_begin(id,ExecutorDispatcher,obj,__msgTaskToExecutor(taskId,eId,eType)). 
+			sum reply:Reply.method_call_end(id,ExecutorDispatcher,obj,__msgTaskToExecutor_return(reply)).
 			(reply!=OK) ->
-			method_call_begin(id,pushTask(eType,taskId,true)). % ahead=true in call!
-			method_call_end(id,pushTask').
-			method_call_begin(id,removeTask(taskId,0)).  % eid=0 fixed for eid==None!
-			sum result:Bool.method_call_end(id,removeTask'(result)).
-			method_var_end(id,__sendTaskToExecutor'(reply,0))
-			<>  method_var_end(id,__sendTaskToExecutor'(OK,taskId))
+			method_call_begin(id,ExecutorQueues,__queues,pushTask(eType,taskId,true)). % ahead=true in call!
+			method_call_end(id,ExecutorQueues,__queues,pushTask_return).
+			method_call_begin(id,ExecutorState,__states,removeTask(taskId,0)).  % eid=0 fixed for eid==None!
+			sum result:Bool.method_call_end(id,ExecutorState,__states,removeTask_return(result)).
+			method_var_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(reply,0))
+			<>  method_var_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(OK,taskId))
 			)
 
 		   )
@@ -997,14 +1100,14 @@ proc ExecutorDispatcher___sendTaskToExecutor(id:Nat) =
 %-----------server----------
 ExecutorState_freeSlots(id:Nat) = 
 (
-    sum eId:Nat.method_var_begin(id,freeSlots(eId)).
-      method_call_begin(id,__maxTasks_get(eId)).
-      sum maxtasks:Nat.method_call_end(id,__maxTasks_get'(maxtasks)).
-      method_call_begin(id,__execTasks_taskids(eId)).
-      sum taskids:List(Nat).method_call_end(id,__execTasks_taskids'(taskids)).
-      (maxtasks==0) -> method_var_end(id,freeSlots'(0))
+    sum eId:Nat,obj:ClassObject.method_var_begin(id,ExecutorState,obj,freeSlots(eId)).
+      method_call_begin(id,ExecutorState,obj,__maxTasks_get(eId)).
+      sum maxtasks:Nat.method_call_end(id,ExecutorState,obj,__maxTasks_get_return(maxtasks)).
+      method_call_begin(id,ExecutorState,obj,__execTasks_taskids(eId)).
+      sum taskids:List(Nat).method_call_end(id,ExecutorState,obj,__execTasks_taskids_return(taskids)).
+      (maxtasks==0) -> method_var_end(id,ExecutorState,obj,freeSlots_return(0))
 	    <>
-		  method_var_end(id,freeSlots'(Int2Nat(maxtasks-#taskids)))
+		  method_var_end(id,ExecutorState,obj,freeSlots_return(Int2Nat(maxtasks-#taskids)))
 )
 .ExecutorState_freeSlots(id)
 ;
@@ -1012,37 +1115,38 @@ ExecutorState_freeSlots(id:Nat) =
 %-----------DONE server---------
 ExecutorQueues_popTask(id:Nat) = 
 (
-    sum eTypes:List(eType).method_var_begin(id,popTask(eTypes)). 
-    loop_popTask(id,eTypes)
+    sum eTypes:List(eType),obj:ClassObject.method_var_begin(id,ExecutorQueues,obj,popTask(eTypes)). 
+    loop_popTask(id,obj,eTypes)
 )
 .ExecutorQueues_popTask(id)
 ;
 
-proc loop_popTask(id:Nat,eTypes:List(eType)) = 
+proc loop_popTask(id:Nat,obj:ClassObject,eTypes:List(eType)) = 
   (eTypes!=[]) ->
-    method_call_begin(id,__queues_pop(head(eTypes),0)).
-    sum taskid:Int.method_call_end(id,__queues_pop'(taskid)).
+    method_call_begin(id,ExecutorQueues,obj,__queues_pop(head(eTypes),0)).
+    sum taskid:Int.method_call_end(id,ExecutorQueues,obj,__queues_pop_return(taskid)).
     ((taskid!=-1) ->
-      method_call_begin(id,__taskInQueue_del(Int2Nat(taskid))).
-      method_call_end(id,__taskInQueue_del').
-      method_var_end(id,popTask'(Int2Nat(taskid),head(eTypes)))
+      method_call_begin(id,ExecutorQueues,obj,__taskInQueue_del(Int2Nat(taskid))).
+      method_call_end(id,ExecutorQueues,obj,__taskInQueue_del_return).
+      method_var_end(id,ExecutorQueues,obj,popTask_return(Int2Nat(taskid),head(eTypes)))
       <>
-      loop_popTask(id,tail(eTypes))
+      loop_popTask(id,obj,tail(eTypes))
       )
     <>
 %     internal
-    method_var_end(id,popTask'(0,None))
+    method_var_end(id,ExecutorQueues,obj,popTask_return(0,None))
 ;
 
 %-----------DONE-server-----------
 ExecutorState_addTask(id:Nat) = 
 (
-sum eId:Nat,taskId:Nat.method_var_begin(id,addTask(eId,taskId)).
-  method_call_begin(id,__taskInExec_set(taskId,eId)).
-  method_call_end(id,__taskInExec_set').
-  method_call_begin(id,__execTasks_addtaskid(eId,taskId)).
-  method_call_end(id,__execTasks_addtaskid').
-  method_var_end(id,addTask')
+sum eId:Nat,taskId:Nat,obj:ClassObject.
+    method_var_begin(id,ExecutorState,obj,addTask(eId,taskId)).
+  method_call_begin(id,ExecutorState,obj,__taskInExec_set(taskId,eId)).
+  method_call_end(id,ExecutorState,obj,__taskInExec_set_return).
+  method_call_begin(id,ExecutorState,obj,__execTasks_addtaskid(eId,taskId)).
+  method_call_end(id,ExecutorState,obj,__execTasks_addtaskid_return).
+  method_var_end(id,ExecutorState,obj,addTask_return)
 )
 .ExecutorState_addTask(id)
 ;
@@ -1050,17 +1154,18 @@ sum eId:Nat,taskId:Nat.method_var_begin(id,addTask(eId,taskId)).
 %-----------server----------
 proc ExecutorDispatcher___msgTaskToExecutor(id:Nat) =
 (
-    sum taskId:Nat,eId:Nat,eType:eType.method_var_begin(id,__msgTaskToExecutor(taskId,eId,eType)). 
-    method_call_begin(id,__tasks_get(taskId)).
-    sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
-    (taskObj==NullObj) -> method_var_end(id,__msgTaskToExecutor'(ERROR))
+    sum taskId:Nat,eId:Nat,eType:eType,obj:ClassObject.
+      method_var_begin(id,ExecutorDispatcher,obj,__msgTaskToExecutor(taskId,eId,eType)). 
+    method_call_begin(id,ExecutorDispatcher,obj,__tasks_get(taskId)).
+    sum taskObj:TaskObject.method_call_end(id,ExecutorDispatcher,obj,__tasks_get_return(taskObj)).
+    (taskObj==NullObj) -> method_var_end(id,ExecutorDispatcher,obj,__msgTaskToExecutor_return(ERROR))
      <>
-      method_call_begin(id,cbSendTask(taskId,taskObj,eId,eType)).
-      sum reply:Reply.method_call_end(id,cbSendTask'(reply)).
+      method_call_begin(id,MindCallbacks,__cbHolder,cbSendTask(taskId,taskObj,eId,eType)).
+      sum reply:Reply.method_call_end(id,MindCallbacks,__cbHolder,cbSendTask_return(reply)).
       (reply==OK) -> 
-      method_var_end(id,__msgTaskToExecutor'(OK)) 
+      method_var_end(id,ExecutorDispatcher,obj,__msgTaskToExecutor_return(OK)) 
       <>
-      method_var_end(id,__msgTaskToExecutor'(ERROR))
+      method_var_end(id,ExecutorDispatcher,obj,__msgTaskToExecutor_return(ERROR))
 )
 .ExecutorDispatcher___msgTaskToExecutor(id)
 ;
@@ -1068,29 +1173,32 @@ proc ExecutorDispatcher___msgTaskToExecutor(id:Nat) =
 %-----------server----------
 proc ExecutorQueues_pushTask(id:Nat) = 
 (
-    sum eType:eType,taskId:Nat,ahead:Bool.method_var_begin(id,pushTask(eType,taskId,ahead)). 
-      method_call_begin(id,__taskInQueue_keys).
-      sum taskids:List(Nat).method_call_end(id,__taskInQueue_keys'(taskids)).
-      (taskId in taskids) -> method_var_end(id,pushTask')
+    sum eType:eType,taskId:Nat,ahead:Bool,obj:ClassObject.
+	method_var_begin(id,ExecutorQueues,obj,pushTask(eType,taskId,ahead)). 
+      method_call_begin(id,ExecutorQueues,obj,__taskInQueue_keys).
+      sum taskids:List(Nat).method_call_end(id,ExecutorQueues,obj,__taskInQueue_keys_return(taskids)).
+      (taskId in taskids) -> method_var_end(id,ExecutorQueues,obj,pushTask_return)
       <>
       (
-	method_call_begin(id,__queues_keys).
-	sum etypes:List(eType).method_call_end(id,__queues_keys'(etypes)).
+	method_call_begin(id,ExecutorQueues,obj,__queues_keys).
+	sum etypes:List(eType).method_call_end(id,ExecutorQueues,obj,__queues_keys_return(etypes)).
 	(!(eType in etypes) ->
-	    method_call_begin(id,__queues_addetype(eType)).
-	    method_call_end(id,__queues_addetype')
+	    method_call_begin(id,ExecutorQueues,obj,__queues_addetype(eType)).
+	    method_call_end(id,ExecutorQueues,obj,__queues_addetype_return)
 	    <>
 	    internal
 	 )   
 	.(
-	  (ahead) -> method_call_begin(id,__queues_insert(eType,taskId)).method_call_end(id,__queues_insert')
+	  (ahead) -> method_call_begin(id,ExecutorQueues,obj,__queues_insert(eType,taskId)).
+		      method_call_end(id,ExecutorQueues,obj,__queues_insert_return)
 	    <>
-		  method_call_begin(id,__queues_append(eType,taskId)).method_call_end(id,__queues_append')
+		  method_call_begin(id,ExecutorQueues,obj,__queues_append(eType,taskId)).
+		  method_call_end(id,ExecutorQueues,obj,__queues_append_return)
          )
       ).
-	method_call_begin(id,__taskInQueue_set(taskId,eType)).method_call_end(id,__taskInQueue_set').
-	method_var_end(id,pushTask')
-
+	method_call_begin(id,ExecutorQueues,obj,__taskInQueue_set(taskId,eType)).
+	method_call_end(id,ExecutorQueues,obj,__taskInQueue_set_return).
+	method_var_end(id,ExecutorQueues,obj,pushTask_return)
 )
 .ExecutorQueues_pushTask(id)
 ;
@@ -1098,11 +1206,13 @@ proc ExecutorQueues_pushTask(id:Nat) =
 %-----------DONE server----------
 proc MindCallbacks_cbSendTask(id:Nat) = 
 (
-  sum taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType. method_var_begin(id,cbSendTask(taskId,taskObj,eId,eType)). 
+  sum taskId:Nat,taskObj:TaskObject,eId:Nat,eType:eType,obj:ClassObject. 
+      method_var_begin(id,MindCallbacks,obj,cbSendTask(taskId,taskObj,eId,eType)). 
   (
-  method_var_end(id,cbSendTask'(OK)).DISET_call_send(id,msg(ProcessTask,eId, taskObj))
+  method_var_end(id,MindCallbacks,obj,cbSendTask_return(OK)).
+  DISET_call_send(id,MindCluster,mindCluster,msg(ProcessTask,eId, taskObj))
   +
-  method_var_end(id,cbSendTask'(ERROR))
+  method_var_end(id,MindCallbacks,obj,cbSendTask_return(ERROR))
 
   )
 )
@@ -1113,113 +1223,119 @@ proc MindCallbacks_cbSendTask(id:Nat) =
 %-----------DONE server---
 proc ExecutorDispatcher___fillExecutors(id:Nat) = 
 (
-  sum etype:eType,defrozeIfNeeded:Bool.method_var_begin(id,__fillExecutors(etype,defrozeIfNeeded)).
+  sum etype:eType,defrozeIfNeeded:Bool,obj:ClassObject.
+    method_var_begin(id,ExecutorDispatcher,obj,__fillExecutors(etype,defrozeIfNeeded)).
   (defrozeIfNeeded ->
-   method_call_begin(id,__unfreezeTasks(etype)).
-   method_call_end(id,__unfreezeTasks')
+   method_call_begin(id,ExecutorDispatcher,obj,__unfreezeTasks(etype)).
+   method_call_end(id,ExecutorDispatcher,obj,__unfreezeTasks_return)
    <> internal
   ).
-  method_call_begin(id,getIdleExecutor(etype)).
-  sum eId:Nat.method_call_end(id,getIdleExecutor'(eId))
-  .loop_fillExecutors(id,eId,etype).
-  method_var_end(id,__fillExecutors')
+  method_call_begin(id,ExecutorState,__states,getIdleExecutor(etype)).
+  sum eId:Nat.method_call_end(id,ExecutorState,__states,getIdleExecutor_return(eId))
+  .loop_fillExecutors(id,obj,eId,etype).
+  method_var_end(id,ExecutorDispatcher,obj,__fillExecutors_return)
 ).ExecutorDispatcher___fillExecutors(id)
 ;
 
 %-----------DONE server---
 proc ExecutorDispatcher___unfreezeTasks(id:Nat) =
-  sum etype:eType.method_var_begin(id,__unfreezeTasks(etype)).
-  loop___unfreezeTasks(id,0,etype)
-%   method_var_end(id,__unfreezeTasks')
+  sum etype:eType,obj:ClassObject.
+    method_var_begin(id,ExecutorDispatcher,obj,__unfreezeTasks(etype)).
+  loop___unfreezeTasks(id,obj,0,etype)
+%   method_var_end(id,__unfreezeTasks_return)
 .ExecutorDispatcher___unfreezeTasks(id)
 ;
 
-proc loop___unfreezeTasks(id:Nat,iP:Nat,etype:eType) = 
-  method_call_begin(id,__taskFreezer_len).
-  sum len:Nat.method_call_end(id,__taskFreezer_len'(len)).
+proc loop___unfreezeTasks(id:Nat,obj:ClassObject,iP:Nat,etype:eType) = 
+  method_call_begin(id,ExecutorDispatcher,obj,__taskFreezer_len).
+  sum len:Nat.method_call_end(id,ExecutorDispatcher,obj,__taskFreezer_len_return(len)).
   (iP<len) ->
     (
-      method_call_begin(id,__taskFreezer_get(iP)).
-      sum taskid:Int.method_call_end(id,__taskFreezer_get'(taskid)).
-      (taskid==-1) -> method_var_end(id,__unfreezeTasks')
+      method_call_begin(id,ExecutorDispatcher,obj,__taskFreezer_get(iP)).
+      sum taskid:Int.method_call_end(id,ExecutorDispatcher,obj,__taskFreezer_get_return(taskid)).
+      (taskid==-1) -> method_var_end(id,ExecutorDispatcher,obj,__unfreezeTasks_return)
       <>
       (
-	method_call_begin(id,__tasks_get(Int2Nat(taskid))).
-	sum eTask:TaskObject.method_call_end(id,__tasks_get'(eTask)).
-	(eTask==NullObj) -> method_call_begin(id,__taskFreezer_pop(iP)).method_call_end(id,__taskFreezer_pop').
-			    loop___unfreezeTasks(id,iP,etype)
+	method_call_begin(id,ExecutorDispatcher,obj,__tasks_get(Int2Nat(taskid))).
+	sum eTask:TaskObject.method_call_end(id,ExecutorDispatcher,obj,__tasks_get_return(eTask)).
+	(eTask==NullObj) -> method_call_begin(id,ExecutorDispatcher,obj,__taskFreezer_pop(iP)).
+			      method_call_end(id,ExecutorDispatcher,obj,__taskFreezer_pop_return).
+			    loop___unfreezeTasks(id,obj,iP,etype)
 	  <>
-	  ((etype!=None && !(etype==eType(eTask))) -> loop___unfreezeTasks(id,succ(iP),etype)
+	  ((etype!=None && !(etype==eType(eTask))) -> loop___unfreezeTasks(id,obj,succ(iP),etype)
 	    <>
 	      (
-	      method_call_begin(id,__taskFreezer_pop(iP)).method_call_end(id,__taskFreezer_pop').
-	      method_call_begin(id,__dispatchTask(Int2Nat(taskid),false)). 
-	      sum reply:Reply.method_call_end(id,__dispatchTask'(reply)).
-	      loop___unfreezeTasks(id,iP,etype)
+	      method_call_begin(id,ExecutorDispatcher,obj,__taskFreezer_pop(iP)).
+	      method_call_end(id,ExecutorDispatcher,obj,__taskFreezer_pop_return).
+	      method_call_begin(id,ExecutorDispatcher,obj,__dispatchTask(Int2Nat(taskid),false)). 
+	      sum reply:Reply.method_call_end(id,ExecutorDispatcher,obj,__dispatchTask_return(reply)).
+	      loop___unfreezeTasks(id,obj,iP,etype)
 	      )
 	    )
       )
     )
-    <>  method_var_end(id,__unfreezeTasks')
+    <>  method_var_end(id,ExecutorDispatcher,obj,__unfreezeTasks_return)
 ;
 
 %----------- DONE server---
 proc ExecutorDispatcher___dispatchTask(id:Nat) =
  (
-    sum taskid:Nat,defrozeIfNeeded:Bool.method_var_begin(id,__dispatchTask(taskid,defrozeIfNeeded)).
-  method_call_begin(id,getExecutorOfTask(taskid)). 
-  sum eid:Nat.method_call_end(id,getExecutorOfTask'(eid)).
+    sum taskid:Nat,defrozeIfNeeded:Bool,obj:ClassObject.
+      method_var_begin(id,ExecutorDispatcher,obj,__dispatchTask(taskid,defrozeIfNeeded)).
+    method_call_begin(id,ExecutorState,__states,getExecutorOfTask(taskid)). 
+    sum eid:Nat.method_call_end(id,ExecutorState,__states,getExecutorOfTask_return(eid)).
   (
     (eid>0) ->
-      method_var_end(id,__dispatchTask'(OK))
+      method_var_end(id,ExecutorDispatcher,obj,__dispatchTask_return(OK))
       <>
       (
-	    method_call_begin(id,__removeFromFreezer(taskid)). 
-	    sum result:Bool.method_call_end(id,__removeFromFreezer'(result)).
-	    method_call_begin(id,__getNextExecutor(taskid)). % OK
-	    sum reply:Reply,etype:eType.method_call_end(id,__getNextExecutor'(reply,etype)). % OK
+	    method_call_begin(id,ExecutorDispatcher,obj,__removeFromFreezer(taskid)). 
+	    sum result:Bool.method_call_end(id,ExecutorDispatcher,obj,__removeFromFreezer_return(result)).
+	    method_call_begin(id,ExecutorDispatcher,obj,__getNextExecutor(taskid)). % OK
+	    sum reply:Reply,etype:eType.method_call_end(id,ExecutorDispatcher,obj,__getNextExecutor_return(reply,etype)). % OK
 	    (reply!=OK) ->
 	      (
 		% if self.__freezeOnFailedDispatch <-- model as nondeterministic choice? YES, done!
-		method_call_begin(id,__freezeTask(taskid,etype)).  % OK
-		sum result:Bool.method_call_end(id,__freezeTask'(result)).
-		((result) -> method_var_end(id,__dispatchTask'(OK)) <> method_var_end(id,__dispatchTask'(reply)))
-		+ % model as nondeterministic choice, both choices have a return statement so it's ok
-		method_call_begin(id,getTask(taskid)). % OK
-		sum taskObj:TaskObject.method_call_end(id,getTask'(taskObj)).
-		method_call_begin(id,removeTaskDispatcher(taskid)).
-		sum reply1:Reply.method_call_end(id,removeTaskDispatcher'(reply1)).
-		method_var_end(id,__dispatchTask'(ERROR))
+		method_call_begin(id,ExecutorDispatcher,obj,__freezeTask(taskid,etype)).  % OK
+		sum result:Bool.method_call_end(id,ExecutorDispatcher,obj,__freezeTask_return(result)).
+		((result) -> method_var_end(id,ExecutorDispatcher,obj,__dispatchTask_return(OK)) 
+			    <> method_var_end(id,ExecutorDispatcher,obj,__dispatchTask_return(reply)))
+		+ % model as nondeterministic choice, both choices have a return statement so it_returns ok
+		method_call_begin(id,ExecutorDispatcher,obj,getTask(taskid)). % OK
+		sum taskObj:TaskObject.method_call_end(id,ExecutorDispatcher,obj,getTask_return(taskObj)).
+		method_call_begin(id,ExecutorDispatcher,obj,removeTaskDispatcher(taskid)).
+		sum reply1:Reply.method_call_end(id,ExecutorDispatcher,obj,removeTaskDispatcher_return(reply1)).
+		method_var_end(id,ExecutorDispatcher,obj,__dispatchTask_return(ERROR))
 	    ) 
 	    <>
 	     (
 	      (etype==None) ->
 		(
-		  method_call_begin(id,removeTaskDispatcher(taskid)).
-		  sum reply2:Reply.method_call_end(id,removeTaskDispatcher'(reply2)).
-		  method_var_end(id,__dispatchTask'(reply2))
+		  method_call_begin(id,ExecutorDispatcher,obj,removeTaskDispatcher(taskid)).
+		  sum reply2:Reply.method_call_end(id,ExecutorDispatcher,obj,removeTaskDispatcher_return(reply2)).
+		  method_var_end(id,ExecutorDispatcher,obj,__dispatchTask_return(reply2))
 		) 
 		<>
 		(
-		  method_call_begin(id,__execTypes_get_eTypes).
-		  sum exectypes:List(eType).method_call_end(id,__execTypes_get_eTypes'(exectypes)).
+		  method_call_begin(id,ExecutorDispatcher,obj,__execTypes_get_eTypes).
+		  sum exectypes:List(eType).method_call_end(id,ExecutorDispatcher,obj,__execTypes_get_eTypes_return(exectypes)).
 		  (!(etype in exectypes) ->
 		    % nondeterministic choice again, freeze task or remove task, and return from method in both cases!
 		    (
-		    method_call_begin(id,__freezeTask(taskid,etype)).
-		    sum result1:Bool.method_call_end(id,__freezeTask'(result1)).
-		    method_var_end(id,__dispatchTask'(OK))
+		    method_call_begin(id,ExecutorDispatcher,obj,__freezeTask(taskid,etype)).
+		    sum result1:Bool.method_call_end(id,ExecutorDispatcher,obj,__freezeTask_return(result1)).
+		    method_var_end(id,ExecutorDispatcher,obj,__dispatchTask_return(OK))
 		    +
-		    method_call_begin(id,removeTaskDispatcher(taskid)).
-		    sum reply1:Reply.method_call_end(id,removeTaskDispatcher'(reply1)).
-		    method_var_end(id,__dispatchTask'(reply1))
+		    method_call_begin(id,ExecutorDispatcher,obj,removeTaskDispatcher(taskid)).
+		    sum reply1:Reply.method_call_end(id,ExecutorDispatcher,obj,removeTaskDispatcher_return(reply1)).
+		    method_var_end(id,ExecutorDispatcher,obj,__dispatchTask_return(reply1))
 		    )
 		    <> (
-			method_call_begin(id,pushTask(etype,taskid,false)). 
-			method_call_end(id, pushTask').
-			method_call_begin(id,__fillExecutors(etype,defrozeIfNeeded)).
-			method_call_end(id,__fillExecutors').
-			method_var_end(id,__dispatchTask'(OK))
+			method_call_begin(id,ExecutorQueues,__queues,pushTask(etype,taskid,false)). 
+			method_call_end(id,ExecutorQueues,__queues, pushTask_return).
+			method_call_begin(id,ExecutorDispatcher,obj,__fillExecutors(etype,defrozeIfNeeded)).
+			method_call_end(id,ExecutorDispatcher,obj,__fillExecutors_return).
+			method_var_end(id,ExecutorDispatcher,obj,__dispatchTask_return(OK))
 			)
 		  )
 	      )
@@ -1232,51 +1348,57 @@ proc ExecutorDispatcher___dispatchTask(id:Nat) =
 %-----------DONE server---
 proc ExecutorDispatcher___getNextExecutor(id:Nat) =
  (
-    sum taskid:Nat.method_var_begin(id,__getNextExecutor(taskid)).
-    method_call_begin(id,__tasks_get(taskid)).sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
-    (taskObj==NullObj) -> method_var_end(id,__getNextExecutor'(ERROR,None))
+    sum taskid:Nat,obj:ClassObject.method_var_begin(id,ExecutorDispatcher,obj,__getNextExecutor(taskid)).
+    method_call_begin(id,ExecutorDispatcher,obj,__tasks_get(taskid)).
+    sum taskObj:TaskObject.method_call_end(id,ExecutorDispatcher,obj,__tasks_get_return(taskObj)).
+    (taskObj==NullObj) -> method_var_end(id,ExecutorDispatcher,obj,__getNextExecutor_return(ERROR,None))
 	<>
       (
-      method_call_begin(id,cbDispatch(taskid, taskObj,optimizationChain(taskObj))).
-      sum reply:Reply,etype:eType.method_call_end(id,cbDispatch'(reply,etype)).
-      (reply!=OK) -> method_var_end(id,__getNextExecutor'(ERROR,None))
+      method_call_begin(id,MindCallbacks,__cbHolder,cbDispatch(taskid, taskObj,optimizationChain(taskObj))).
+      sum reply:Reply,etype:eType.
+	  method_call_end(id,MindCallbacks,__cbHolder,cbDispatch_return(reply,etype)).
+      (reply!=OK) -> method_var_end(id,ExecutorDispatcher,obj,__getNextExecutor_return(ERROR,None))
 	<>
-	method_call_begin(id, __tasks_update(taskid,taskObj(taskID(taskObj),optimizationChain(taskObj),etype,status(taskObj)))).
-	method_call_end(id, __tasks_update').
-	method_var_end(id,__getNextExecutor'(OK,etype))
+	method_call_begin(id,ExecutorDispatcher,obj, __tasks_update(taskid,taskObj(taskID(taskObj),optimizationChain(taskObj),etype,status(taskObj)))).
+	method_call_end(id,ExecutorDispatcher,obj,__tasks_update_return).
+	method_var_end(id,ExecutorDispatcher,obj,__getNextExecutor_return(OK,etype))
       )
   ).ExecutorDispatcher___getNextExecutor(id)
 ;
 
 %-----------DONE server---
 proc ExecutorDispatcher_getTask(id:Nat) =
-  sum taskid:Nat.method_var_begin(id,getTask(taskid)).
-  method_call_begin(id,__tasks_get(taskid)).sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
-  method_var_end(id,getTask'(taskObj))
+  sum taskid:Nat,obj:ClassObject.method_var_begin(id,ExecutorDispatcher,obj,getTask(taskid)).
+  method_call_begin(id,ExecutorDispatcher,obj,__tasks_get(taskid))
+  .sum taskObj:TaskObject.method_call_end(id,ExecutorDispatcher,obj,__tasks_get_return(taskObj)).
+  method_var_end(id,ExecutorDispatcher,obj,getTask_return(taskObj))
 .ExecutorDispatcher_getTask(id)
 ;
 
 %-----------DONE server--- 
 proc ExecutorDispatcher___freezeTask(id:Nat) =
  (
-      sum taskid:Nat,eType:eType.method_var_begin(id,__freezeTask(taskid,eType)).
-	method_call_begin(id,__taskFreezer_check(taskid)).
-	sum isIn:Bool.method_call_end(id,__taskFreezer_check'(isIn)).
-	isIn -> method_var_end(id,__freezeTask'(false)) <>
+      sum taskid:Nat,eType:eType,obj:ClassObject.
+      method_var_begin(id,ExecutorDispatcher,obj,__freezeTask(taskid,eType)).
+	method_call_begin(id,ExecutorDispatcher,obj,__taskFreezer_check(taskid)).
+	sum isIn:Bool.method_call_end(id,ExecutorDispatcher,obj,__taskFreezer_check_return(isIn)).
+	isIn -> method_var_end(id,ExecutorDispatcher,obj,__freezeTask_return(false)) <>
 	(
-	  method_call_begin(id,__tasks_get(taskid)).sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
-	  (taskObj==NullObj) -> method_var_end(id,__freezeTask'(false)) <>
+	  method_call_begin(id,ExecutorDispatcher,obj,__tasks_get(taskid))
+	  .sum taskObj:TaskObject.method_call_end(id,ExecutorDispatcher,obj,__tasks_get_return(taskObj)).
+	  (taskObj==NullObj) -> method_var_end(id,ExecutorDispatcher,obj,__freezeTask_return(false)) <>
 	    (
-	      method_call_begin(id,__taskFreezer_append(taskid)).method_call_end(id,__taskFreezer_append').
-	      method_var_end(id,__freezeTask'(true))
+	      method_call_begin(id,ExecutorDispatcher,obj,__taskFreezer_append(taskid)).
+	      method_call_end(id,ExecutorDispatcher,obj,__taskFreezer_append_return).
+	      method_var_end(id,ExecutorDispatcher,obj,__freezeTask_return(true))
 
 	      +
 		% if not isFrozen <-- modeled as a nondeterministic choice, after 10 retries
-	      method_call_begin(id,removeTaskDispatcher(taskid)).
-	      sum reply:Reply.method_call_end(id,removeTaskDispatcher'(reply)).
+	      method_call_begin(id,ExecutorDispatcher,obj,removeTaskDispatcher(taskid)).
+	      sum reply:Reply.method_call_end(id,ExecutorDispatcher,obj,removeTaskDispatcher_return(reply)).
 % 	      method_call_begin(id,cbTaskError(taskid,taskObj)).
-% 	      method_call_end(id,cbTaskError').
-	      method_var_end(id,__freezeTask'(false))
+% 	      method_call_end(id,cbTaskError_return).
+	      method_var_end(id,ExecutorDispatcher,obj,__freezeTask_return(false))
 	    )
 	)
   )
@@ -1285,26 +1407,31 @@ proc ExecutorDispatcher___freezeTask(id:Nat) =
 
 %-----------DONE server---
 proc MindCallbacks_cbDispatch(id:Nat) = 
-  sum taskid:Nat,taskObj:TaskObject, executedPath:List(eType).method_var_begin(id, cbDispatch(taskid,taskObj,executedPath)).
-  method_call_begin(id, exec_dispatch(taskid,taskObj,executedPath)).
-  sum reply:Reply,nextExecutor:eType.method_call_end(id,exec_dispatch'(reply,nextExecutor)).
-  method_var_end(id, cbDispatch'(reply,nextExecutor))
+  sum taskid:Nat,taskObj:TaskObject, executedPath:List(eType),obj:ClassObject.
+    method_var_begin(id, MindCallbacks,obj,cbDispatch(taskid,taskObj,executedPath)).
+    method_call_begin(id,OptimizationMindHandler,MindHandler, exec_dispatch(taskid,taskObj,executedPath)).
+    sum reply:Reply,nextExecutor:eType.
+    method_call_end(id,OptimizationMindHandler,MindHandler,exec_dispatch_return(reply,nextExecutor)).
+  method_var_end(id,MindCallbacks,obj, cbDispatch_return(reply,nextExecutor))
 .MindCallbacks_cbDispatch(id)
 ;
 
 %-----------CHECK server---
 proc OptimizationMindHandler_exec_dispatch(id:Nat) = 
   (
-      sum jid:Nat,jobState:TaskObject,pathExecuted:List(eType).method_var_begin(id, exec_dispatch(jid,jobState,pathExecuted)).
+      sum jid:Nat,jobState:TaskObject,pathExecuted:List(eType),obj:ClassObject.
+      method_var_begin(id, OptimizationMindHandler,obj,exec_dispatch(jid,jobState,pathExecuted)).
 
-      (status(status(jobState))==Received) -> method_var_end(id,exec_dispatch'(OK,JobPath))
+      (status(status(jobState))==Received) -> 
+	    method_var_end(id,OptimizationMindHandler,obj,exec_dispatch_return(OK,JobPath))
 	  <>
-	(status(status(jobState))!=Checking) -> method_var_end(id,exec_dispatch'(OK,None)) 
+	(status(status(jobState))!=Checking) -> 
+	  method_var_end(id,OptimizationMindHandler,obj,exec_dispatch_return(OK,None)) 
 	<>
 	(minorStatus(status(jobState)) in optimizationChain(jobState)) ->
-	    method_var_end(id,exec_dispatch'(OK,minorStatus2eType(minorStatus(status(jobState)))))
+	    method_var_end(id,OptimizationMindHandler,obj,exec_dispatch_return(OK,minorStatus2eType(minorStatus(status(jobState)))))
 	    <>
-	         method_var_end(id,exec_dispatch'(ERROR,None))
+	         method_var_end(id,OptimizationMindHandler,obj,exec_dispatch_return(ERROR,None))
      
   )
 
@@ -1315,17 +1442,20 @@ proc OptimizationMindHandler_exec_dispatch(id:Nat) =
 %-----------DONE server---
 proc ExecutorDispatcher___removeFromFreezer(id:Nat) = 
   (
-      sum taskid:Nat.method_var_begin(id,__removeFromFreezer(taskid)).
-	method_call_begin(id,__taskFreezer_index(taskid)).
-	sum iP:Int.method_call_end(id,__taskFreezer_index'(iP)).
-	(iP==-1) -> method_var_end(id, __removeFromFreezer'(false))
+      sum taskid:Nat,obj:ClassObject.
+	method_var_begin(id,ExecutorDispatcher,obj,__removeFromFreezer(taskid)).
+	method_call_begin(id,ExecutorDispatcher,obj,__taskFreezer_index(taskid)).
+	sum iP:Int.method_call_end(id,ExecutorDispatcher,obj,__taskFreezer_index_return(iP)).
+	(iP==-1) -> method_var_end(id,ExecutorDispatcher,obj,__removeFromFreezer_return(false))
 	<>
 	(
-	  method_call_begin(id,__taskFreezer_pop(Int2Nat(iP))).method_call_end(id,__taskFreezer_pop').
-	  method_call_begin(id,__tasks_get(taskid)).sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
-	  (taskObj==NullObj) -> method_var_begin(id,__removeFromFreezer'(false))
+	  method_call_begin(id,ExecutorDispatcher,obj,__taskFreezer_pop(Int2Nat(iP))).
+	  method_call_end(id,ExecutorDispatcher,obj,__taskFreezer_pop_return).
+	  method_call_begin(id,ExecutorDispatcher,obj,__tasks_get(taskid)).
+	  sum taskObj:TaskObject.method_call_end(id,ExecutorDispatcher,obj,__tasks_get_return(taskObj)).
+	  (taskObj==NullObj) -> method_var_begin(id,ExecutorDispatcher,obj,__removeFromFreezer_return(false))
 	    <>
-	  method_var_end(id,__removeFromFreezer'(true))
+	  method_var_end(id,ExecutorDispatcher,obj,__removeFromFreezer_return(true))
 	)
   )
 .ExecutorDispatcher___removeFromFreezer(id)
@@ -1333,38 +1463,39 @@ proc ExecutorDispatcher___removeFromFreezer(id:Nat) =
 
 %-----------DONE server---
 proc ExecutorState_getIdleExecutor(id:Nat) =
-  sum etype:eType.method_var_begin(id,getIdleExecutor(etype)).
-    method_call_begin(id,__typeToId_eids(etype)).
-    sum eids:List(Nat).method_call_end(id,__typeToId_eids'(eids)).
-    loop_getIdleExecutor(id,eids)
+  sum etype:eType,obj:ClassObject.
+    method_var_begin(id,ExecutorState,obj,getIdleExecutor(etype)).
+    method_call_begin(id,ExecutorState,obj,__typeToId_eids(etype)).
+    sum eids:List(Nat).method_call_end(id,ExecutorState,obj,__typeToId_eids_return(eids)).
+    loop_getIdleExecutor(id,obj,eids)
 .ExecutorState_getIdleExecutor(id)
 ;
 
-proc loop_getIdleExecutor(id:Nat,eids:List(Nat)) =
+proc loop_getIdleExecutor(id:Nat,obj:ClassObject,eids:List(Nat)) =
   (
   (eids!=[]) ->
       (
-      method_call_begin(id,freeSlots(head(eids))).
-      sum fs:Nat.method_call_end(id,freeSlots'(fs)).
+      method_call_begin(id,ExecutorState,obj,freeSlots(head(eids))).
+      sum fs:Nat.method_call_end(id,ExecutorState,obj,freeSlots_return(fs)).
       
-      (fs>0) -> method_var_end(id,getIdleExecutor'(head(eids))) 
-	<> loop_getIdleExecutor(id,tail(eids))
+      (fs>0) -> method_var_end(id,ExecutorState,obj,getIdleExecutor_return(head(eids))) 
+	<> loop_getIdleExecutor(id,obj,tail(eids))
       )
       <>
-      method_var_end(id,getIdleExecutor'(0)) % None!
+      method_var_end(id,ExecutorState,obj,getIdleExecutor_return(0)) % None!
    )
 ;
 
 %-----------DONE server---
-proc loop_fillExecutors(id:Nat,eId:Nat,etype:eType) = 
+proc loop_fillExecutors(id:Nat,obj:ClassObject,eId:Nat,etype:eType) = 
     (
     (eId>0) ->
-       method_call_begin(id,__sendTaskToExecutor(eId,[etype],false)).
-       sum reply:Reply,tid:Nat.method_call_end(id,__sendTaskToExecutor'(reply,tid)).
+       method_call_begin(id,ExecutorDispatcher,obj,__sendTaskToExecutor(eId,[etype],false)).
+       sum reply:Reply,tid:Nat.method_call_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(reply,tid)).
        (!(tid==0) -> 
-       method_call_begin(id,getIdleExecutor(etype)).
-       sum eId:Nat.method_call_end(id,getIdleExecutor'(eId))
-      .loop_fillExecutors(id,eId,etype)
+       method_call_begin(id,ExecutorState,__states,getIdleExecutor(etype)).
+       sum eId:Nat.method_call_end(id,ExecutorState,__states,getIdleExecutor_return(eId))
+      .loop_fillExecutors(id,obj,eId,etype)
       <> internal ) 
 	<> internal
     )
@@ -1373,19 +1504,20 @@ proc loop_fillExecutors(id:Nat,eId:Nat,etype:eType) =
 
 %-----------DONE server---
 proc OptimizationMindHandler_msg_OptimizeJobs(id:Nat) = 
-  sum jids:List(Nat).DISET_call_receive(id,msg1(OptimizeJobs,jids)). 
-  loop_msg_OptimizeJobs(id,jids)
+  sum jids:List(Nat),obj:ClassObject.
+  DISET_call_receive(id,OptimizationMindHandler,obj,msg1(OptimizeJobs,jids)). 
+  loop_msg_OptimizeJobs(id,obj,jids)
 ;
 
 %-----------DONE server---
-proc loop_msg_OptimizeJobs(id:Nat,jids:List(Nat)) =
+proc loop_msg_OptimizeJobs(id:Nat,obj:ClassObject,jids:List(Nat)) =
   (jids!=[]) ->
-    method_call_begin(id,forgetTask(head(jids))).
-    method_call_end(id,forgetTask').
-    method_call_begin(id,executeTask(head(jids),taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(Received,JobAccepted)))).
-    sum reply:Reply.method_call_end(id,executeTask'(reply))
+    method_call_begin(id,OptimizationMindHandler,obj,forgetTask(head(jids))).
+    method_call_end(id,OptimizationMindHandler,obj,forgetTask_return).
+    method_call_begin(id,OptimizationMindHandler,obj,executeTask(head(jids),taskObj(head(jids),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(Received,JobAccepted)))).
+    sum reply:Reply.method_call_end(id,OptimizationMindHandler,obj,executeTask_return(reply))
     
-    .loop_msg_OptimizeJobs(id,tail(jids))
+    .loop_msg_OptimizeJobs(id,obj,tail(jids))
 
   <> 
   internal
@@ -1394,10 +1526,11 @@ proc loop_msg_OptimizeJobs(id:Nat,jids:List(Nat)) =
 %-----------DONE server---
 proc OptimizationMindHandler_msg_TaskDone(id:Nat) =
   (
-      sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskDone,eId, taskObj)). 
+      sum eId:Nat,taskObj:TaskObject,obj:ClassObject.
+      DISET_call_receive(id,OptimizationMindHandler,obj,msg(TaskDone,eId, taskObj)). 
 	(
-	  method_call_begin(id,taskProcessed(eId,taskID(taskObj),taskObj)). 
-	  sum reply1:Reply.method_call_end(id,taskProcessed'(reply1))
+	  method_call_begin(id,ExecutorDispatcher,__eDispatch,taskProcessed(eId,taskID(taskObj),taskObj)). 
+	  sum reply1:Reply.method_call_end(id,ExecutorDispatcher,__eDispatch,taskProcessed_return(reply1))
 	)
   ).OptimizationMindHandler_msg_TaskDone(id)
 ;
@@ -1405,10 +1538,11 @@ proc OptimizationMindHandler_msg_TaskDone(id:Nat) =
 %-----------DONE server---
 proc OptimizationMindHandler_msg_TaskError(id:Nat) =
   (
-      sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskError,eId, taskObj)).
+      sum eId:Nat,taskObj:TaskObject,obj:ClassObject.
+      DISET_call_receive(id,OptimizationMindHandler,obj,msg(TaskError,eId, taskObj)).
 	(
-	  method_call_begin(id,removeTaskDispatcher(taskID(taskObj))).
-	  sum reply:Reply.method_call_end(id,removeTaskDispatcher'(reply))
+	  method_call_begin(id,ExecutorDispatcher,__eDispatch,removeTaskDispatcher(taskID(taskObj))).
+	  sum reply:Reply.method_call_end(id,ExecutorDispatcher,__eDispatch,removeTaskDispatcher_return(reply))
 	)
   ).OptimizationMindHandler_msg_TaskError(id)
 ;
@@ -1417,10 +1551,11 @@ proc OptimizationMindHandler_msg_TaskError(id:Nat) =
 %-----------DONE server---
 proc OptimizationMindHandler_msg_TaskFreeze(id:Nat) =
   (
-    sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(TaskFreeze,eId, taskObj)).
+    sum eId:Nat,taskObj:TaskObject,obj:ClassObject.
+      DISET_call_receive(id,OptimizationMindHandler,obj,msg(TaskFreeze,eId, taskObj)).
       (
-	method_call_begin(id,freezeTask(eId,taskID(taskObj),taskObj)).
-	sum reply1:Reply.method_call_end(id,freezeTask'(reply1))
+	method_call_begin(id,ExecutorDispatcher,__eDispatch,freezeTask(eId,taskID(taskObj),taskObj)).
+	sum reply1:Reply.method_call_end(id,ExecutorDispatcher,__eDispatch,freezeTask_return(reply1))
       )
   ).OptimizationMindHandler_msg_TaskFreeze(id)
 ;
@@ -1428,36 +1563,42 @@ proc OptimizationMindHandler_msg_TaskFreeze(id:Nat) =
 
 %-----------DONE server---
 proc OptimizationMindHandler_msg_ExecutorError(id:Nat) =
-  sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(ExecutorError,eId, taskObj)).
-    method_call_begin(id,removeExecutor(eId)).
-    method_call_end(id,removeExecutor')
+  sum eId:Nat,taskObj:TaskObject,obj:ClassObject.
+    DISET_call_receive(id,OptimizationMindHandler,obj,msg(ExecutorError,eId, taskObj)).
+    method_call_begin(id,ExecutorDispatcher,__eDispatch,removeExecutor(eId)).
+    method_call_end(id,ExecutorDispatcher,__eDispatch,removeExecutor_return)
 .OptimizationMindHandler_msg_ExecutorError(id)
 ;
 
 
 proc ExecutorDispatcher_freezeTask(id:Nat) = 
   (
-    sum eid:Nat,taskid:Nat,taskObj:TaskObject.method_var_begin(id,freezeTask(eid,taskid,taskObj)).
-      method_call_begin(id,__taskReceived(taskid,eid)).
-      sum reply:Reply,eType:eType.method_call_end(id,__taskReceived'(reply,eType)).
-      (reply!=OK) -> method_var_end(id,freezeTask'(reply))
+    sum eid:Nat,taskid:Nat,taskObj:TaskObject,obj:ClassObject.
+    method_var_begin(id,ExecutorDispatcher,obj,freezeTask(eid,taskid,taskObj)).
+      method_call_begin(id,ExecutorDispatcher,obj,__taskReceived(taskid,eid)).
+      sum reply:Reply,eType:eType.method_call_end(id,ExecutorDispatcher,obj,__taskReceived_return(reply,eType)).
+      (reply!=OK) -> method_var_end(id,ExecutorDispatcher,obj,freezeTask_return(reply))
       <>
       (
 	(eType==None) ->  
-	  method_call_begin(id,__sendTaskToExecutor(eid,[],false)).
-	  sum reply:Reply,tid:Nat.method_call_end(id,__sendTaskToExecutor'(reply,tid)).
-	  method_var_end(id,freezeTask'(OK))
+	  method_call_begin(id,ExecutorDispatcher,obj,__sendTaskToExecutor(eid,[],false)).
+	  sum reply:Reply,tid:Nat.
+	    method_call_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(reply,tid)).
+	  method_var_end(id,ExecutorDispatcher,obj,freezeTask_return(OK))
 	<>
 	(
-	    method_call_begin(id,__sendTaskToExecutor(eid,[],false)).
-	    sum reply:Reply,tid:Nat.method_call_end(id,__sendTaskToExecutor'(reply,tid)).
-	    method_var_end(id,freezeTask'(ERROR))
+	    method_call_begin(id,ExecutorDispatcher,obj,__sendTaskToExecutor(eid,[],false)).
+	    sum reply:Reply,tid:Nat.
+	      method_call_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(reply,tid)).
+	    method_var_end(id,ExecutorDispatcher,obj,freezeTask_return(ERROR))
 	    +
-	    method_call_begin(id,__freezeTask(taskid,eType)).
-	    sum result:Bool.method_call_end(id,__freezeTask'(result)).
-	    method_call_begin(id,__sendTaskToExecutor(eid,[eType],false)).
-	    sum reply:Reply,tid:Nat.method_call_end(id,__sendTaskToExecutor'(reply,tid)).
-	    method_var_end(id,freezeTask'(OK))
+	    method_call_begin(id,ExecutorDispatcher,obj,__freezeTask(taskid,eType)).
+	    sum result:Bool.
+	      method_call_end(id,ExecutorDispatcher,obj,__freezeTask_return(result)).
+	    method_call_begin(id,ExecutorDispatcher,obj,__sendTaskToExecutor(eid,[eType],false)).
+	    sum reply:Reply,tid:Nat.
+	      method_call_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(reply,tid)).
+	    method_var_end(id,ExecutorDispatcher,obj,freezeTask_return(OK))
 	)
       )
   ).ExecutorDispatcher_freezeTask(id)
@@ -1466,41 +1607,48 @@ proc ExecutorDispatcher_freezeTask(id:Nat) =
 %-----------DONE server---
 proc ExecutorDispatcher_taskProcessed(id:Nat) = 
   (
-    sum eId:Nat,taskId:Nat,taskObj:TaskObject.method_var_begin(id,taskProcessed(eId,taskId,taskObj)).
-      method_call_begin(id,__taskReceived(taskId,eId)).
-      sum reply:Reply,eType:eType.method_call_end(id,__taskReceived'(reply,eType)).
+    sum eId:Nat,taskId:Nat,taskObj:TaskObject,obj:ClassObject.
+      method_var_begin(id,ExecutorDispatcher,obj,taskProcessed(eId,taskId,taskObj)).
+      method_call_begin(id,ExecutorDispatcher,obj,__taskReceived(taskId,eId)).
+      sum reply:Reply,eType:eType.
+	method_call_end(id,ExecutorDispatcher,obj,__taskReceived_return(reply,eType)).
      (
-      (reply!=OK) -> method_var_end(id,taskProcessed'(reply)) 
+      (reply!=OK) -> method_var_end(id,ExecutorDispatcher,obj,taskProcessed_return(reply)) 
       <>
       (
 	(eType==None) -> 
 	    ( 
-	      method_call_begin(id,__sendTaskToExecutor(eId,[],false)).
-	      sum reply:Reply,tid:Nat.method_call_end(id,__sendTaskToExecutor'(reply,tid)).
-	      method_var_end(id,taskProcessed'(OK))  
+	      method_call_begin(id,ExecutorDispatcher,obj,__sendTaskToExecutor(eId,[],false)).
+	      sum reply:Reply,tid:Nat.
+		method_call_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(reply,tid)).
+	      method_var_end(id,ExecutorDispatcher,obj,taskProcessed_return(OK))  
 	    )
 	      <>
 	      (
-		method_call_begin(id,cbTaskProcessed(taskId,taskObj,eType)).
-		sum reply1:Reply.method_call_end(id,cbTaskProcessed'(reply1)).
+		method_call_begin(id,MindCallbacks,__cbHolder,cbTaskProcessed(taskId,taskObj,eType)).
+		sum reply1:Reply.method_call_end(id,MindCallbacks,__cbHolder,cbTaskProcessed_return(reply1)).
 		(
 		 (reply1!=OK) -> 
 		      ( 
-		      method_call_begin(id,__sendTaskToExecutor(eId,[],false)).
-		      sum reply:Reply,tid:Nat.method_call_end(id,__sendTaskToExecutor'(reply,tid)).
-		      method_call_begin(id,removeTaskDispatcher(taskId)).
-		      sum reply2:Reply.method_call_end(id,removeTaskDispatcher'(reply2))
-		      .method_var_end(id,taskProcessed'(reply1))
+		      method_call_begin(id,ExecutorDispatcher,obj,__sendTaskToExecutor(eId,[],false)).
+		      sum reply:Reply,tid:Nat.
+			method_call_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(reply,tid)).
+		      method_call_begin(id,ExecutorDispatcher,obj,removeTaskDispatcher(taskId)).
+		      sum reply2:Reply.
+			method_call_end(id,ExecutorDispatcher,obj,removeTaskDispatcher_return(reply2))
+		      .method_var_end(id,ExecutorDispatcher,obj,taskProcessed_return(reply1))
 		      )
 			<>
 			(
-			  method_call_begin(id,__tasks_update(taskId,taskObj)).
-			  method_call_end(id,__tasks_update').
-			  method_call_begin(id,__dispatchTask(taskId,true)).
-			  sum reply2:Reply.method_call_end(id,__dispatchTask'(reply2)).
-			  method_call_begin(id,__sendTaskToExecutor(eId,[eType],false)).
-			  sum reply:Reply,tid:Nat.method_call_end(id,__sendTaskToExecutor'(reply,tid)).
-			  method_var_end(id,taskProcessed'(reply2))
+			  method_call_begin(id,ExecutorDispatcher,obj,__tasks_update(taskId,taskObj)).
+			  method_call_end(id,ExecutorDispatcher,obj,__tasks_update_return).
+			  method_call_begin(id,ExecutorDispatcher,obj,__dispatchTask(taskId,true)).
+			  sum reply2:Reply.
+			    method_call_end(id,ExecutorDispatcher,obj,__dispatchTask_return(reply2)).
+			  method_call_begin(id,ExecutorDispatcher,obj,__sendTaskToExecutor(eId,[eType],false)).
+			  sum reply:Reply,tid:Nat.
+			    method_call_end(id,ExecutorDispatcher,obj,__sendTaskToExecutor_return(reply,tid)).
+			  method_var_end(id,ExecutorDispatcher,obj,taskProcessed_return(reply2))
 			)
 
 		 )
@@ -1513,11 +1661,12 @@ proc ExecutorDispatcher_taskProcessed(id:Nat) =
 %-----------DONE server---
 proc MindCallbacks_cbTaskProcessed(id:Nat) = 
   (
-    sum taskid:Nat,taskObj:TaskObject,etype:eType.method_var_begin(id,cbTaskProcessed(taskid,taskObj,etype)).
+    sum taskid:Nat,taskObj:TaskObject,etype:eType,obj:ClassObject.
+      method_var_begin(id,MindCallbacks,obj,cbTaskProcessed(taskid,taskObj,etype)).
     (
-    method_var_end(id,cbTaskProcessed'(OK))
+    method_var_end(id,MindCallbacks,obj,cbTaskProcessed_return(OK))
     +
-    method_var_end(id,cbTaskProcessed'(ERROR))
+    method_var_end(id,MindCallbacks,obj,cbTaskProcessed_return(ERROR))
     )
   ).MindCallbacks_cbTaskProcessed(id)
 ;
@@ -1528,26 +1677,28 @@ proc MindCallbacks_cbTaskProcessed(id:Nat) =
 %-----------DONE server---
 proc ExecutorDispatcher___taskReceived(id:Nat) =
 (
-  sum taskid:Nat,eid:Nat.method_var_begin(id,__taskReceived(taskid,eid)).
-    method_call_begin(id,__tasks_get(taskid)).
-    sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
-    (taskObj==NullObj) -> method_var_end(id,__taskReceived'(ERROR,None))
+  sum taskid:Nat,eid:Nat,obj:ClassObject.
+    method_var_begin(id,ExecutorDispatcher,obj,__taskReceived(taskid,eid)).
+    method_call_begin(id,ExecutorDispatcher,obj,__tasks_get(taskid)).
+    sum taskObj:TaskObject.method_call_end(id,ExecutorDispatcher,obj,__tasks_get_return(taskObj)).
+    (taskObj==NullObj) -> method_var_end(id,ExecutorDispatcher,obj,__taskReceived_return(ERROR,None))
     <>
     (
-        method_call_begin(id,removeTask(taskid,eid)).
-	sum result:Bool.method_call_end(id,removeTask'(result)).
-        (!result) -> method_var_end(id,__taskReceived'(OK,None)) <>
+        method_call_begin(id,ExecutorState,__states,removeTask(taskid,eid)).
+	sum result:Bool.method_call_end(id,ExecutorState,__states,removeTask_return(result)).
+        (!result) -> method_var_end(id,ExecutorDispatcher,obj,__taskReceived_return(OK,None)) <>
 	(
-	  method_call_begin(id,__idMap_get(eid)).
-	  sum etypes:List(eType).method_call_end(id,__idMap_get'(etypes)).
+	  method_call_begin(id,ExecutorDispatcher,obj,__idMap_get(eid)).
+	  sum etypes:List(eType).method_call_end(id,ExecutorDispatcher,obj,__idMap_get_return(etypes)).
 	  !(eType(taskObj) in etypes) ->
-	        method_call_begin(id,removeExecutor(eid)).
-		method_call_end(id,removeExecutor').
-		method_call_begin(id,__dispatchTask(taskid,true)).
-		sum reply:Reply.method_call_end(id,__dispatchTask'(reply)).
-		method_var_end(id,__taskReceived'(ERROR,None))
+	        method_call_begin(id,ExecutorDispatcher,obj,removeExecutor(eid)).
+		method_call_end(id,ExecutorDispatcher,obj,removeExecutor_return).
+		method_call_begin(id,ExecutorDispatcher,obj,__dispatchTask(taskid,true)).
+		sum reply:Reply.
+		  method_call_end(id,ExecutorDispatcher,obj,__dispatchTask_return(reply)).
+		method_var_end(id,ExecutorDispatcher,obj,__taskReceived_return(ERROR,None))
 		<>
-		 method_var_end(id,__taskReceived'(OK,eType(taskObj)))
+		 method_var_end(id,ExecutorDispatcher,obj,__taskReceived_return(OK,eType(taskObj)))
 	)
     )
 ).ExecutorDispatcher___taskReceived(id)
@@ -1556,47 +1707,50 @@ proc ExecutorDispatcher___taskReceived(id:Nat) =
 %-----------DONE server---
 proc ExecutorDispatcher_removeExecutor(id:Nat) =
 (
-  sum eid:Nat.method_var_begin(id,removeExecutor(eid)).
-    method_call_begin(id,__idMap_keys).
-    sum eids:List(Nat).method_call_end(id,__idMap_keys'(eids)).
-    !(eid in eids) -> method_var_end(id,removeExecutor')
+  sum eid:Nat,obj:ClassObject.method_var_begin(id,ExecutorDispatcher,obj,removeExecutor(eid)).
+    method_call_begin(id,ExecutorDispatcher,obj,__idMap_keys).
+    sum eids:List(Nat).
+      method_call_end(id,ExecutorDispatcher,obj,__idMap_keys_return(eids)).
+    !(eid in eids) -> method_var_end(id,ExecutorDispatcher,obj,removeExecutor_return)
       <>
       (
-	method_call_begin(id,__idMap_pop(eid)).
-	sum eTypes:List(eType).method_call_end(id,__idMap_pop'(eTypes)).
-	loop_removeExecutor4(id,eTypes).
-	method_call_begin(id,removeExecutorStates(eid)).
-	sum tasksInExec:List(Nat).method_call_end(id,removeExecutorStates'(tasksInExec)).
-	loop_removeExecutor(id,tasksInExec).
-	method_call_begin(id,cbDisconectExecutor(eid)).
-	method_call_end(id,cbDisconectExecutor').
-	loop_removeExecutor1(id,eTypes).
-	method_var_end(id,removeExecutor')
+	method_call_begin(id,ExecutorDispatcher,obj,__idMap_pop(eid)).
+	sum eTypes:List(eType).method_call_end(id,ExecutorDispatcher,obj,__idMap_pop_return(eTypes)).
+	loop_removeExecutor4(id,obj,eTypes).
+	method_call_begin(id,ExecutorState,__states,removeExecutorStates(eid)).
+	sum tasksInExec:List(Nat).
+	  method_call_end(id,ExecutorState,__states,removeExecutorStates_return(tasksInExec)).
+	loop_removeExecutor(id,obj,tasksInExec).
+	method_call_begin(id,MindCallbacks,__cbHolder,cbDisconectExecutor(eid)).
+	method_call_end(id,MindCallbacks,__cbHolder,cbDisconectExecutor_return).
+	loop_removeExecutor1(id,obj,eTypes).
+	method_var_end(id,ExecutorDispatcher,obj,removeExecutor_return)
       )
 ).ExecutorDispatcher_removeExecutor(id)
 ;
 
 proc MindCluster___processTask(id:Nat) = 
 (
-  sum eId:Nat,taskObj:TaskObject.DISET_call_receive(id,msg(ProcessTask,eId, taskObj)). 
+  sum eId:Nat,taskObj:TaskObject,obj:ClassObject.
+    DISET_call_receive(id,MindCluster,obj,msg(ProcessTask,eId, taskObj)). 
     (
-    DISET_call_send(id,msg(ExecutorError,eId,taskObj))
+    DISET_call_send(id,OptimizationMindHandler,MindHandler,msg(ExecutorError,eId,taskObj))
     +
-    DISET_call_send(id,msg(TaskError,eId,taskObj))
+    DISET_call_send(id,OptimizationMindHandler,MindHandler,msg(TaskError,eId,taskObj))
     +
-    DISET_call_send(id,msg(TaskFreeze,eId,taskObj))
+    DISET_call_send(id,OptimizationMindHandler,MindHandler,msg(TaskFreeze,eId,taskObj))
     +
     ( (eType(taskObj)==JobPath) ->
       
-      DISET_call_send(id,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobPath,statusBundle(Checking,JobSanity))))
+      DISET_call_send(id,OptimizationMindHandler,MindHandler,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobPath,statusBundle(Checking,JobSanity))))
      <>
       (eType(taskObj)==JobSanity) ->
-      DISET_call_send(id,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobSanity,statusBundle(Checking,JobScheduling))))
+      DISET_call_send(id,OptimizationMindHandler,MindHandler,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobSanity,statusBundle(Checking,JobScheduling))))
      <>
      (eType(taskObj)==JobScheduling) ->
-      DISET_call_send(id,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobScheduling,statusBundle(Waiting,PilotAgentSubmission))))
+      DISET_call_send(id,OptimizationMindHandler,MindHandler,msg(TaskDone,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),JobScheduling,statusBundle(Waiting,PilotAgentSubmission))))
      <>
-      DISET_call_send(id,msg(TaskError,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),eType(taskObj),statusBundle(Failed,FailedMinor))))
+      DISET_call_send(id,OptimizationMindHandler,MindHandler,msg(TaskError,eId,taskObj(taskID(taskObj),optimizationChain(taskObj),eType(taskObj),statusBundle(Failed,FailedMinor))))
     
     )
     )
@@ -1605,81 +1759,89 @@ proc MindCluster___processTask(id:Nat) =
 ;
 
 %-----------DONE server---
-proc loop_removeExecutor(id:Nat,tasksInExec:List(Nat)) =
+proc loop_removeExecutor(id:Nat,obj:ClassObject,tasksInExec:List(Nat)) =
   (tasksInExec!=[]) ->
     ( 
-	method_call_begin(id,__tasks_get(head(tasksInExec))).
-	sum taskObj:TaskObject.method_call_end(id,__tasks_get'(taskObj)).
+	method_call_begin(id,ExecutorDispatcher,obj,__tasks_get(head(tasksInExec))).
+	sum taskObj:TaskObject.method_call_end(id,ExecutorDispatcher,obj,__tasks_get_return(taskObj)).
 	(taskObj!=NullObj && eType(taskObj)!=None) ->
-	  method_call_begin(id,pushTask(eType(taskObj),head(tasksInExec),true)). 
-	  method_call_end(id,pushTask')
+	  method_call_begin(id,ExecutorQueues,__queues,pushTask(eType(taskObj),head(tasksInExec),true)). 
+	  method_call_end(id,ExecutorQueues,__queues,pushTask_return)
 	 <>
-	method_call_begin(id,__dispatchTask(head(tasksInExec),true)).
-	sum reply:Reply.method_call_end(id,__dispatchTask'(reply))
-    ).loop_removeExecutor(id,tail(tasksInExec))
+	method_call_begin(id,ExecutorDispatcher,obj,__dispatchTask(head(tasksInExec),true)).
+	sum reply:Reply.method_call_end(id,ExecutorDispatcher,obj,__dispatchTask_return(reply))
+    ).loop_removeExecutor(id,obj,tail(tasksInExec))
   <> internal
 ;
 
-proc loop_removeExecutor1(id:Nat,eTypes:List(eType)) =
+proc loop_removeExecutor1(id:Nat,obj:ClassObject,eTypes:List(eType)) =
   (eTypes!=[]) ->
-   method_call_begin(id,__fillExecutors(head(eTypes),true)).
-   method_call_end(id,__fillExecutors')
-   .loop_removeExecutor1(id,tail(eTypes))
+   method_call_begin(id,ExecutorDispatcher,obj,__fillExecutors(head(eTypes),true)).
+   method_call_end(id,ExecutorDispatcher,obj,__fillExecutors_return)
+   .loop_removeExecutor1(id,obj,tail(eTypes))
   <> internal
 ;
 
-proc loop_removeExecutor4(id:Nat,eTypes:List(eType)) =
+proc loop_removeExecutor4(id:Nat,obj:ClassObject,eTypes:List(eType)) =
   (eTypes!=[]) ->
-    method_call_begin(id,__execTypes_dec(head(eTypes))).method_call_end(id,__execTypes_dec').
-    loop_removeExecutor4(id,tail(eTypes))
+    method_call_begin(id,ExecutorDispatcher,obj,__execTypes_dec(head(eTypes))).
+      method_call_end(id,ExecutorDispatcher,obj,__execTypes_dec_return).
+    loop_removeExecutor4(id,obj,tail(eTypes))
   <> internal
 ;
 
 %-----------DONE server---
 proc MindCallbacks_cbDisconectExecutor(id:Nat) =
   (
-  sum trid:Nat.method_var_begin(id,cbDisconectExecutor(trid)).
-  method_call_begin(id,exec_executorDisconnected(trid)).
-  method_call_end(id,exec_executorDisconnected').
-  method_var_end(id,cbDisconectExecutor')
-  ).MindCallbacks_cbDisconectExecutor(id)
+  sum trid:Nat,obj:ClassObject.
+    method_var_begin(id,MindCallbacks,obj,cbDisconectExecutor(trid)).
+  method_call_begin(id,OptimizationMindHandler,MindHandler,exec_executorDisconnected(trid)).
+  method_call_end(id,OptimizationMindHandler,MindHandler,exec_executorDisconnected_return).
+  method_var_end(id,MindCallbacks,obj,cbDisconectExecutor_return)
+  )
+  .MindCallbacks_cbDisconectExecutor(id)
 ;
 
 %-----------CHECK server---
 proc OptimizationMindHandler_exec_executorDisconnected(id:Nat) =
   (
-  sum trid:Nat.method_var_begin(id,exec_executorDisconnected(trid)).
-  %     result = cls.srv_disconnectClient( trid ) <-- low level, refine! <- not much to refine
-  method_var_end(id,exec_executorDisconnected')
-  ).OptimizationMindHandler_exec_executorDisconnected(id)
+  sum trid:Nat,obj:ClassObject.method_var_begin(id,OptimizationMindHandler,obj,exec_executorDisconnected(trid)).
+  method_var_end(id,OptimizationMindHandler,obj,exec_executorDisconnected_return)
+  )
+.OptimizationMindHandler_exec_executorDisconnected(id)
 ;
  
 %-----------DONE server---
 proc ExecutorState_removeExecutor(id:Nat) =
 (
-      sum eid:Nat.method_var_begin(id,removeExecutorStates(eid)).
-      method_call_begin(id,__typeToId_keys).
-      sum etypes:List(eType).method_call_end(id,__typeToId_keys'(etypes)).
-      loop_removeExecutor2(id,etypes,eid).
-      method_call_begin(id,__execTasks_taskids(eid)).
-      sum taskids:List(Nat).method_call_end(id,__execTasks_taskids'(taskids)).
-      loop_removeExecutor3(id,taskids).
-      method_call_begin(id,__execTasks_pop(eid)).method_call_end(id,__execTasks_pop').
-      method_call_begin(id,__maxTasks_pop(eid)).method_call_end(id,__maxTasks_pop').
-    method_var_end(id,removeExecutorStates'(taskids)) 
+      sum eid:Nat,obj:ClassObject.
+	method_var_begin(id,ExecutorState,obj,removeExecutorStates(eid)).
+      method_call_begin(id,ExecutorState,obj,__typeToId_keys).
+      sum etypes:List(eType).method_call_end(id,ExecutorState,obj,__typeToId_keys_return(etypes)).
+      loop_removeExecutor2(id,obj,etypes,eid).
+      method_call_begin(id,ExecutorState,obj,__execTasks_taskids(eid)).
+      sum taskids:List(Nat).method_call_end(id,ExecutorState,obj,__execTasks_taskids_return(taskids)).
+      loop_removeExecutor3(id,obj,taskids).
+      method_call_begin(id,ExecutorState,obj,__execTasks_pop(eid)).
+      method_call_end(id,ExecutorState,obj,__execTasks_pop_return).
+      method_call_begin(id,ExecutorState,obj,__maxTasks_pop(eid)).
+      method_call_end(id,ExecutorState,obj,__maxTasks_pop_return).
+    method_var_end(id,ExecutorState,obj,removeExecutorStates_return(taskids)) 
 ).ExecutorState_removeExecutor(id)
 ;
 
-proc loop_removeExecutor2(id:Nat,etypes:List(eType),eid:Nat) =
-  (etypes!=[]) -> method_call_begin(id,__typeToId_remove(head(etypes),eid)).method_call_end(id,__typeToId_remove').
-		  loop_removeExecutor2(id,tail(etypes),eid)
+proc loop_removeExecutor2(id:Nat,obj:ClassObject,etypes:List(eType),eid:Nat) =
+  (etypes!=[]) -> method_call_begin(id,ExecutorState,obj,__typeToId_remove(head(etypes),eid)).
+		  method_call_end(id,ExecutorState,obj,__typeToId_remove_return).
+		  loop_removeExecutor2(id,obj,tail(etypes),eid)
 		  <>
 		  internal
 ;
 
-proc loop_removeExecutor3(id:Nat,taskids:List(Nat)) = 
-  (taskids!=[]) -> method_call_begin(id,__taskInExec_pop(head(taskids))).method_call_end(id,__taskInExec_pop').
-		loop_removeExecutor3(id,tail(taskids))
+proc loop_removeExecutor3(id:Nat,obj:ClassObject,taskids:List(Nat)) = 
+  (taskids!=[]) -> method_call_begin(id,ExecutorState,obj,__taskInExec_pop(head(taskids))).
+		    method_call_end(id,ExecutorState,obj,__taskInExec_pop_return).
+		loop_removeExecutor3(id,obj,tail(taskids))
 		<>
 		internal
 ;
@@ -1687,152 +1849,172 @@ proc loop_removeExecutor3(id:Nat,taskids:List(Nat)) =
 %-----------DONE server---
 proc OptimizationMindHandler_executeTask(id:Nat) = 
   (
-    sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,executeTask(taskid,taskObj)).
-    method_call_begin(id,addTaskDispatcher(taskid,taskObj)).
-    sum reply:Reply.method_call_end(id,addTaskDispatcher'(reply)).
-    method_var_end(id,executeTask'(reply))
-  ).OptimizationMindHandler_executeTask(id)
+    sum taskid:Nat,taskObj:TaskObject,obj:ClassObject.
+      method_var_begin(id,OptimizationMindHandler,obj,executeTask(taskid,taskObj)).
+    method_call_begin(id,ExecutorDispatcher,__eDispatch,addTaskDispatcher(taskid,taskObj)).
+    sum reply:Reply.method_call_end(id,ExecutorDispatcher,__eDispatch,addTaskDispatcher_return(reply)).
+    method_var_end(id,OptimizationMindHandler,obj,executeTask_return(reply))
+  )
+  .OptimizationMindHandler_executeTask(id)
 ;
 
 
 %-----------DONE server---
 proc ExecutorDispatcher_addTask(id:Nat) = 
 (
-    sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,addTaskDispatcher(taskid,taskObj)).
-    method_call_begin(id,__addTaskIfNew(taskid,taskObj)).
-    sum result:Bool.method_call_end(id,__addTaskIfNew'(result)).
+    sum taskid:Nat,taskObj:TaskObject,obj:ClassObject.
+      method_var_begin(id,ExecutorDispatcher,obj,addTaskDispatcher(taskid,taskObj)).
+    method_call_begin(id,ExecutorDispatcher,obj,__addTaskIfNew(taskid,taskObj)).
+    sum result:Bool.method_call_end(id,ExecutorDispatcher,obj,__addTaskIfNew_return(result)).
     (!result) -> 
-	method_call_begin(id,__unfreezeTasks(None)).
-	method_call_end(id,__unfreezeTasks').
-	method_var_end(id,addTaskDispatcher'(OK))
+	method_call_begin(id,ExecutorDispatcher,obj,__unfreezeTasks(None)).
+	method_call_end(id,ExecutorDispatcher,obj,__unfreezeTasks_return).
+	method_var_end(id,ExecutorDispatcher,obj,addTaskDispatcher_return(OK))
       <>
-	method_call_begin(id,__dispatchTask(taskid,true)).
-	sum reply:Reply.method_call_end(id,__dispatchTask'(reply)).
-	method_var_end(id,addTaskDispatcher'(reply))
+	method_call_begin(id,ExecutorDispatcher,obj,__dispatchTask(taskid,true)).
+	sum reply:Reply.method_call_end(id,ExecutorDispatcher,obj,__dispatchTask_return(reply)).
+	method_var_end(id,ExecutorDispatcher,obj,addTaskDispatcher_return(reply))
 ).ExecutorDispatcher_addTask(id)
 ;
 
 
 proc ExecutorDispatcher___addTaskIfNew(id:Nat) = 
  (
-  sum taskid:Nat,taskObj:TaskObject.method_var_begin(id,__addTaskIfNew(taskid,taskObj)).
-    method_call_begin(id,__tasks_keys).sum taskids:List(Nat).method_call_end(id,__tasks_keys'(taskids)).
-    (taskid in taskids) -> method_var_end(id,__addTaskIfNew'(false))
+  sum taskid:Nat,taskObj:TaskObject,obj:ClassObject.
+    method_var_begin(id,ExecutorDispatcher,obj,__addTaskIfNew(taskid,taskObj)).
+    method_call_begin(id,ExecutorDispatcher,obj,__tasks_keys).
+    sum taskids:List(Nat).method_call_end(id,ExecutorDispatcher,obj,__tasks_keys_return(taskids)).
+    (taskid in taskids) -> method_var_end(id,ExecutorDispatcher,obj,__addTaskIfNew_return(false))
     <>
     (
-      method_call_begin(id,__tasks_add(taskObj)).method_call_end(id,__tasks_add').
-      method_var_end(id,__addTaskIfNew'(true))
+      method_call_begin(id,ExecutorDispatcher,obj,__tasks_add(taskObj)).
+	method_call_end(id,ExecutorDispatcher,obj,__tasks_add_return).
+      method_var_end(id,ExecutorDispatcher,obj,__addTaskIfNew_return(true))
     )
   ).ExecutorDispatcher___addTaskIfNew(id)
 ;
 
 %-----------DONE server---
 proc JobManagerHandler_submitJob(id:Nat) =
-  method_begin(id,submitJob([111,222])).
-  method_call_begin(id,__sendNewJobsToMind([111,222])).
-  method_call_end(id,__sendNewJobsToMind').
-  method_end(id,submitJob')
+  method_begin(id,JobManagerHandler,JobManager,submitJob([111,222])).
+  method_call_begin(id,JobManagerHandler,JobManager,__sendNewJobsToMind([111,222])).
+  method_call_end(id,JobManagerHandler,JobManager,__sendNewJobsToMind_return).
+  method_end(id,JobManagerHandler,JobManager,submitJob_return)
 ;
 
 
 %-----------DONE server---
 proc JobManagerHandler___sendNewJobsToMind(id:Nat) = 
   (
-    sum jobIDs:List(Nat).method_var_begin(id,__sendNewJobsToMind(jobIDs)).
-    DISET_call_send(id,msg1(OptimizeJobs,jobIDs)).
-    method_var_end(id,__sendNewJobsToMind')
-  ).JobManagerHandler___sendNewJobsToMind(id)
+    sum jobIDs:List(Nat),obj:ClassObject.
+      method_var_begin(id,JobManagerHandler,obj,__sendNewJobsToMind(jobIDs)).
+    DISET_call_send(id,OptimizationMindHandler,MindHandler,msg1(OptimizeJobs,jobIDs)).
+    method_var_end(id,JobManagerHandler,obj,__sendNewJobsToMind_return)
+  )
+  .JobManagerHandler___sendNewJobsToMind(id)
 ;
 
 %-----------CHECK server---
 proc JobManagerHandler_killJob(id:Nat) = % THIS SHOULD CAUSE RACE CONDITIONS
-  sum jobID:Nat.method_var_begin(id,killJob(jobID)).
+  sum jobID:Nat,obj:ClassObject.
+    method_var_begin(id,JobManagerHandler,obj,killJob(jobID)).
 %   method_call_begin(id,db_setStatus(jobID,statusBundle(Killed,MarkedForTermination))).
-%   method_call_end(id,db_setStatus').
-  method_var_end(id,killJob')
+%   method_call_end(id,db_setStatus_return).
+  method_var_end(id,JobManagerHandler,obj,killJob_return)
 ;
 
 
 %-----------CHECK server---
 proc JobManager_resetJob(id:Nat) = 
-  sum jobID:Nat.method_var_begin(id,resetJobAPI(jobID)).
-
-  DISET_call_send(id,msg1(OptimizeJobs,[jobID])).
-  method_var_end(id,resetJobAPI')
+  sum jobID:Nat,obj:ClassObject.
+    method_var_begin(id,JobManagerHandler,obj,resetJobAPI(jobID)).	
+  DISET_call_send(id,OptimizationMindHandler,MindHandler,msg1(OptimizeJobs,[jobID])).
+  method_var_end(id,JobManagerHandler,obj,resetJobAPI_return)
 ;
 
 
 %-----------DONE server---
 proc OptimizationMindHandler_forgetTask(id:Nat) = 
 ( 
- sum taskid:Nat.method_var_begin(id,forgetTask(taskid)).
-	method_call_begin(id,removeTaskDispatcher(taskid)).
-	sum reply:Reply.method_call_end(id,removeTaskDispatcher'(reply)).
-  method_var_end(id,forgetTask')
-).OptimizationMindHandler_forgetTask(id)
+ sum taskid:Nat,obj:ClassObject.
+  method_var_begin(id,OptimizationMindHandler,obj,forgetTask(taskid)).
+	method_call_begin(id,ExecutorDispatcher,__eDispatch,removeTaskDispatcher(taskid)).
+	sum reply:Reply.
+	 method_call_end(id,ExecutorDispatcher,__eDispatch,removeTaskDispatcher_return(reply)).
+  method_var_end(id,OptimizationMindHandler,obj,forgetTask_return)
+)
+.OptimizationMindHandler_forgetTask(id)
 ;
 
 %-----------DONE server---
 proc OptimizationMindHandler_conn_connected(id:Nat) = 
   (
-    method_begin(id,conn_connected(11,[JobPath,JobSanity,JobScheduling],1)).
-    method_call_begin(id,addExecutor(11,[JobPath,JobSanity,JobScheduling],1)).
+    method_begin(id,OptimizationMindHandler,MindHandler,conn_connected(11,[JobPath,JobSanity,JobScheduling],1)).
+    method_call_begin(id,ExecutorDispatcher,__eDispatch,addExecutor(11,[JobPath,JobSanity,JobScheduling],1)).
 
-    method_call_end(id,addExecutor').
-    method_call_begin(id,exec_executorConnected(11,[JobPath,JobSanity,JobScheduling])).
+    method_call_end(id,ExecutorDispatcher,__eDispatch,addExecutor_return).
+    method_call_begin(id,OptimizationMindHandler,MindHandler,exec_executorConnected(11,[JobPath,JobSanity,JobScheduling])).
 
-    sum reply:Reply.method_call_end(id,exec_executorConnected'(reply)).
-    method_end(id,conn_connected'(reply))
+    sum reply:Reply.method_call_end(id,OptimizationMindHandler,MindHandler,exec_executorConnected_return(reply)).
+    method_end(id,OptimizationMindHandler,MindHandler,conn_connected_return(reply))
   )
 ;
 
 %-----------DONE server---
 proc OptimizationMindHandler_conn_drop(id:Nat) = 
 (
-  sum trid:Nat.method_var_begin(id,conn_drop(trid)).
-  method_call_begin(id,removeExecutor(trid)).
-  method_call_end(id,removeExecutor').
-  method_var_end(id,conn_drop')
-).OptimizationMindHandler_conn_drop(id)
+  sum trid:Nat,obj:ClassObject.
+    method_var_begin(id,OptimizationMindHandler,obj,conn_drop(trid)).
+  method_call_begin(id,ExecutorDispatcher,__eDispatch,removeExecutor(trid)).
+  method_call_end(id,ExecutorDispatcher,__eDispatch,removeExecutor_return).
+  method_var_end(id,OptimizationMindHandler,obj,conn_drop_return)
+)
+.OptimizationMindHandler_conn_drop(id)
 ;
 
 %-----------DONE server---
 proc ExecutorDispatcher_addExecutor(id:Nat) =
 (  
-    sum eid:Nat,eTypes:List(eType),maxTasks:Nat.method_var_begin(id,addExecutor(eid,eTypes,maxTasks)).
-      method_call_begin(id,__idMap_keys).sum eids:List(Nat).method_call_end(id,__idMap_keys'(eids)).
-      (eid in eids) -> method_var_end(id,addExecutor') <>
+    sum eid:Nat,eTypes:List(eType),maxTasks:Nat,obj:ClassObject.
+      method_var_begin(id,ExecutorDispatcher,obj,addExecutor(eid,eTypes,maxTasks)).
+      method_call_begin(id,ExecutorDispatcher,obj,__idMap_keys).
+      sum eids:List(Nat).method_call_end(id,ExecutorDispatcher,obj,__idMap_keys_return(eids)).
+      (eid in eids) -> method_var_end(id,ExecutorDispatcher,obj,addExecutor_return) <>
       (
-	method_call_begin(id,__idMap_set(eid,eTypes)).method_call_end(id,__idMap_set').
-	method_call_begin(id,addExecutorState(eid,eTypes,maxTasks)).
-	method_call_end(id,addExecutorState').
-	loop_addExecutor(id,eTypes).
-	loop_addExecutor2(id,eTypes).
-	method_var_end(id,addExecutor')
+	method_call_begin(id,ExecutorDispatcher,obj,__idMap_set(eid,eTypes)).
+	  method_call_end(id,ExecutorDispatcher,obj,__idMap_set_return).
+	method_call_begin(id,ExecutorState,__states,addExecutorState(eid,eTypes,maxTasks)).
+	method_call_end(id,ExecutorState,__states,addExecutorState_return).
+	loop_addExecutor(id,obj,eTypes).
+	loop_addExecutor2(id,obj,eTypes).
+	method_var_end(id,ExecutorDispatcher,obj,addExecutor_return)
       )
 ).ExecutorDispatcher_addExecutor(id)
 ;
 
 %-----------DONE server---
-proc loop_addExecutor(id:Nat,eTypes:List(eType)) =
+proc loop_addExecutor(id:Nat,obj:ClassObject,eTypes:List(eType)) =
   (eTypes!=[]) ->
-   method_call_begin(id,__execTypes_get_eTypes).sum etypes:List(eType).method_call_end(id,__execTypes_get_eTypes'(etypes)).
+   method_call_begin(id,ExecutorDispatcher,obj,__execTypes_get_eTypes).
+   sum etypes:List(eType).method_call_end(id,ExecutorDispatcher,obj,__execTypes_get_eTypes_return(etypes)).
    (!(head(eTypes) in etypes) -> 
 	(
-	  method_call_begin(id,__execTypes_add(head(eTypes))).method_call_end(id,__execTypes_add').
-	  method_call_begin(id,__execTypes_inc(head(eTypes))).method_call_end(id,__execTypes_inc')
+	  method_call_begin(id,ExecutorDispatcher,obj,__execTypes_add(head(eTypes))).
+	  method_call_end(id,ExecutorDispatcher,obj,__execTypes_add_return).
+	  method_call_begin(id,ExecutorDispatcher,obj,__execTypes_inc(head(eTypes))).
+	  method_call_end(id,ExecutorDispatcher,obj,__execTypes_inc_return)
 	)
       <> internal)
-   .loop_addExecutor(id,tail(eTypes))
+   .loop_addExecutor(id,obj,tail(eTypes))
   <> internal
 ;
 
-proc loop_addExecutor2(id:Nat,eTypes:List(eType)) =
+proc loop_addExecutor2(id:Nat,obj:ClassObject,eTypes:List(eType)) =
 (eTypes!=[]) ->
   (
-   method_call_begin(id,__fillExecutors(head(eTypes),true)).
-   method_call_end(id,__fillExecutors')
-   .loop_addExecutor2(id,tail(eTypes))
+   method_call_begin(id,ExecutorDispatcher,obj,__fillExecutors(head(eTypes),true)).
+   method_call_end(id,ExecutorDispatcher,obj,__fillExecutors_return)
+   .loop_addExecutor2(id,obj,tail(eTypes))
    ) <> internal
 ;
 
@@ -1840,76 +2022,90 @@ proc loop_addExecutor2(id:Nat,eTypes:List(eType)) =
 %-----------DONE server---
 proc ExecutorState_addExecutor(id:Nat) = 
   (
-    sum eid:Nat,eTypes:List(eType),maxTasks:Nat.method_var_begin(id,addExecutorState(eid,eTypes,maxTasks)). 
-      method_call_begin(id,__maxTasks_add(eid,max(1,maxTasks))).method_call_end(id,__maxTasks_add').
-      method_call_begin(id,__execTasks_keys).
-      sum eids:List(Nat).method_call_end(id,__execTasks_keys'(eids)).
+    sum eid:Nat,eTypes:List(eType),maxTasks:Nat,obj:ClassObject.
+      method_var_begin(id,ExecutorState,obj,addExecutorState(eid,eTypes,maxTasks)). 
+      method_call_begin(id,ExecutorState,obj,__maxTasks_add(eid,max(1,maxTasks))).
+      method_call_end(id,ExecutorState,obj,__maxTasks_add_return).
+      method_call_begin(id,ExecutorState,obj,__execTasks_keys).
+      sum eids:List(Nat).method_call_end(id,ExecutorState,obj,__execTasks_keys_return(eids)).
       (!(eid in eids) -> 
-	  method_call_begin(id,__execTasks_addeid(eid)).method_call_end(id,__execTasks_addeid') 
+	  method_call_begin(id,ExecutorState,obj,__execTasks_addeid(eid)).
+	  method_call_end(id,ExecutorState,obj,__execTasks_addeid_return) 
 	  <> internal)
-    .loop_addExecutor1(id,eTypes,eid)
-    .method_var_end(id,addExecutorState')
-  ).ExecutorState_addExecutor(id)
+    .loop_addExecutor1(id,obj,eTypes,eid)
+    .method_var_end(id,ExecutorState,obj,addExecutorState_return)
+  )
+  .ExecutorState_addExecutor(id)
 ;
 
-proc loop_addExecutor1(id:Nat,etypes:List(eType),eid:Nat) = 
+proc loop_addExecutor1(id:Nat,obj:ClassObject,etypes:List(eType),eid:Nat) = 
   (etypes!=[]) -> 
   (
-    method_call_begin(id,__typeToId_keys).sum etypes1:List(eType).method_call_end(id,__typeToId_keys'(etypes1)).
-    (!(head(etypes) in etypes1) -> method_call_begin(id,__typeToId_addeType(head(etypes))).method_call_end(id,__typeToId_addeType')
+    method_call_begin(id,ExecutorState,obj,__typeToId_keys).
+    sum etypes1:List(eType).method_call_end(id,ExecutorState,obj,__typeToId_keys_return(etypes1)).
+    (!(head(etypes) in etypes1) -> method_call_begin(id,ExecutorState,obj,__typeToId_addeType(head(etypes))).
+    method_call_end(id,ExecutorState,obj,__typeToId_addeType_return)
 			      <> internal)
-	.method_call_begin(id,__typeToId_addeid(head(etypes),eid)).method_call_end(id,__typeToId_addeid')
-	.loop_addExecutor1(id,tail(etypes),eid)
+	.method_call_begin(id,ExecutorState,obj,__typeToId_addeid(head(etypes),eid))
+	.method_call_end(id,ExecutorState,obj,__typeToId_addeid_return)
+	.loop_addExecutor1(id,obj,tail(etypes),eid)
   ) <> internal
 ;
 
 %-----------CHECK server---
 proc OptimizationMindHandler_exec_executorConnected(id:Nat) =
   (
-      sum trid:Nat,eTypes:List(eType).method_var_begin(id,exec_executorConnected(trid,eTypes)).
-      method_call_begin(id,__loadJobs(eTypes)).
-      sum reply:Reply.method_call_end(id,__loadJobs'(reply)).
-      method_var_end(id,exec_executorConnected'(reply))
-  ).OptimizationMindHandler_exec_executorConnected(id)
+      sum trid:Nat,eTypes:List(eType),obj:ClassObject.
+      method_var_begin(id,OptimizationMindHandler,obj,exec_executorConnected(trid,eTypes)).
+      method_call_begin(id,OptimizationMindHandler,obj,__loadJobs(eTypes)).
+      sum reply:Reply.
+	method_call_end(id,OptimizationMindHandler,obj,__loadJobs_return(reply)).
+      method_var_end(id,OptimizationMindHandler,obj,exec_executorConnected_return(reply))
+  )
+  .OptimizationMindHandler_exec_executorConnected(id)
 ;
 
 %-----------CHECK server---
 % !! this is also periodic: result = ThreadScheduler.gThreadScheduler.addPeriodicTask( period, cls.__loadJobs )
 proc OptimizationMindHandler___loadJobs(id:Nat) = 
   (
-      sum etypes:List(eType).method_var_begin(id,__loadJobs(etypes)).
+      sum etypes:List(eType),obj:ClassObject.
+	method_var_begin(id,OptimizationMindHandler,obj,__loadJobs(etypes)).
       (
       (etypes==[]) ->
-	  ( method_call_begin(id,getExecutorsConnected).
-	  sum etypes:List(eType).method_call_end(id,getExecutorsConnected'(etypes)) 
+	  ( 
+	  method_call_begin(id,OptimizationMindHandler,obj,getExecutorsConnected).
+	  sum etypes:List(eType).
+	    method_call_end(id,OptimizationMindHandler,obj,getExecutorsConnected_return(etypes)) 
 	  ) <> 
 	internal) .
-      (etypes==[]) -> method_var_end(id,__loadJobs'(OK)) 
+      (etypes==[]) -> method_var_end(id,OptimizationMindHandler,obj,__loadJobs_return(OK)) 
 	<> 
 	(
-	  method_call_begin(id,getTaskIds).	
-	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
-	  loop___loadJobs(id,[],knownJids). % THIS IS FIXED, CHANGE!!! THAT IS, UNCOMMENT BELOW
+	  method_call_begin(id,OptimizationMindHandler,obj,getTaskIds).	
+	  sum knownJids:List(Nat).method_call_end(id,OptimizationMindHandler,obj,getTaskIds_return(knownJids)).
+	  loop___loadJobs(id,obj,[],knownJids). % THIS IS FIXED, CHANGE!!! THAT IS, UNCOMMENT BELOW
 % 	  loop___loadJobs(id,[555,666],knownJids). % THIS IS FIXED, CHANGE!!! THAT IS, UNCOMMENT BELOW
 % 	  method_call_begin(id,getTaskIds).
-% 	  sum knownJids:List(Nat).method_call_end(id,getTaskIds'(knownJids)).
+% 	  sum knownJids:List(Nat).method_call_end(id,getTaskIds_return(knownJids)).
 % 	  loop___loadJobs(id,[],knownJids).
 % 	  loop___loadJobs(id,[555,666],knownJids).
 
-	  method_var_end(id,__loadJobs'(OK))
+	  method_var_end(id,OptimizationMindHandler,obj,__loadJobs_return(OK))
 	)
-  ).OptimizationMindHandler___loadJobs(id)
+  )
+  .OptimizationMindHandler___loadJobs(id)
 ;
 
-proc loop___loadJobs(id:Nat,jidList:List(Nat),knownJids:List(Nat)) =
+proc loop___loadJobs(id:Nat,obj:ClassObject,jidList:List(Nat),knownJids:List(Nat)) =
   (jidList!=[]) ->
    (
      (!(head(jidList) in knownJids) -> 
       (
-	method_call_begin(id,executeTask(head(jidList),taskObj(head(jidList),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(Received,JobAccepted)))). % cls.executeTask( jid, CachedJobState( jid ) ) <-- CachedJobState = true <- fixed!
-	sum reply:Reply.method_call_end(id,executeTask'(reply))
+	method_call_begin(id,OptimizationMindHandler,obj,executeTask(head(jidList),taskObj(head(jidList),[JobPath,JobSanity,JobScheduling],JobPath,statusBundle(Received,JobAccepted)))). % cls.executeTask( jid, CachedJobState( jid ) ) <-- CachedJobState = true <- fixed!
+	sum reply:Reply.method_call_end(id,OptimizationMindHandler,obj,executeTask_return(reply))
     ) <> internal)
-  .loop___loadJobs(id,tail(jidList),knownJids)
+  .loop___loadJobs(id,obj,tail(jidList),knownJids)
   )
    <> 
   internal
@@ -1918,36 +2114,40 @@ proc loop___loadJobs(id:Nat,jidList:List(Nat),knownJids:List(Nat)) =
 
 %-----------DONE server---
 proc ExecutorDispatcher_getTaskIds(id:Nat) =
-  method_var_begin(id,getTaskIds).
-    method_call_begin(id,__tasks_keys).
-    sum taskids:List(Nat).method_call_end(id,__tasks_keys'(taskids)).
-  method_var_end(id,getTaskIds'(taskids))
+  sum obj:ClassObject.method_var_begin(id,ExecutorDispatcher,obj,getTaskIds).
+    method_call_begin(id,ExecutorDispatcher,obj,__tasks_keys).
+    sum taskids:List(Nat).method_call_end(id,ExecutorDispatcher,obj,__tasks_keys_return(taskids)).
+  method_var_end(id,ExecutorDispatcher,obj,getTaskIds_return(taskids))
 .ExecutorDispatcher_getTaskIds(id);
 
 %-----------DONE server---
 proc ExecutorDispatcher_getExecutorsConnected(id:Nat) =
-  method_var_begin(id,getExecutorsConnected).
-    method_call_begin(id,__execTypes_getExecutorsConnected).
-    sum etypes:List(eType).method_call_end(id,__execTypes_getExecutorsConnected'(etypes)).
-  method_var_end(id,getExecutorsConnected'(etypes))
+  sum obj:ClassObject.method_var_begin(id,ExecutorDispatcher,obj,getExecutorsConnected).
+    method_call_begin(id,ExecutorDispatcher,obj,__execTypes_getExecutorsConnected).
+    sum etypes:List(eType).
+      method_call_end(id,ExecutorDispatcher,obj,__execTypes_getExecutorsConnected_return(etypes)).
+  method_var_end(id,ExecutorDispatcher,obj,getExecutorsConnected_return(etypes))
 .ExecutorDispatcher_getExecutorsConnected(id);
 
 %-----------DONE server---
 proc ExecutorDispatcher___doPeriodicStuff(id:Nat) =
 %   method_var_begin(id,__doPeriodicStuff).
-    method_call_begin(id,__unfreezeTasks(None)).
-    method_call_end(id,__unfreezeTasks').
-    method_call_begin(id,__execTypes_get_eTypes).
-    sum etypes:List(eType).method_call_end(id,__execTypes_get_eTypes'(etypes)).
+  % __eDispatch1 instance because this runs in a separate thread
+    method_call_begin(id,ExecutorDispatcher,__eDispatch1,__unfreezeTasks(None)).
+    method_call_end(id,ExecutorDispatcher,__eDispatch1,__unfreezeTasks_return).
+    method_call_begin(id,ExecutorDispatcher,__eDispatch1,__execTypes_get_eTypes).
+    sum etypes:List(eType).
+    method_call_end(id,ExecutorDispatcher,__eDispatch1,__execTypes_get_eTypes_return(etypes)).
     loop___doPeriodicStuff(id,etypes).
-%   method_var_end(id,__doPeriodicStuff') 
+%   method_var_end(id,__doPeriodicStuff_return) 
 % .
 ExecutorDispatcher___doPeriodicStuff(id);
 
 %-----------DONE server---
 proc loop___doPeriodicStuff(id:Nat,etypes:List(eType)) = 
   (etypes!=[]) -> (
-		  method_call_begin(id,__fillExecutors(head(etypes),true)). method_call_end(id,__fillExecutors').
+		  method_call_begin(id,ExecutorDispatcher,__eDispatch1,__fillExecutors(head(etypes),true)). 
+		  method_call_end(id,ExecutorDispatcher,__eDispatch1,__fillExecutors_return).
 		  loop___doPeriodicStuff(id,tail(etypes))
 		  )
 		  <>
@@ -2022,10 +2222,10 @@ proc methodsP(id:Nat) =
 
 ;
 
-proc P(id:Nat) = 
-    method_call_begin(id,__removeFromFreezer(1)) 
-   .sum result:Bool.method_call_end(id,__removeFromFreezer'(result))
-;
+% proc P(id:Nat) = 
+%     method_call_begin(id,__removeFromFreezer(1)) 
+%    .sum result:Bool.method_call_end(id,__removeFromFreezer_return(result))
+% ;
 % 
 proc All(id:Nat) = 
 methodsP(id);
