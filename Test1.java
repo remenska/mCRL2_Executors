@@ -545,12 +545,13 @@ public class Test1 {
 				args.append("(");
 			count++;
 			if (count == arguments.size())
-				args.append(argument.getBodies().get(0) + ")");
+				args.append(argument.getBodies().get(0).replace("\"", "") + ")");
+			//strip the quotes of a string: .replace("\"","")
 			else
-				args.append(argument.getBodies().get(0) + ",");
+				args.append(argument.getBodies().get(0).replace("\"", "") + ",");
 			isFirst = false;
 		if(argument.getBodies().get(0).startsWith("\"") && !SortString.contains(argument.getBodies().get(0)))
-			SortString.add(argument.getBodies().get(0));
+			SortString.add(argument.getBodies().get(0).replace("\"", ""));
 		}
 
 		return args.toString();
@@ -749,6 +750,16 @@ public class Test1 {
 						}
 
 //						System.out.println("!!!!Stack:" + theReadyStack.toString());
+					} else if (occurence.getMessage().getMessageSort().toString().equals("asynchCall")){
+						// Case 6: asynch send
+						String classAndobject = getClassAndObjectForMCB(((MessageOccurrenceSpecificationImpl) el)
+								.getMessage());
+						Process theProcess = (Process) theReadyStack.peek();
+						theProcess.addInvocation("DISET_call_send("
+								+ classAndobject
+								+ ((MessageOccurrenceSpecificationImpl) el)
+										.getMessage().getName() + arguments
+								+ ")");
 					}
 
 				} else if (occurence.getMessage().getReceiveEvent() == el) {
@@ -826,6 +837,33 @@ public class Test1 {
 										.getMessage().getName() + "_return"
 								+ ")");
 //						System.out.println("!!!!Stack:" + theStack.toString());
+					} else if (occurence.getMessage().getMessageSort().toString().equals("asynchCall")){
+						
+						// Case 5: // asynchronous receive
+						OperationImpl opCheck = (OperationImpl) receiveEvent
+								.getOperation();
+						ClassImpl classCheck = (ClassImpl) ((InteractionFragmentImpl) el)
+								.getCovered(null).getRepresents().getType();
+						
+						Process findProcess = findProcess(classCheck, opCheck);
+						
+//						Process findProcess = (Process) theReadyStack.pop();
+						if (findProcess == null) {
+							findProcess = new Process(classCheck, opCheck);
+							processes.add(findProcess);
+						}
+						if (!findProcess.isProcessed) {
+							findProcess.addInvocation("DISET_call_receive("
+									+ ((MessageOccurrenceSpecificationImpl) el)
+											.getMessage().getName() + ")");
+						}
+						theReadyStack = readyProcessesPerLifeline
+								.get(((InteractionFragmentImpl) el)
+										.getCovered(null).getRepresents()
+										.getName());
+						theReadyStack.push(findProcess);
+//						System.out.println("!!!!Stack:" + theStack.toString());
+
 					}
 
 				}
