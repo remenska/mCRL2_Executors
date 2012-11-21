@@ -48,7 +48,7 @@ import org.eclipse.uml2.uml.internal.impl.*;
 class LoopProcess extends Process {
 	String processSignature;
 	String condition;
-
+	String callSignature;
 	// LinkedList<String> invocations = new LinkedList<String>();
 
 	public void addLoopSignature(String signature) {
@@ -59,6 +59,14 @@ class LoopProcess extends Process {
 		this.condition = condition;
 	}
 
+	public void setCallSignature(String callSignature){
+		this.callSignature = callSignature;
+	}
+	
+	public String getCallSignature(){
+		return this.callSignature;
+	}
+	
 	public String toString() {
 		return super.toString() + "\n" + "condition:" + this.condition + "\n"
 				+ "loop signature:" + this.processSignature + "\n";
@@ -72,6 +80,7 @@ class LoopProcess extends Process {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("proc " + this.processSignature + "= \n");
 		// sum stuff missing!!
+		buffer.append("\t(" + this.condition + ") -> ( \n");
 
 		Iterator it_invocations = invocations.iterator();
 		int counter = 0;
@@ -92,12 +101,16 @@ class LoopProcess extends Process {
 
 			}
 		}
+		
+		buffer.append("\t ."
+				+ this.getCallSignature() +
+				") \n");
+		buffer.append("\t) <> " + "\n \t\t internal");
 
 		buffer.append(";\n\n");
 		return buffer;
 
 	}
-
 }
 
 class Process {
@@ -110,7 +123,7 @@ class Process {
 	LinkedList<String> invocations = new LinkedList<String>();
 	HashMap<String, String> opParametersIn = new HashMap<String, String>();
 	HashMap<String, String> opParametersReturn = new HashMap<String, String>();
-
+	HashMap<String, String> sumParameters = new HashMap<String, String>();
 	boolean isProcessed = false;
 	int loopCounter = 0;
 
@@ -119,6 +132,14 @@ class Process {
 
 	public ClassImpl getClassImpl() {
 		return this.classImpl;
+	}
+
+	public void addSumParameter(String key, String value) {
+		sumParameters.put(key, value);
+	}
+
+	public HashMap<String, String> getSumParameters() {
+		return this.sumParameters;
 	}
 
 	public OperationImpl getOperationImpl() {
@@ -165,8 +186,7 @@ class Process {
 
 				else {
 					this.opParametersReturn.put(
-							parameterFromCollection.getName(),
-							"ClassObject");
+							parameterFromCollection.getName(), "ClassObject");
 				}
 
 			}
@@ -321,37 +341,6 @@ class Process {
 			String step = (String) it_invocations.next();
 			if (step.contains("method_") || step.contains("DISET_")
 					|| step.contains("loop") || step.contains("internal")) {
-//				if (step.startsWith("method_var_begin")) {
-//					StringBuffer changedStep = new StringBuffer();
-//					StringBuffer changedParams = new StringBuffer();
-//					changedStep.append("sum ");
-//					// Iterator it = this.opParametersIn.keySet().iterator();
-//					// while (it.hasNext()) {
-//					// Map.Entry pairs = (Map.Entry)it.next();
-//					// changedStep.append(pairs.getKey() + ":" +
-//					// pairs.getValue()+",");
-//					// it.remove(); // avoids a ConcurrentModificationException
-//					// }
-//					for (Map.Entry<String, String> entry : this
-//							.getOpParametersIn().entrySet()) {
-//						String key = entry.getKey();
-//						String value = entry.getValue();
-//						changedStep.append(key + ":" + value + ",");
-//						changedParams.append(key + ",");
-//					}
-//
-//					changedStep.append("obj:ClassObject.");
-//					if (this.getOpParametersIn().size() != 0) {
-//						changedStep
-//								.append(step.substring(0, step.length() - 1));
-//						changedStep.append("("
-//								+ changedParams.substring(0,
-//										changedParams.length() - 1) + "))");
-//					} else
-//						changedStep.append(step);
-//
-//					step = changedStep.toString();
-//				}
 				buffer.append(step);
 				if (counter == invocations.size())
 					buffer.append("\n");
@@ -595,14 +584,13 @@ public class Test1 {
 			// .getRepresents().getName());
 			String nameObject = ((LifelineImpl) lifelines_iterator.next())
 					.getRepresents().getName();
-			if(!knownObjects.contains(nameObject))
-					knownObjects.add(nameObject);
+			if (!knownObjects.contains(nameObject))
+				knownObjects.add(nameObject);
 		}
-		
+
 		Iterator it_knownObjects = knownObjects.iterator();
-		while(it_knownObjects.hasNext()){
-			outfile.write("\t\t\t"
-					+ it_knownObjects.next());
+		while (it_knownObjects.hasNext()) {
+			outfile.write("\t\t\t" + it_knownObjects.next());
 
 			// just temp, to know how to extract the class a message belongs to
 			// System.out.print("\t\t\t"+((LifelineImpl)lifelines_iterator.next()).getRepresents().getType().getName());
@@ -618,8 +606,7 @@ public class Test1 {
 
 			}
 		}
-		
-		
+
 		outfile.newLine();
 		outfile.write("%-------end sorts---------");
 	}
@@ -870,11 +857,25 @@ public class Test1 {
 							else if (operator.equals("opt")) {
 								responsibleProcess.addOptFragment(guard);
 							} else if (operator.equals("loop")) {
+								StringBuffer paramsToPass = new StringBuffer();
+								StringBuffer signatureParams = new StringBuffer();
+								for (Map.Entry<String, String> entry : responsibleProcess
+										.getSumParameters().entrySet()) {
+									// String key = entry.getKey();
+									paramsToPass.append("," + entry.getKey());
+									signatureParams.append("," + entry.getKey()
+											+ ":" + entry.getValue());
+								}
+
 								responsibleProcess
 										.addCallLoopFragment(responsibleProcess.operationImpl
 												.getName()
 												+ "_loop"
-												+ loopCounter + "(id)");
+												+ loopCounter
+												+ "(id,obj"
+												+ paramsToPass.substring(0,
+														paramsToPass.length())
+												+ ")");
 								theReadyStack.push(theProcess); // push it back
 																// to ready
 																// again, since
@@ -884,11 +885,26 @@ public class Test1 {
 								// no method_call_begin and method_call_end
 
 								loopProcess = new LoopProcess();
-								loopProcess
+								loopProcess.setCallSignature(responsibleProcess.operationImpl
+										.getName()
+										+ "_loop"
+										+ loopCounter
+										+ "(id,obj"
+										+ paramsToPass.substring(0,
+												paramsToPass.length())
+										+ ")"); //call signature is the last thing inside the loop
+												// .loop_repeatAgain(...) <> internal
+								
+								loopProcess //this is the process signature
 										.addLoopSignature(responsibleProcess.operationImpl
 												.getName()
 												+ "_loop"
-												+ loopCounter + "(id:Nat)");
+												+ loopCounter
+												+ "(id:Nat,obj:ClassObject"
+												+ signatureParams.substring(0,
+														signatureParams
+																.length())
+												+ ")");
 								loopCounter++;
 								loopProcess
 										.setOperationImpl(responsibleProcess.operationImpl);
@@ -986,7 +1002,7 @@ public class Test1 {
 							processes.add(findProcess);
 						}
 						if (!findProcess.isProcessed) {
-							
+
 							StringBuffer changedStep = new StringBuffer();
 							StringBuffer changedParams = new StringBuffer();
 							changedStep.append("sum ");
@@ -996,29 +1012,45 @@ public class Test1 {
 								String value = entry.getValue();
 								changedStep.append(key + ":" + value + ",");
 								changedParams.append(key + ",");
+								findProcess.addSumParameter(key, value);
 							}
 							changedStep.append("obj:ClassObject.");
-							
-							if (findProcess.getOpParametersIn().size() != 0){ //there are method arguments
-								findProcess.addInvocation(changedStep+"method_var_begin(id,"
-										+ ((InteractionFragmentImpl) el)
-												.getCovered(null).getRepresents()
-												.getType().getName()
-										+ ",obj,"
-										+ ((MessageOccurrenceSpecificationImpl) el)
-												.getMessage().getName() 
-												+"("+ changedParams.substring(0,changedParams.length()-1)+")"
+
+							if (findProcess.getOpParametersIn().size() != 0) { // there
+																				// are
+																				// method
+																				// arguments
+								findProcess
+										.addInvocation(changedStep
+												+ "method_var_begin(id,"
+												+ ((InteractionFragmentImpl) el)
+														.getCovered(null)
+														.getRepresents()
+														.getType().getName()
+												+ ",obj,"
+												+ ((MessageOccurrenceSpecificationImpl) el)
+														.getMessage().getName()
+												+ "("
+												+ changedParams
+														.substring(
+																0,
+																changedParams
+																		.length() - 1)
+												+ ")" + ")");
+							} else { // no method arguments
+								findProcess
+										.addInvocation(changedStep
+												+ "method_var_begin(id,"
+												+ ((InteractionFragmentImpl) el)
+														.getCovered(null)
+														.getRepresents()
+														.getType().getName()
+												+ ",obj,"
+												+ ((MessageOccurrenceSpecificationImpl) el)
+														.getMessage().getName()
 												+ ")");
-							} else{ //no method arguments
-								findProcess.addInvocation(changedStep+"method_var_begin(id,"
-										+ ((InteractionFragmentImpl) el)
-												.getCovered(null).getRepresents()
-												.getType().getName()
-										+ ",obj,"
-										+ ((MessageOccurrenceSpecificationImpl) el)
-												.getMessage().getName() + ")");
 							}
-							
+
 						}
 						theReadyStack = readyProcessesPerLifeline
 								.get(((InteractionFragmentImpl) el)
@@ -1060,46 +1092,55 @@ public class Test1 {
 						String classAndobject = getClassAndObjectForMCE(((MessageOccurrenceSpecificationImpl) el)
 								.getMessage());
 
-						// for method_call_end we need the sum: ... parameters, which
-						// can be obtained only if we know the called process OpParametersReturn dictionary
-						Process calledProcess = 
-								findProcessViaClassANDOperationName(classAndobject.split(",")[0],
-										((MessageOccurrenceSpecificationImpl) el)
+						// for method_call_end we need the sum: ... parameters,
+						// which
+						// can be obtained only if we know the called process
+						// OpParametersReturn dictionary
+						Process calledProcess = findProcessViaClassANDOperationName(
+								classAndobject.split(",")[0],
+								((MessageOccurrenceSpecificationImpl) el)
 										.getMessage().getName());
-						// preparing for prepending "sum param:Type,..." and appending arguments
+						// preparing for prepending "sum param:Type,..." and
+						// appending arguments
 						StringBuffer sumParameters = new StringBuffer();
 						StringBuffer appendedParameters = new StringBuffer();
 						sumParameters.append("sum ");
-						
+
 						for (Map.Entry<String, String> entry : calledProcess
 								.getOpParametersReturn().entrySet()) {
 							String key = entry.getKey();
 							String value = entry.getValue();
 							sumParameters.append(key + ":" + value + ",");
 							appendedParameters.append(key + ",");
+							findProcess.addSumParameter(key, value);
 						}
-						
-						if(calledProcess.getOpParametersReturn().size()!=0){
+
+						if (calledProcess.getOpParametersReturn().size() != 0) {
 							// prepending the "sum param:Type.."
-							// adding the parameter values in the call as well at the end
-							findProcess.addInvocation(sumParameters.substring(0, sumParameters.length()-1)
-									+".method_call_end(id,"
+							// adding the parameter values in the call as well
+							// at the end
+							findProcess.addInvocation(sumParameters.substring(
+									0, sumParameters.length() - 1)
+									+ ".method_call_end(id,"
 									+ classAndobject
 									+ ((MessageOccurrenceSpecificationImpl) el)
-											.getMessage().getName() + "_return"
-									+"("+appendedParameters.substring(0,appendedParameters.length()-1)+")"
-									+")");
-							
+											.getMessage().getName()
+									+ "_return"
+									+ "("
+									+ appendedParameters.substring(0,
+											appendedParameters.length() - 1)
+									+ ")" + ")");
+
 						} // no parameters to add
-						else{
+						else {
 							findProcess.addInvocation("method_call_end(id,"
 									+ classAndobject
 									+ ((MessageOccurrenceSpecificationImpl) el)
 											.getMessage().getName() + "_return"
-									+")");
-							
+									+ ")");
+
 						}
-						
+
 						// System.out.println("!!!!Stack:" +
 						// theStack.toString());
 					} else if (occurence.getMessage().getMessageSort()
@@ -1387,7 +1428,7 @@ public class Test1 {
 		createActionDefinitions();
 		getAllCollaborations(rootPackage);
 		createSortStrings();
-		
+
 		ListIterator processes_iterator = processes.listIterator(0);
 		System.out.println("PROCESSES:");
 		while (processes_iterator.hasNext()) {
@@ -1418,12 +1459,12 @@ public class Test1 {
 
 	public static void createSortStrings() throws IOException {
 		outfile.newLine();
-		if(SortString.size()!=0){
+		if (SortString.size() != 0) {
 			outfile.write("sort SortString = struct ");
 			outfile.newLine();
 			Iterator it_sortString = SortString.iterator();
-			while (it_sortString.hasNext()){
-				outfile.write("\t\t\t "+it_sortString.next()+"");
+			while (it_sortString.hasNext()) {
+				outfile.write("\t\t\t " + it_sortString.next() + "");
 				if (it_sortString.hasNext()) {
 					// System.out.println(" |");
 					outfile.write(" |");
@@ -1437,6 +1478,6 @@ public class Test1 {
 				}
 			}
 		}
-	
+
 	}
 }
