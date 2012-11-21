@@ -79,7 +79,7 @@ class LoopProcess extends Process {
 			counter++;
 			buffer.append("\t");
 			String step = (String) it_invocations.next();
-			if (step.startsWith("method_") || step.startsWith("DISET_")
+			if (step.contains("method_") || step.contains("DISET_")
 					|| step.contains("loop") || step.endsWith("internal")) {
 				buffer.append(step);
 				if (counter == invocations.size())
@@ -319,39 +319,39 @@ class Process {
 			counter++;
 			buffer.append("\t");
 			String step = (String) it_invocations.next();
-			if (step.startsWith("method_") || step.startsWith("DISET_")
+			if (step.contains("method_") || step.contains("DISET_")
 					|| step.contains("loop") || step.contains("internal")) {
-				if (step.startsWith("method_var_begin")) {
-					StringBuffer changedStep = new StringBuffer();
-					StringBuffer changedParams = new StringBuffer();
-					changedStep.append("sum ");
-					// Iterator it = this.opParametersIn.keySet().iterator();
-					// while (it.hasNext()) {
-					// Map.Entry pairs = (Map.Entry)it.next();
-					// changedStep.append(pairs.getKey() + ":" +
-					// pairs.getValue()+",");
-					// it.remove(); // avoids a ConcurrentModificationException
-					// }
-					for (Map.Entry<String, String> entry : this
-							.getOpParametersIn().entrySet()) {
-						String key = entry.getKey();
-						String value = entry.getValue();
-						changedStep.append(key + ":" + value + ",");
-						changedParams.append(key + ",");
-					}
-
-					changedStep.append("obj:ClassObject.");
-					if (this.getOpParametersIn().size() != 0) {
-						changedStep
-								.append(step.substring(0, step.length() - 1));
-						changedStep.append("("
-								+ changedParams.substring(0,
-										changedParams.length() - 1) + "))");
-					} else
-						changedStep.append(step);
-
-					step = changedStep.toString();
-				}
+//				if (step.startsWith("method_var_begin")) {
+//					StringBuffer changedStep = new StringBuffer();
+//					StringBuffer changedParams = new StringBuffer();
+//					changedStep.append("sum ");
+//					// Iterator it = this.opParametersIn.keySet().iterator();
+//					// while (it.hasNext()) {
+//					// Map.Entry pairs = (Map.Entry)it.next();
+//					// changedStep.append(pairs.getKey() + ":" +
+//					// pairs.getValue()+",");
+//					// it.remove(); // avoids a ConcurrentModificationException
+//					// }
+//					for (Map.Entry<String, String> entry : this
+//							.getOpParametersIn().entrySet()) {
+//						String key = entry.getKey();
+//						String value = entry.getValue();
+//						changedStep.append(key + ":" + value + ",");
+//						changedParams.append(key + ",");
+//					}
+//
+//					changedStep.append("obj:ClassObject.");
+//					if (this.getOpParametersIn().size() != 0) {
+//						changedStep
+//								.append(step.substring(0, step.length() - 1));
+//						changedStep.append("("
+//								+ changedParams.substring(0,
+//										changedParams.length() - 1) + "))");
+//					} else
+//						changedStep.append(step);
+//
+//					step = changedStep.toString();
+//				}
 				buffer.append(step);
 				if (counter == invocations.size())
 					buffer.append("\n");
@@ -986,13 +986,39 @@ public class Test1 {
 							processes.add(findProcess);
 						}
 						if (!findProcess.isProcessed) {
-							findProcess.addInvocation("method_var_begin(id,"
-									+ ((InteractionFragmentImpl) el)
-											.getCovered(null).getRepresents()
-											.getType().getName()
-									+ ",obj,"
-									+ ((MessageOccurrenceSpecificationImpl) el)
-											.getMessage().getName() + ")");
+							
+							StringBuffer changedStep = new StringBuffer();
+							StringBuffer changedParams = new StringBuffer();
+							changedStep.append("sum ");
+							for (Map.Entry<String, String> entry : findProcess
+									.getOpParametersIn().entrySet()) {
+								String key = entry.getKey();
+								String value = entry.getValue();
+								changedStep.append(key + ":" + value + ",");
+								changedParams.append(key + ",");
+							}
+							changedStep.append("obj:ClassObject.");
+							
+							if (findProcess.getOpParametersIn().size() != 0){ //there are method arguments
+								findProcess.addInvocation(changedStep+"method_var_begin(id,"
+										+ ((InteractionFragmentImpl) el)
+												.getCovered(null).getRepresents()
+												.getType().getName()
+										+ ",obj,"
+										+ ((MessageOccurrenceSpecificationImpl) el)
+												.getMessage().getName() 
+												+"("+ changedParams.substring(0,changedParams.length()-1)+")"
+												+ ")");
+							} else{ //no method arguments
+								findProcess.addInvocation(changedStep+"method_var_begin(id,"
+										+ ((InteractionFragmentImpl) el)
+												.getCovered(null).getRepresents()
+												.getType().getName()
+										+ ",obj,"
+										+ ((MessageOccurrenceSpecificationImpl) el)
+												.getMessage().getName() + ")");
+							}
+							
 						}
 						theReadyStack = readyProcessesPerLifeline
 								.get(((InteractionFragmentImpl) el)
