@@ -105,7 +105,7 @@ class LoopProcess extends Process {
 		buffer.append("\t ."
 				+ this.getCallSignature() +
 				") \n");
-		buffer.append("\t) <> " + "\n \t\t internal");
+		buffer.append("\t <> " + "\n \t\t internal");
 
 		buffer.append(";\n\n");
 		return buffer;
@@ -436,8 +436,7 @@ public class Test1 {
 											.getType()) + ",");
 						else
 							operationParametersReturn
-									.append(parameterFromCollection.getType()
-											.getName());
+									.append("ClassObject"+",");
 					}
 
 					// input parameters
@@ -452,8 +451,7 @@ public class Test1 {
 						// operationSignature.append();
 						else
 							operationParametersIn
-									.append(parameterFromCollection.getType()
-											.getName() + ",");
+									.append("ClassObject" + ",");
 					}
 
 				}
