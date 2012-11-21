@@ -6,6 +6,7 @@ import org.eclipse.emf.ecore.resource.*;
 import org.eclipse.emf.ecore.*;
 
 import java.io.*;
+
 import org.eclipse.uml2.uml.resource.UMLResource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import java.util.*;
@@ -47,7 +48,8 @@ import org.eclipse.uml2.uml.internal.impl.*;
 class LoopProcess extends Process {
 	String processSignature;
 	String condition;
-	LinkedList<String> invocations = new LinkedList<String>();
+
+	// LinkedList<String> invocations = new LinkedList<String>();
 
 	public void addLoopSignature(String signature) {
 		this.processSignature = signature;
@@ -60,6 +62,40 @@ class LoopProcess extends Process {
 	public String toString() {
 		return super.toString() + "\n" + "condition:" + this.condition + "\n"
 				+ "loop signature:" + this.processSignature + "\n";
+	}
+
+	public StringBuffer prepareForMCRL2() {
+		// StringBuffer buffer = new StringBuffer();
+		// buffer.append("% Loops not handled for now \n");
+		// return buffer;
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("proc " + this.processSignature + "= \n");
+		// sum stuff missing!!
+
+		Iterator it_invocations = invocations.iterator();
+		int counter = 0;
+		while (it_invocations.hasNext()) {
+			counter++;
+			buffer.append("\t");
+			String step = (String) it_invocations.next();
+			if (step.startsWith("method_") || step.startsWith("DISET_")
+					|| step.contains("loop") || step.endsWith("internal")) {
+				buffer.append(step);
+				if (counter == invocations.size())
+					buffer.append("\n");
+				else
+					buffer.append(".\n");
+			} else {
+
+				buffer.append(step + "\n");
+
+			}
+		}
+
+		buffer.append(";\n\n");
+		return buffer;
+
 	}
 
 }
@@ -130,7 +166,7 @@ class Process {
 				else {
 					this.opParametersReturn.put(
 							parameterFromCollection.getName(),
-							parameterFromCollection.getType().getName());
+							"ClassObject");
 				}
 
 			}
@@ -148,7 +184,7 @@ class Process {
 
 				else {
 					this.opParametersIn.put(parameterFromCollection.getName(),
-							parameterFromCollection.getType().getName());
+							"ClassObject");
 				}
 
 			}
@@ -198,7 +234,7 @@ class Process {
 	}
 
 	public void closeOptFragment() {
-		invocations.add(")<>internal");
+		invocations.add(")<>internal)");
 	}
 
 	public void addEndAltFragment(boolean lastStep) {
@@ -231,20 +267,26 @@ class Process {
 
 	public String toString() {
 		if (classImpl == null && operationImpl == null)
-			return "No class && operation signature" + "\n"
+			return "No class && operation signature" + "\n" // starter process
 					+ invocations.toString() + "\n";
-		else if (classImpl == null)
-			return this.methodSignature + "\n" + this.methodReturnSignature
+		else if (classImpl == null) // this case happens only in loop processes
+			return "No classImpl but YES operationImpl \n"
+					+ this.methodSignature + "\n" + this.methodReturnSignature
 					+ "\n+" + " " + invocations.toString() + "\n"
 					+ "operation:" + this.operationImpl.getName() + "\n";
-		else if (operationImpl == null)
-			return "Class:" + this.classImpl.getName() + "\n"
-					+ this.methodSignature + "\n" + this.methodReturnSignature
-					+ "\n+" + " " + invocations.toString() + "\n;";
+		// else if (operationImpl == null) //no such case??
+		// return "No operationImpl \n"
+		// +"Class:" + this.classImpl.getName() + "\n"
+		// + this.methodSignature + "\n" + this.methodReturnSignature
+		// + "\n+" + " " + invocations.toString() + "\n;";
 		else
-			return "Class:" + this.classImpl.getName() + "\n"
-					+ this.methodSignature + "\n" + this.methodReturnSignature
-					+ "\n+" + " " + invocations.toString() + "\n"
+			return "Everything in place \n" // regular process
+					+ "Class:" + this.classImpl.getName()
+					+ "\n"
+					+ this.methodSignature + "\n"
+					+ this.methodReturnSignature
+					+ "\n+" + " " + invocations.toString()
+					+ "\n"
 					+ "operation:" + this.operationImpl.getName() + "\n";
 	}
 
@@ -261,6 +303,70 @@ class Process {
 		return (this.classImpl.getName().equals(className) && this.operationImpl
 				.getName().equals(operationName));
 	}
+
+	public StringBuffer prepareForMCRL2() {
+		StringBuffer buffer = new StringBuffer();
+		if (classImpl == null && operationImpl == null)
+			buffer.append("proc starter(id:Nat) = \n");
+		else {
+			buffer.append("proc " + this.classImpl.getName() + "_"
+					+ this.operationImpl.getName() + "(id:Nat) = \n");
+			// sum stuff missing!!
+		}
+		Iterator it_invocations = invocations.iterator();
+		int counter = 0;
+		while (it_invocations.hasNext()) {
+			counter++;
+			buffer.append("\t");
+			String step = (String) it_invocations.next();
+			if (step.startsWith("method_") || step.startsWith("DISET_")
+					|| step.contains("loop") || step.contains("internal")) {
+				if (step.startsWith("method_var_begin")) {
+					StringBuffer changedStep = new StringBuffer();
+					StringBuffer changedParams = new StringBuffer();
+					changedStep.append("sum ");
+					// Iterator it = this.opParametersIn.keySet().iterator();
+					// while (it.hasNext()) {
+					// Map.Entry pairs = (Map.Entry)it.next();
+					// changedStep.append(pairs.getKey() + ":" +
+					// pairs.getValue()+",");
+					// it.remove(); // avoids a ConcurrentModificationException
+					// }
+					for (Map.Entry<String, String> entry : this
+							.getOpParametersIn().entrySet()) {
+						String key = entry.getKey();
+						String value = entry.getValue();
+						changedStep.append(key + ":" + value + ",");
+						changedParams.append(key + ",");
+					}
+
+					changedStep.append("obj:ClassObject.");
+					if (this.getOpParametersIn().size() != 0) {
+						changedStep
+								.append(step.substring(0, step.length() - 1));
+						changedStep.append("("
+								+ changedParams.substring(0,
+										changedParams.length() - 1) + "))");
+					} else
+						changedStep.append(step);
+
+					step = changedStep.toString();
+				}
+				buffer.append(step);
+				if (counter == invocations.size())
+					buffer.append("\n");
+				else
+					buffer.append(".\n");
+			} else {
+
+				buffer.append(step + "\n");
+
+			}
+		}
+
+		buffer.append(";\n\n");
+		return buffer;
+	}
 }
 
 public class Test1 {
@@ -276,7 +382,14 @@ public class Test1 {
 
 	public static int loopCounter = 1;
 
-	public static void createSorts(org.eclipse.uml2.uml.Package rootPackage) {
+	public static FileWriter fstream;
+	public static BufferedWriter outfile;
+
+	public static void createSorts(org.eclipse.uml2.uml.Package rootPackage)
+			throws IOException {
+		fstream = new FileWriter(
+				"/home/daniela/remenska/Documents/LHCb/Adrian/workspace/FormalMethods/src/model.mcrl2");
+		outfile = new BufferedWriter(fstream);
 		Collection<org.eclipse.uml2.uml.internal.impl.ClassImpl> classes = getClasses(rootPackage);
 		// System.out.println(classes);
 		Iterator classes_iterator = classes.iterator();
@@ -408,28 +521,50 @@ public class Test1 {
 		printSortsMCRL2();
 	}
 
-	public static void printSortsMCRL2() {
+	public static void printSortsMCRL2() throws IOException {
 		// FOR PRINTOUT IN mCRL2 file!
 		// sort ClassType =...
 		ListIterator<String> ClassType_st = ClassType.listIterator(0);
-		System.out.println("sort ClassType = struct ");
+		// System.out.println("sort ClassType = struct ");
+		// outfile.newLine();
+		outfile.write("%comment");
+		outfile.newLine();
+		outfile.write("%-------sorts---------");
+		outfile.newLine();
+		outfile.write("sort ClassType = struct ");
+		outfile.newLine();
 		while (ClassType_st.hasNext()) {
-			System.out.print("\t\t\t" + ClassType_st.next());
-			if (ClassType_st.hasNext())
-				System.out.println(" | ");
-			else
-				System.out.println(" ; ");
+			outfile.write("\t\t\t" + ClassType_st.next());
+
+			if (ClassType_st.hasNext()) {
+				// System.out.println(" | ");
+				outfile.write(" | ");
+				outfile.newLine();
+			} else {
+				outfile.write(" ; ");
+				outfile.newLine();
+				// System.out.println(" ; ");
+
+			}
 		}
 		// sort Method = ...
-		System.out.println("sort Method = struct ");
+		// System.out.println("sort Method = struct ");
+		outfile.write("sort Method = struct ");
+		outfile.newLine();
 		ListIterator<String> OperationSignatures_st = OperationSignatures
 				.listIterator(0);
 		while (OperationSignatures_st.hasNext()) {
-			System.out.print("\t\t\t" + OperationSignatures_st.next());
-			if (OperationSignatures_st.hasNext())
-				System.out.println(" | ");
-			else
-				System.out.println(" ; ");
+			// System.out.print("\t\t\t" + OperationSignatures_st.next());
+			outfile.write("\t\t\t" + OperationSignatures_st.next());
+			if (OperationSignatures_st.hasNext()) {
+				// System.out.println(" | ");
+				outfile.write(" | ");
+				outfile.newLine();
+			} else {
+				// System.out.println(" ; ");
+				outfile.write(" ; ");
+				outfile.newLine();
+			}
 		}
 		// objects left ClassObject = ... <- to be taken from lifelines
 
@@ -437,11 +572,14 @@ public class Test1 {
 	}
 
 	public static void createClassObjectSort(
-			org.eclipse.uml2.uml.Package rootPackage) {
+			org.eclipse.uml2.uml.Package rootPackage) throws IOException {
 
 		TreeIterator<EObject> treeIt = rootPackage.eAllContents();
 		LinkedList<EObject> allElements = new LinkedList<EObject>();
-		System.out.println("sort ClassObject = struct");
+		// System.out.println("sort ClassObject = struct");
+		outfile.newLine();
+		outfile.write("sort ClassObject = struct");
+		outfile.newLine();
 		while (treeIt.hasNext()) {
 			EObject el = treeIt.next();
 			if (el.getClass().equals(LifelineImpl.class)) {
@@ -450,19 +588,40 @@ public class Test1 {
 		}
 
 		Iterator<EObject> lifelines_iterator = allElements.iterator();
+		LinkedList<String> knownObjects = new LinkedList<String>();
 		while (lifelines_iterator.hasNext()) {
-			System.out.print("\t\t\t"
-					+ ((LifelineImpl) lifelines_iterator.next())
-							.getRepresents().getName());
+			// System.out.print("\t\t\t"
+			// + ((LifelineImpl) lifelines_iterator.next())
+			// .getRepresents().getName());
+			String nameObject = ((LifelineImpl) lifelines_iterator.next())
+					.getRepresents().getName();
+			if(!knownObjects.contains(nameObject))
+					knownObjects.add(nameObject);
+		}
+		
+		Iterator it_knownObjects = knownObjects.iterator();
+		while(it_knownObjects.hasNext()){
+			outfile.write("\t\t\t"
+					+ it_knownObjects.next());
+
 			// just temp, to know how to extract the class a message belongs to
 			// System.out.print("\t\t\t"+((LifelineImpl)lifelines_iterator.next()).getRepresents().getType().getName());
-			if (lifelines_iterator.hasNext())
-				System.out.println(" |");
-			else
-				System.out.println(" ;");
+			if (it_knownObjects.hasNext()) {
+				// System.out.println(" |");
+				outfile.write(" |");
+				outfile.newLine();
 
+			} else {
+				// System.out.println(" ;");
+				outfile.write(" ;");
+				outfile.newLine();
+
+			}
 		}
-
+		
+		
+		outfile.newLine();
+		outfile.write("%-------end sorts---------");
 	}
 
 	public static LinkedList<CollaborationImpl> getAllCollaborations(
@@ -715,7 +874,7 @@ public class Test1 {
 										.addCallLoopFragment(responsibleProcess.operationImpl
 												.getName()
 												+ "_loop"
-												+ loopCounter + "(id:Nat)");
+												+ loopCounter + "(id)");
 								theReadyStack.push(theProcess); // push it back
 																// to ready
 																// again, since
@@ -750,7 +909,7 @@ public class Test1 {
 						String classAndobject = getClassAndObjectForMCB(((MessageOccurrenceSpecificationImpl) el)
 								.getMessage());
 
-						theProcess.addInvocation("method_call_begin("
+						theProcess.addInvocation("method_call_begin(id,"
 								+ classAndobject
 								+ ((MessageOccurrenceSpecificationImpl) el)
 										.getMessage().getName() + arguments
@@ -775,7 +934,11 @@ public class Test1 {
 						Process theProcess = (Process) theReadyStack.pop();
 
 						if (!theProcess.isProcessed) {
-							theProcess.addInvocation("method_var_end("
+							theProcess.addInvocation("method_var_end(id,"
+									+ ((InteractionFragmentImpl) el)
+											.getCovered(null).getRepresents()
+											.getType().getName()
+									+ ",obj,"
 									+ ((MessageOccurrenceSpecificationImpl) el)
 											.getMessage().getName() + "_return"
 									+ arguments + ")");
@@ -823,7 +986,11 @@ public class Test1 {
 							processes.add(findProcess);
 						}
 						if (!findProcess.isProcessed) {
-							findProcess.addInvocation("method_var_begin("
+							findProcess.addInvocation("method_var_begin(id,"
+									+ ((InteractionFragmentImpl) el)
+											.getCovered(null).getRepresents()
+											.getType().getName()
+									+ ",obj,"
 									+ ((MessageOccurrenceSpecificationImpl) el)
 											.getMessage().getName() + ")");
 						}
@@ -867,11 +1034,46 @@ public class Test1 {
 						String classAndobject = getClassAndObjectForMCE(((MessageOccurrenceSpecificationImpl) el)
 								.getMessage());
 
-						findProcess.addInvocation("method_call_end("
-								+ classAndobject
-								+ ((MessageOccurrenceSpecificationImpl) el)
-										.getMessage().getName() + "_return"
-								+ ")");
+						// for method_call_end we need the sum: ... parameters, which
+						// can be obtained only if we know the called process OpParametersReturn dictionary
+						Process calledProcess = 
+								findProcessViaClassANDOperationName(classAndobject.split(",")[0],
+										((MessageOccurrenceSpecificationImpl) el)
+										.getMessage().getName());
+						// preparing for prepending "sum param:Type,..." and appending arguments
+						StringBuffer sumParameters = new StringBuffer();
+						StringBuffer appendedParameters = new StringBuffer();
+						sumParameters.append("sum ");
+						
+						for (Map.Entry<String, String> entry : calledProcess
+								.getOpParametersReturn().entrySet()) {
+							String key = entry.getKey();
+							String value = entry.getValue();
+							sumParameters.append(key + ":" + value + ",");
+							appendedParameters.append(key + ",");
+						}
+						
+						if(calledProcess.getOpParametersReturn().size()!=0){
+							// prepending the "sum param:Type.."
+							// adding the parameter values in the call as well at the end
+							findProcess.addInvocation(sumParameters.substring(0, sumParameters.length()-1)
+									+".method_call_end(id,"
+									+ classAndobject
+									+ ((MessageOccurrenceSpecificationImpl) el)
+											.getMessage().getName() + "_return"
+									+"("+appendedParameters.substring(0,appendedParameters.length()-1)+")"
+									+")");
+							
+						} // no parameters to add
+						else{
+							findProcess.addInvocation("method_call_end(id,"
+									+ classAndobject
+									+ ((MessageOccurrenceSpecificationImpl) el)
+											.getMessage().getName() + "_return"
+									+")");
+							
+						}
+						
 						// System.out.println("!!!!Stack:" +
 						// theStack.toString());
 					} else if (occurence.getMessage().getMessageSort()
@@ -1059,8 +1261,30 @@ public class Test1 {
 		return proc;
 	}
 
-	public static void createActionDefinitions() {
+	public static void createActionDefinitions() throws IOException {
+		outfile.newLine();
 		System.out.println("\n\nact method_call_begin,method_var_begin:Nat;");
+		outfile.write("%-------action definitions-------");
+		outfile.newLine();
+		outfile.write("act method_call_begin,method_var_begin:Nat#ClassType#ClassObject#Method;");
+		outfile.newLine();
+		outfile.write("act method_call_end,method_var_end:Nat#ClassType#ClassObject#Method;");
+		outfile.newLine();
+		outfile.newLine();
+		outfile.write("act method_begin:Nat#ClassType#ClassObject#Method;");
+		outfile.newLine();
+		outfile.write("act method_end:Nat#ClassType#ClassObject#Method;");
+		outfile.newLine();
+		outfile.newLine();
+		outfile.write("act DISET_call_send,DISET_call_receive:Nat#ClassType#ClassObject#Method;");
+		outfile.newLine();
+		outfile.write("act DISET_call:Nat#ClassType#ClassObject#Method;");
+		outfile.newLine();
+		outfile.newLine();
+		outfile.write("act internal;");
+		outfile.newLine();
+		outfile.write("%-------end action definitions-------");
+		outfile.newLine();
 	}
 
 	public static String determinePrimitiveType(PrimitiveTypeImpl typearg) {
@@ -1136,14 +1360,18 @@ public class Test1 {
 		createClassObjectSort(rootPackage);
 		createActionDefinitions();
 		getAllCollaborations(rootPackage);
+		createSortStrings();
+		
 		ListIterator processes_iterator = processes.listIterator(0);
 		System.out.println("PROCESSES:");
 		while (processes_iterator.hasNext()) {
 			Process process = (Process) processes_iterator.next();
 			if (!process.getInvocations().isEmpty()) {// those with no
 														// invocations are
-														// surpus, the rest are
+														// surplus, the rest are
 														// initiators
+				StringBuffer processString = process.prepareForMCRL2();
+				outfile.append(processString.toString());
 				System.out.println("----process-----");
 				System.out.println(process);
 				if (process.getClassImpl() == null
@@ -1159,6 +1387,30 @@ public class Test1 {
 			}
 		}
 		System.out.println("SORTSTRING:" + SortString);
+		outfile.close();
+	}
 
+	public static void createSortStrings() throws IOException {
+		outfile.newLine();
+		if(SortString.size()!=0){
+			outfile.write("sort SortString = struct ");
+			outfile.newLine();
+			Iterator it_sortString = SortString.iterator();
+			while (it_sortString.hasNext()){
+				outfile.write("\t\t\t "+it_sortString.next()+"");
+				if (it_sortString.hasNext()) {
+					// System.out.println(" |");
+					outfile.write(" |");
+					outfile.newLine();
+
+				} else {
+					// System.out.println(" ;");
+					outfile.write(" ;");
+					outfile.newLine();
+
+				}
+			}
+		}
+	
 	}
 }
