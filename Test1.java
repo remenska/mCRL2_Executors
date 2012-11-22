@@ -49,6 +49,7 @@ class LoopProcess extends Process {
 	String processSignature;
 	String condition;
 	String callSignature;
+
 	// LinkedList<String> invocations = new LinkedList<String>();
 
 	public void addLoopSignature(String signature) {
@@ -59,14 +60,14 @@ class LoopProcess extends Process {
 		this.condition = condition;
 	}
 
-	public void setCallSignature(String callSignature){
+	public void setCallSignature(String callSignature) {
 		this.callSignature = callSignature;
 	}
-	
-	public String getCallSignature(){
+
+	public String getCallSignature() {
 		return this.callSignature;
 	}
-	
+
 	public String toString() {
 		return super.toString() + "\n" + "condition:" + this.condition + "\n"
 				+ "loop signature:" + this.processSignature + "\n";
@@ -81,6 +82,7 @@ class LoopProcess extends Process {
 		buffer.append("proc " + this.processSignature + "= \n");
 		// sum stuff missing!!
 		buffer.append("\t(" + this.condition + ") -> ( \n");
+		LinkedList<String> copyInvocations = (LinkedList<String>)invocations.clone();
 
 		Iterator it_invocations = invocations.iterator();
 		int counter = 0;
@@ -88,10 +90,11 @@ class LoopProcess extends Process {
 			counter++;
 			buffer.append("\t");
 			String step = (String) it_invocations.next();
-			if (step.contains("method_") || step.contains("DISET_")
+			copyInvocations.remove();
+			if (step.contains("method_") || step.contains("asynch_")
 					|| step.contains("loop") || step.endsWith("internal")) {
 				buffer.append(step);
-				if (counter == invocations.size())
+				if (counter == invocations.size() || copyInvocations.peek().trim().startsWith(")"))
 					buffer.append("\n");
 				else
 					buffer.append(".\n");
@@ -101,10 +104,8 @@ class LoopProcess extends Process {
 
 			}
 		}
-		
-		buffer.append("\t ."
-				+ this.getCallSignature() +
-				") \n");
+
+		buffer.append("\t ." + this.getCallSignature() + ") \n");
 		buffer.append("\t <> " + "\n \t\t internal");
 
 		buffer.append(";\n\n");
@@ -333,16 +334,20 @@ class Process {
 					+ this.operationImpl.getName() + "(id:Nat) = \n");
 			// sum stuff missing!!
 		}
+		//a copy of the list for peeking the next element
+		//if it's a ")" then don't use a dot
+		LinkedList<String> copyInvocations = (LinkedList<String>)invocations.clone();
 		Iterator it_invocations = invocations.iterator();
 		int counter = 0;
 		while (it_invocations.hasNext()) {
 			counter++;
 			buffer.append("\t");
 			String step = (String) it_invocations.next();
-			if (step.contains("method_") || step.contains("DISET_")
+			copyInvocations.remove();
+			if (step.contains("method_") || step.contains("asynch_")
 					|| step.contains("loop") || step.contains("internal")) {
 				buffer.append(step);
-				if (counter == invocations.size())
+				if (counter == invocations.size() || copyInvocations.peek().trim().startsWith(")"))
 					buffer.append("\n");
 				else
 					buffer.append(".\n");
@@ -435,8 +440,8 @@ public class Test1 {
 									.append(determinePrimitiveType((PrimitiveTypeImpl) parameterFromCollection
 											.getType()) + ",");
 						else
-							operationParametersReturn
-									.append("ClassObject"+",");
+							operationParametersReturn.append("ClassObject"
+									+ ",");
 					}
 
 					// input parameters
@@ -450,8 +455,7 @@ public class Test1 {
 											.getType()) + ",");
 						// operationSignature.append();
 						else
-							operationParametersIn
-									.append("ClassObject" + ",");
+							operationParametersIn.append("ClassObject" + ",");
 					}
 
 				}
@@ -883,17 +887,22 @@ public class Test1 {
 								// no method_call_begin and method_call_end
 
 								loopProcess = new LoopProcess();
-								loopProcess.setCallSignature(responsibleProcess.operationImpl
-										.getName()
-										+ "_loop"
-										+ loopCounter
-										+ "(id,obj"
-										+ paramsToPass.substring(0,
-												paramsToPass.length())
-										+ ")"); //call signature is the last thing inside the loop
-												// .loop_repeatAgain(...) <> internal
-								
-								loopProcess //this is the process signature
+								loopProcess
+										.setCallSignature(responsibleProcess.operationImpl
+												.getName()
+												+ "_loop"
+												+ loopCounter
+												+ "(id,obj"
+												+ paramsToPass.substring(0,
+														paramsToPass.length())
+												+ ")"); // call signature is the
+														// last thing inside the
+														// loop
+														// .loop_repeatAgain(...)
+														// <> internal
+
+								loopProcess
+										// this is the process signature
 										.addLoopSignature(responsibleProcess.operationImpl
 												.getName()
 												+ "_loop"
@@ -967,7 +976,7 @@ public class Test1 {
 						String classAndobject = getClassAndObjectForMCB(((MessageOccurrenceSpecificationImpl) el)
 								.getMessage());
 						Process theProcess = (Process) theReadyStack.peek();
-						theProcess.addInvocation("DISET_call_send("
+						theProcess.addInvocation("asynch_call_send(id,"
 								+ classAndobject
 								+ ((MessageOccurrenceSpecificationImpl) el)
 										.getMessage().getName() + arguments
@@ -1158,9 +1167,60 @@ public class Test1 {
 							processes.add(findProcess);
 						}
 						if (!findProcess.isProcessed) {
-							findProcess.addInvocation("DISET_call_receive("
-									+ ((MessageOccurrenceSpecificationImpl) el)
-											.getMessage().getName() + ")");
+
+							StringBuffer changedStep = new StringBuffer();
+							StringBuffer changedParams = new StringBuffer();
+							changedStep.append("sum ");
+							for (Map.Entry<String, String> entry : findProcess
+									.getOpParametersIn().entrySet()) {
+								String key = entry.getKey();
+								String value = entry.getValue();
+								changedStep.append(key + ":" + value + ",");
+								changedParams.append(key + ",");
+								findProcess.addSumParameter(key, value);
+							}
+
+							changedStep.append("obj:ClassObject.");
+							if (findProcess.getOpParametersIn().size() != 0) { // there
+								// are
+								// method
+								// arguments
+								findProcess
+										.addInvocation(changedStep
+												+ "asynch_call_receive(id,"
+												+ ((InteractionFragmentImpl) el)
+														.getCovered(null)
+														.getRepresents()
+														.getType().getName()
+												+ ",obj,"
+												+ ((MessageOccurrenceSpecificationImpl) el)
+														.getMessage().getName()
+												+ "("
+												+ changedParams
+														.substring(
+																0,
+																changedParams
+																		.length() - 1)
+												+ ")" + ")");
+							} else {
+//								findProcess
+//										.addInvocation("DISET_call_receive("
+//												+ ((MessageOccurrenceSpecificationImpl) el)
+//														.getMessage().getName()
+//												+ ")");
+								findProcess
+								.addInvocation(changedStep
+										+ "asynch_call_receive(id,"
+										+ ((InteractionFragmentImpl) el)
+												.getCovered(null)
+												.getRepresents()
+												.getType().getName()
+										+ ",obj,"
+										+ ((MessageOccurrenceSpecificationImpl) el)
+												.getMessage().getName()
+										+ ")");
+							}
+
 						}
 						theReadyStack = readyProcessesPerLifeline
 								.get(((InteractionFragmentImpl) el)
@@ -1341,9 +1401,9 @@ public class Test1 {
 		outfile.write("act method_end:Nat#ClassType#ClassObject#Method;");
 		outfile.newLine();
 		outfile.newLine();
-		outfile.write("act DISET_call_send,DISET_call_receive:Nat#ClassType#ClassObject#Method;");
+		outfile.write("act asynch_call_send,asynch_call_receive:Nat#ClassType#ClassObject#Method;");
 		outfile.newLine();
-		outfile.write("act DISET_call:Nat#ClassType#ClassObject#Method;");
+		outfile.write("act asynch_call:Nat#ClassType#ClassObject#Method;");
 		outfile.newLine();
 		outfile.newLine();
 		outfile.write("act internal;");
