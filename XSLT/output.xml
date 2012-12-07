@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+MODEL============
+
 packagedElement = uml:Collaboration, type = uml:Collaboration
 =================
   ownedBehavior = Interaction1, type = uml:Interaction
@@ -136,3 +138,59 @@ packagedElement = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
 packagedElement = uml:Package, type = uml:Package
 profileApplication = uml:ProfileApplication, type = uml:ProfileApplication
 packageImport = uml:PackageImport, type = uml:PackageImport
+END=======MODEL
+
+packagedElement MODE = uml:Collaboration, type = uml:Collaboration
+packagedElement MODE = uml:Class, type = uml:Class
+packagedElement MODE = uml:Class, type = uml:Class
+packagedElement MODE = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE = uml:ExecutionEvent, type = uml:ExecutionEvent
+packagedElement MODE = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE = uml:Class, type = uml:Class
+packagedElement MODE = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE = uml:Class, type = uml:Class
+packagedElement MODE = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE = uml:Package, type = uml:Package
+packagedElement MODE2 = uml:Collaboration, type = uml:Collaboration
+packagedElement MODE2 = uml:Class, type = uml:Class
+packagedElement MODE2 = uml:Class, type = uml:Class
+packagedElement MODE2 = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE2 = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE2 = uml:ExecutionEvent, type = uml:ExecutionEvent
+packagedElement MODE2 = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE2 = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE2 = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE2 = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE2 = uml:Class, type = uml:Class
+packagedElement MODE2 = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE2 = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE2 = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE2 = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE2 = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE2 = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE2 = uml:Class, type = uml:Class
+packagedElement MODE2 = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE2 = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE2 = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE2 = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE2 = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE2 = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE2 = uml:SendOperationEvent, type = uml:SendOperationEvent
+packagedElement MODE2 = uml:ReceiveOperationEvent, type = uml:ReceiveOperationEvent
+packagedElement MODE2 = uml:Package, type = uml:Package

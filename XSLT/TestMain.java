@@ -8,7 +8,7 @@ import java.net.URISyntaxException;
 public class TestMain {
     public static void main(String[] args) throws IOException, URISyntaxException, TransformerException {
         TransformerFactory factory = TransformerFactory.newInstance();
-        Source xslt = new StreamSource(new File("cdcatalog.xslt"));
+        Source xslt = new StreamSource(new File("ProcessAlgebra.xslt"));
         Transformer transformer = factory.newTransformer(xslt);
 
         Source text = new StreamSource(new File("test.xml"));
